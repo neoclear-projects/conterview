@@ -1,0 +1,21 @@
+.auth-page{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 100%;
+	height: 100%;
+}
+
+.auth-form{
+	width: 480px;
+}
+
+.clickable{
+	text-decoration: underline;
+	display: inline-block;
+}
+
+.clickable:hover{
+	cursor: pointer;
+}

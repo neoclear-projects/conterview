@@ -1,0 +1,16 @@
+.home-btn {
+  font-size: 21px;
+  text-align: center;
+  padding: 12px;
+
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.home-btn:hover {
+  color: white;
+  background-color: black;
+}

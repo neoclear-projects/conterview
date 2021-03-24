@@ -1,0 +1,84 @@
+.c-page-wrap{
+  display: flex;
+  flex-direction: row;
+}
+
+.c-page-body{
+  display: flex;
+  flex-direction: column;
+  height:100vh;
+  width:calc(100vw - 200px);
+  overflow: auto;
+}
+
+.c-page-header{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 7px 20px 7px 20px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.c-page-content{
+  flex-grow: 2;
+  background-color: #F0F6F7;
+}
+
+.c-loading-spin{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.c-menu-item {
+  width: 100%;
+  /* text-align: center; */
+  font-size: 14px;
+  font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
+  color: #ccc;
+  padding: 10px 20px;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+}
+
+.c-menu-logo {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 10px 20px 12px 0px;
+}
+
+.c-page-menu {
+  width: 200px;
+  background-color: #001B4D;
+  height: 100vh;
+  flex-shrink: 0;
+}
+
+.c-menu-item:hover {
+  color: white;
+}
+
+.c-menu-item:active {
+  background-color: #2596be;
+  transition: all 0.1s ease-out;
+}
+
+.c-menu-item-selected {
+  width: 100%;
+  /* text-align: center; */
+  font-size: 14px;
+  font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
+  color: #ccc;
+  padding: 10px 20px;
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+  background-color: #2596be;
+}

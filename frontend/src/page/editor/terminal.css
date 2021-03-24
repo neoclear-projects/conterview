@@ -1,0 +1,10 @@
+#terminal {
+  padding: 20px 20px;
+  font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
+  white-space: pre-line;
+  overflow-x: auto;
+  overflow-y: auto;
+}
