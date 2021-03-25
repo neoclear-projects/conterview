@@ -14,6 +14,7 @@ const InterviewSchema = new Schema({
   organizationId: ObjectId,
   time: Date,
   status: String,
+  length: Number,
 });
 
 const Interview = mongoose.model('Interview', InterviewSchema);

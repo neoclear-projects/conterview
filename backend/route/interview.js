@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const sendMail = require('../util/mail');
 const toObjectId = require('../util/object-id');
+const Problem = require('../model/problem-set.model');
 
 router.post('/', (req, res) => {
   const { candidate, interviewerIds, problemIds, time } = req.body;
@@ -42,6 +43,17 @@ router.get('/:interviewId', (req, res) => {
     interview.position = { name: req.position.name, _id: req.position._id};
     delete interview.positionId;
     return res.json(interview);
+  });
+});
+
+router.get('/:interviewId/problem/:problem_number', (req, res) => {
+  Interview.findOne({_id:req.params.interviewId}, {problemIds: 1}).exec((err, interview) => {
+    if (err) return res.status(500).send(err);
+    Problem.findOne({_id:interview.problemIds[problem_number]}).exec((err, problem) => {
+      if (err) return res.status(500).send(err);
+      if (!problem) return res.status(404).send('Problem not found');
+      return res.json(problem);
+    });
   });
 });
 
