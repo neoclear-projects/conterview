@@ -1,5 +1,6 @@
 import React from 'react';
 import './terminal.css';
+import './problem.css';
 
 export class Terminal extends React.Component {
   constructor(props) {
@@ -9,17 +10,21 @@ export class Terminal extends React.Component {
 
   render() {
     return (
-      <div
-        id='terminal'
-        style={{
-          height: 'calc(100vh - 120px)',
-          fontSize: this.props.fontSize - 4,
-          backgroundColor: this.props.colorMode ? '#222' : 'white',
-          color: this.props.colorMode ? '#ddd' : 'black',
-          fontWeight: this.props.bold ? 'bold' : 'normal'
-        }}
-      >
-        {this.props.text}
+      <div>
+        <div className='tab-header'>
+          Program Output
+        </div>
+        <div
+          id='terminal'
+          style={{
+            fontSize: this.props.fontSize - 4,
+            backgroundColor: this.props.colorMode ? '#222' : 'white',
+            color: this.props.colorMode ? '#ddd' : 'black',
+            fontWeight: this.props.bold ? 'bold' : 'normal'
+          }}
+        >
+          {this.props.text}
+        </div>
       </div>
     );
   }

@@ -1,0 +1,12 @@
+#problem {
+  padding: 20px;
+}
+
+.tab-header {
+  margin: auto;
+  text-align: center;
+  font-size: 18px;
+  user-select: none;
+  background-color: #eee;
+  font-weight: bold;
+}

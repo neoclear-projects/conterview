@@ -28,7 +28,7 @@ class Routes extends React.Component {
         <Route exact path='/register-organization' component={RegisterOrganization} />
         <Route exact path='/editor' component={Editor} />
         <Route exact path='/note' component={Note} />
-        <Route exact path='/running-interview/:interviewId' component={RunningInterview} />
+        <Route exact path='/running-interview/:interviewId' component={Editor} />
         <PrivateRoute exact path='/' component={Home} />
         <PrivateRoute exact path='/position' component={Position} />
         <PrivateRoute exact path='/position/:positionId' component={PositionItem} />
