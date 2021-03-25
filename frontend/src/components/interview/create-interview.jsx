@@ -14,6 +14,7 @@ class CreateInterview extends React.Component {
       createIntCandidateName:'',
       createIntCandidateEmail:'',
       createIntTime:new Date(),
+      createIntLength:0,
       createIntInterviewerIds:[],
       createIntProblemIds:[],
       interviewerOptions:[],
@@ -31,9 +32,12 @@ class CreateInterview extends React.Component {
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   handleSubmit = () => {
-    const { createIntCandidateName, createIntCandidateEmail, createIntTime, createIntInterviewerIds, createIntProblemIds } = this.state;
+    const { createIntCandidateName, createIntCandidateEmail, createIntTime, createIntInterviewerIds, createIntProblemIds, createIntLength } = this.state;
     let positionId = this.props.positionId === undefined ? this.state.createIntPosition : this.props.positionId;
-    createInterview(positionId, createIntCandidateName, createIntCandidateEmail, createIntTime, createIntInterviewerIds, createIntProblemIds, req => {}, err => {
+    createInterview(positionId, createIntCandidateName, createIntCandidateEmail, createIntTime, createIntLength, createIntInterviewerIds, createIntProblemIds, 
+      req => {
+        this.props.onCreate();              
+      }, err => {
       
     });
   };
@@ -112,6 +116,7 @@ class CreateInterview extends React.Component {
             <Form.Input
               label='Candidate Email'
               name='createIntCandidateEmail'
+              type='email'
               onChange={this.handleInputChange}
               placeholder='Enter candidate email'
               required
@@ -122,6 +127,14 @@ class CreateInterview extends React.Component {
               onChange={this.handleInputChange}
               placeholder='Enter scheduled time'
               type='datetime-local'
+              required
+            />
+            <Form.Input
+              label='Length (minutes)'
+              name='createIntLength'
+              type='number'
+              onChange={this.handleInputChange}
+              placeholder='Enter interview length'
               required
             />
             <Form.Dropdown

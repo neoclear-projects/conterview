@@ -30,10 +30,10 @@ class Interview extends React.Component {
   render() {
     let tableBody = this.state.interviews.map((interview) => {
       return (
-        <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.positionId+'/interview/'+interview._id)}}>
-          <Table.Cell>{interview.positionName}</Table.Cell>
+        <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id)}}>
+          <Table.Cell>{interview.position.name}</Table.Cell>
           <Table.Cell>{interview.candidate.name}</Table.Cell>
-          <Table.Cell>{interview.time}</Table.Cell>
+          <Table.Cell>{interview.scheduledTime}</Table.Cell>
           <Table.Cell>{interview.status}</Table.Cell>
         </Table.Row>
       );
@@ -79,6 +79,10 @@ class Interview extends React.Component {
         <CreateInterview
           open={this.state.createIntModal}
           onClose={() => this.setCreateIntModal(false)}
+          onCreate={() => {
+            this.setCreateIntModal(false);
+            this.fetchInterviews();
+          }}
         >
         </CreateInterview>
       </PageWrap>

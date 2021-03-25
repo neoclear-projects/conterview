@@ -8,13 +8,28 @@ const InterviewSchema = new Schema({
     name: String,
     email: String,
   },
-  interviewerIds: [ObjectId],
-  problemIds: [ObjectId],
-  positionId: ObjectId,
+  interviewers: [
+    {
+      _id: ObjectId,
+      username: String
+    }
+  ],
+  problems: [
+    {
+      _id: ObjectId,
+      problemName: String
+    }
+  ],
+  position: {
+    _id: ObjectId,
+    name: String
+  },
   organizationId: ObjectId,
-  time: Date,
+  scheduledTime: Date,
+  startTime: Date,
+  finishTime: Date,
   status: String,
-  length: Number,
+  scheduledLength: Number,
 });
 
 const Interview = mongoose.model('Interview', InterviewSchema);

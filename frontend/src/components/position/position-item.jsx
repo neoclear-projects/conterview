@@ -4,8 +4,8 @@ import PageWrap from '../header/page-wrap';
 import { Card, Descriptions, Divider, PageHeader, Breadcrumb } from 'antd';
 import './position.css';
 import CreateInterview from '../interview/create-interview';
-import { getInterviewsAllPosition } from '../../api/interview-api';
-import { getPosition } from '../../api/position-api';
+import { getInterviews } from '../../api/interview-api';
+import { getPosition, deletePosition } from '../../api/position-api';
 import { Link } from 'react-router-dom';
 
 class PositionItem extends React.Component {
@@ -22,7 +22,7 @@ class PositionItem extends React.Component {
   }
 
   fetchData = () => {
-    getInterviewsAllPosition('', res => {
+    getInterviews(this.props.match.params.positionId, '', res => {
       this.setState({interviews: res.data});
     });
     getPosition(this.props.match.params.positionId, '', res => {
@@ -37,7 +37,7 @@ class PositionItem extends React.Component {
       return (
         <Table.Row>
           <Table.Cell>{interview.candidate.name}</Table.Cell>
-          <Table.Cell>{interview.time}</Table.Cell>
+          <Table.Cell>{interview.scheduledTime}</Table.Cell>
           <Table.Cell>{interview.status}</Table.Cell>
         </Table.Row>
       );
@@ -64,6 +64,7 @@ class PositionItem extends React.Component {
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
+            <Button color='red' onClick={() => deletePosition(this.props.match.params.positionId, res => {this.props.history.push('/position')})}>Delete Position</Button>
           ]}
           breadcrumbRender = {() => routes}
         >
@@ -96,6 +97,10 @@ class PositionItem extends React.Component {
         <CreateInterview
           open={this.state.createIntModal}
           onClose={() => this.setCreateIntModal(false)}
+          onCreate={() => {
+            this.setCreateIntModal(false);
+            this.fetchData();
+          }}
           positionId={this.props.match.params.positionId}
         >
         </CreateInterview>

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Position = require('../model/position.model');
+const Interview = require('../model/interview.model');
 
 router.post('/', (req, res) => {
   const { name, description } = req.body;
@@ -44,7 +45,17 @@ router.patch('/:positionId', (req, res) => {
 });
 
 router.get('/:positionId', (req, res) => {
-  Position.findOne({_id:req.params.positionId}, req.fields).exec((err, position) => {
+  Position.findOne({_id:req.position._id}, req.fields).exec((err, position) => {
+    if (err) return res.status(500).send(err);
+    return res.json(position);
+  });
+});
+
+router.delete('/:positionId', (req, res) => {
+  Interview.remove({positionId:req.position._id}).exec((err) => {
+    if (err) return res.status(500).send(err);
+  });
+  Position.remove({_id:req.position._id}, {justOne: true}).exec((err, position) => {
     if (err) return res.status(500).send(err);
     return res.json(position);
   });

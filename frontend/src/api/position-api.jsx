@@ -17,3 +17,7 @@ export function getPosition(positionId, fields, onSuccess){
 	if(fields) params.fields = fields;
 	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId, { params }).then(onSuccess);
 }
+
+export function deletePosition(positionId, onSuccess){
+	req.delete('organization/'+getCookie('organization-id')+'/position/'+positionId).then(onSuccess);
+}

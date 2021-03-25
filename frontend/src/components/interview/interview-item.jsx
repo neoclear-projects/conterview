@@ -1,9 +1,9 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb } from 'antd';
+import { PageHeader, Breadcrumb, Descriptions, Divider } from 'antd';
 import { Link } from 'react-router-dom';
-import { getInterview } from '../../api/interview-api';
-import { Button } from 'semantic-ui-react';
+import { getInterview, deleteInterview } from '../../api/interview-api';
+import { Button, Header, Grid, List } from 'semantic-ui-react';
 
 class InterviewItem extends React.Component {
   constructor(props){
@@ -43,14 +43,40 @@ class InterviewItem extends React.Component {
 		return (
 			<PageWrap selected='interview'>
         <PageHeader
-          title="Interview"
+          title={this.state.interview.candidate.name}
+          subTitle={this.state.interview.position.name}
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
-            <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
+            <Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>,
+            <Button color='red' onClick={() => deleteInterview(this.props.match.params.positionId, this.props.match.params.interviewId, res => {this.props.history.push(`/position/${this.props.match.params.positionId}`)})}>Delete Interview</Button>
           ]}
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
+        <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
+          <Header>Candidate Information</Header>
+          <Descriptions>
+            <Descriptions.Item label="Name" labelStyle={{fontWeight:'600'}}>{this.state.interview.candidate.name}</Descriptions.Item>
+            <Descriptions.Item label="Email" labelStyle={{fontWeight:'600'}}>{this.state.interview.candidate.email}</Descriptions.Item>
+          </Descriptions>
+          <Divider/>
+          <Header>Basic Information</Header>
+          <Descriptions>
+            <Descriptions.Item label="Status" labelStyle={{fontWeight:'600'}}>{this.state.interview.status}</Descriptions.Item>
+            <Descriptions.Item label="Scheduled Time" labelStyle={{fontWeight:'600'}}>{this.state.interview.scheduledTime}</Descriptions.Item>
+            <Descriptions.Item label="Scheduled Length" labelStyle={{fontWeight:'600'}}>{`${this.state.interview.scheduledLength} minutes`}</Descriptions.Item>
+          </Descriptions>
+          <Divider/>
+          <Header>Interviewers</Header>
+          <List>
+            {this.state.interview.interviewers.map(interviewer => {return <List.Item>{interviewer.username}</List.Item>})}
+          </List>
+          <Divider/>
+          <Header>Problems</Header>
+          <List>
+            {this.state.interview.problems.map(problem => {return <List.Item>{problem.problemName}</List.Item>})}
+          </List>
+        </div>
       </PageWrap>
 		);
 	};

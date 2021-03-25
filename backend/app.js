@@ -39,7 +39,7 @@ app.use(session({
 app.use((req, res, next) => {
   console.log("HTTP request", req.method, req.url, req.body);
   // Allow CORS
-  // res.header("Access-Control-Allow-Methods",'GET, POST, DELETE, PATCH');
+  res.header("Access-Control-Allow-Methods",'GET, POST, DELETE, PATCH');
   res.header("Access-Control-Allow-Headers", "Content-Type");
   res.header("Access-Control-Allow-Credentials", true);
   res.header('Access-Control-Allow-Origin', require('config').get('frontend.url'));
