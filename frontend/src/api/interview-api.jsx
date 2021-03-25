@@ -27,3 +27,7 @@ export function getInterview(positionId, interviewId, fields, onSuccess){
 export function deleteInterview(positionId, interviewId, onSuccess){
 	req.delete('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId).then(onSuccess);
 }
+
+export function operateInterview(positionId, interviewId, operation, onSuccess, onError){
+	req.delete('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId+'/'+operation).then(onSuccess).catch(onError);
+}
