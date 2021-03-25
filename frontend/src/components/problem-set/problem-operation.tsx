@@ -1,10 +1,7 @@
-import React, { Component } from 'react';
-import { Button, Card, Divider, Dropdown, Form, Grid, Header, Label, List, Modal, Segment, Table, TextArea } from 'semantic-ui-react';
-import { Layout } from 'antd';
-import { groupEnd } from 'node:console';
-import axios from 'axios';
-import { Session } from 'node:inspector';
-import { singleProblem, Languages, PlaceHolderSingleProblem, LanguageOptions } from './single-problem';
+import React from 'react';
+import { Button, Dropdown, Form, Label, Modal, TextArea } from 'semantic-ui-react';
+import { LanguageOptions, Languages, PlaceHolderSingleProblem, singleProblem } from './single-problem';
+import  ProblemIOSet  from './problem-IO-set'
 
 
 class ProblemOperation extends React.Component {
@@ -20,9 +17,12 @@ class ProblemOperation extends React.Component {
         Python: this.props.BelongingProblem.StarterCodes['Python'],
         JavaScript: this.props.BelongingProblem.StarterCodes['JavaScript'],
         TypeScript: this.props.BelongingProblem.StarterCodes['TypeScript'],
+
+        TempInput: this.props.BelongingProblem.InputData,
+        TempOutput: this.props.BelongingProblem.OutputResult,
     };
 
-    // props = { BelongingProblem: PlaceHolderSingleProblem }
+    // props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
     constructor(props: { BelongingProblem: singleProblem }) {
         super(props);
     }
@@ -38,6 +38,14 @@ class ProblemOperation extends React.Component {
 
     CopyDown = this.props.BelongingProblem.StarterCodes;
 
+    UpdateIO(In: Array<string>, Out: Array<string>){
+        // In.splice(-1, 1);
+        // Out.splice(-1, 1);
+        this.setState({
+            TempInput:In,
+            TempOutput:Out
+        })
+    }
 
     setOpen(newOpen: boolean) {
         this.CopyDown = this.props.BelongingProblem.StarterCodes;
@@ -49,7 +57,10 @@ class ProblemOperation extends React.Component {
             Java: this.CopyDown['Java']===undefined?this.CopyDown[0]['Java']:this.CopyDown['Java'],
             Python: this.CopyDown['Python']===undefined?this.CopyDown[0]['Python']:this.CopyDown['Python'],
             JavaScript: this.CopyDown['JavaScript']===undefined?this.CopyDown[0]['JavaScript']:this.CopyDown['JavaScript'],
-            TypeScript: this.CopyDown['TypeScript']===undefined?this.CopyDown[0]['TypeScript']:this.CopyDown['TypeScript']
+            TypeScript: this.CopyDown['TypeScript']===undefined?this.CopyDown[0]['TypeScript']:this.CopyDown['TypeScript'],
+
+            TempInput: this.props.BelongingProblem.InputData,
+            TempOutput: this.props.BelongingProblem.OutputResult,
         });
     }
 
@@ -115,7 +126,12 @@ class ProblemOperation extends React.Component {
                                                 }
                             }
                         />
+                        <h3>
+                            Problem Data sets
+                        </h3>
+                        <ProblemIOSet BelongingProblem={this.props.BelongingProblem} PO={this}/>
                     </Form>
+                            
                 </Modal.Content>
                 <Modal.Actions>
 
@@ -137,7 +153,9 @@ class ProblemOperation extends React.Component {
                                     'Python': this.state.Python,
                                     'JavaScript': this.state.JavaScript,
                                     'TypeScript': this.state.TypeScript,
-                                }
+                                }, 
+                                this.state.TempInput,
+                                this.state.TempOutput
                             );
                             this.setOpen(false);
                         }}

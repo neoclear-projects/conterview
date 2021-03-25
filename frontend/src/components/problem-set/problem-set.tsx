@@ -1,16 +1,15 @@
+import _ from 'lodash';
 import React from 'react';
 import * as semanticUiReact from 'semantic-ui-react';
-import { Languages } from './single-problem';
-import singleProblem from './single-problem';
-import ProblemOperation from './problem-operation'
-
-import _ from 'lodash'
-
-import PageWrap from '../header/page-wrap';
-import PageHeader from '../header/page-header';
-import PageContent from '../header/page-content';
-
 import { getProblemSet, updateBatchProblemSet } from '../../api/problem-set-api';
+import PageContent from '../header/page-content';
+import PageHeader from '../header/page-header';
+import PageWrap from '../header/page-wrap';
+import ProblemOperation from './problem-operation';
+import singleProblem, { Languages } from './single-problem';
+
+
+
 
 
 // export function DispatchAndGenerateStringBunkWithREGEX(ProblemSet: Array<singleProblem>, Regex: string): Array<JSX.Element> {
@@ -28,21 +27,21 @@ import { getProblemSet, updateBatchProblemSet } from '../../api/problem-set-api'
 
 class ProblemSet extends React.Component {
   MakeNewProblemTemplate(): singleProblem {
-    return new singleProblem({ NewName: "New Problem Name", NewDescription: "Description", newCorrectRate: 100, newPreferredLanguage:Languages['Python'], newID: "N/A" }, this);
+    return new singleProblem({ NewName: "New Problem Name", NewDescription: "Description", newCorrectRate: 100, newPreferredLanguage:Languages['Python'], newID: "N/A" }, this, ["0",], ["1",]);
   }
 
   state = { queryString: '', loading: false, results: [], value: '', needAnUpdate: false, ReallyNeedFetching: true, NewProblemTemplate: this.MakeNewProblemTemplate() };
 
   userProblemSet: Array<singleProblem> = [];
-  userProblemSetPlaceholder = [
-    new singleProblem({ NewName: "Break Bedrock in Vanilla Survival", NewDescription: "In Minecraft Java Edition, break any bedrock in surivial mode", newCorrectRate: 82.3, newPreferredLanguage:Languages['Java'], newID: "0" }, this),
-    new singleProblem({ NewName: "Get Bedrock in Vanilla Survival", NewDescription: "In Minecraft Java Edition, get a bedrock item in surivial mode", newCorrectRate: 19.5, newPreferredLanguage:Languages['Java'], newID: "1" }, this),
-    new singleProblem({ NewName: "Get Bedrock in Survival", NewDescription: "In Minecraft Bedrock Edition, get a bedrock item in surivial mode", newCorrectRate: 40, newPreferredLanguage:Languages.CPP, newID: "2" }, this),
-    new singleProblem({ NewName: "Duplicate Dragon Egg", NewDescription: "In Minecraft Java Edition, get multiple Dragon Eggs in one world", newCorrectRate: 98.7, newPreferredLanguage:Languages['JavaScript'], newID: "3" }, this),
-    new singleProblem({ NewName: "Duplicate TNTs", NewDescription: "In Minecraft Java Edition, Generate a TNT entity without losing a TNT block", newCorrectRate: 95.3, newPreferredLanguage:Languages['Java'], newID: "4" }, this),
-    new singleProblem({ NewName: "Remotely Load chunks", NewDescription: "In Minecraft Java Edition, Load a chunk that's not in player's view range and not a spawn chunk.", newCorrectRate: 49.7, newPreferredLanguage:Languages['Java'], newID: "5" }, this),
-    new singleProblem({ NewName: "Interrupt Light Update", NewDescription: "In Minecraft Java Edition, Build a Nether Portal without its surrounding lightened.", newCorrectRate: 8.3, newPreferredLanguage:Languages['Java'], newID: "6" }, this)
-  ];
+  // userProblemSetPlaceholder = [
+  //   new singleProblem({ NewName: "Break Bedrock in Vanilla Survival", NewDescription: "In Minecraft Java Edition, break any bedrock in surivial mode", newCorrectRate: 82.3, newPreferredLanguage:Languages['Java'], newID: "0" }, this),
+  //   new singleProblem({ NewName: "Get Bedrock in Vanilla Survival", NewDescription: "In Minecraft Java Edition, get a bedrock item in surivial mode", newCorrectRate: 19.5, newPreferredLanguage:Languages['Java'], newID: "1" }, this),
+  //   new singleProblem({ NewName: "Get Bedrock in Survival", NewDescription: "In Minecraft Bedrock Edition, get a bedrock item in surivial mode", newCorrectRate: 40, newPreferredLanguage:Languages.CPP, newID: "2" }, this),
+  //   new singleProblem({ NewName: "Duplicate Dragon Egg", NewDescription: "In Minecraft Java Edition, get multiple Dragon Eggs in one world", newCorrectRate: 98.7, newPreferredLanguage:Languages['JavaScript'], newID: "3" }, this),
+  //   new singleProblem({ NewName: "Duplicate TNTs", NewDescription: "In Minecraft Java Edition, Generate a TNT entity without losing a TNT block", newCorrectRate: 95.3, newPreferredLanguage:Languages['Java'], newID: "4" }, this),
+  //   new singleProblem({ NewName: "Remotely Load chunks", NewDescription: "In Minecraft Java Edition, Load a chunk that's not in player's view range and not a spawn chunk.", newCorrectRate: 49.7, newPreferredLanguage:Languages['Java'], newID: "5" }, this),
+  //   new singleProblem({ NewName: "Interrupt Light Update", NewDescription: "In Minecraft Java Edition, Build a Nether Portal without its surrounding lightened.", newCorrectRate: 8.3, newPreferredLanguage:Languages['Java'], newID: "6" }, this)
+  // ];
 
 
   StartGetFromBackend() {
@@ -62,14 +61,14 @@ class ProblemSet extends React.Component {
   }
 
 
-  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, starterCodes: {} }>) {
+  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, problemInputSet:Array<string>, problemOutputSet:Array<string>, starterCodes: {} }>) {
     this.userProblemSet = [];
     if (JSON.length === 0) {
       // this.userProblemSet = this.userProblemSetPlaceholder;
     }
     else {
       JSON.forEach(prob => {
-        this.userProblemSet.push(new singleProblem({ NewName: prob.problemName, NewDescription: prob.description, newCorrectRate: prob.correctRate, newPreferredLanguage: Languages[`${prob.preferredLanguage}`], newID: prob._id }, this, prob.starterCodes))
+        this.userProblemSet.push(new singleProblem({ NewName: prob.problemName, NewDescription: prob.description, newCorrectRate: prob.correctRate, newPreferredLanguage: Languages[`${prob.preferredLanguage}`], newID: prob._id }, this, prob.problemInputSet, prob.problemOutputSet, prob.starterCodes))
       });
     }
   }

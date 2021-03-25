@@ -1,10 +1,10 @@
-import { Button, Table, Modal } from 'semantic-ui-react';
+import { Button, Table } from 'semantic-ui-react';
+import { postProblemSet } from '../../api/problem-set-api';
+import ProblemDeletion from './problem-deletion';
 import ProblemOperation from './problem-operation';
-import ProblemDeletion from './problem-deletion'
 import ProblemSet from './problem-set';
 
 
-import { getProblemSet, postProblemSet, updateProblemSet } from '../../api/problem-set-api';
 
 const TemplateStarterCodes: { [key: string]: string; } = {
   'C++':
@@ -74,8 +74,10 @@ export class singleProblem {
   public preferredLanguage: Languages = Languages.CPP;
 
   public StarterCodes: { [key: string]: string; } = TemplateStarterCodes;
-  public InputData = [];
-  public OutputResult = [];
+  public InputData:Array<string> = [];
+  public OutputResult:Array<string> = [];
+
+  public Rubric = [];
 
   states = {
     problemName: this.problemName,
@@ -87,10 +89,12 @@ export class singleProblem {
     OutputResult: this.OutputResult
   };
 
-  public updateModifiableData(NewName: string, NewDescription: string, newStarterCode: { [key: string]: string; }) {
+  public updateModifiableData(NewName: string, NewDescription: string, newStarterCode: { [key: string]: string; }, In:Array<string>, Out:Array<string>) {
     this.problemName = NewName;
     this.description = NewDescription;
     this.StarterCodes = newStarterCode;
+    this.InputData = In;
+    this.OutputResult = Out;
     if (this.ID === "N/A") {
       postProblemSet(this, (value) => {
         console.log(value);
@@ -115,8 +119,7 @@ export class singleProblem {
   getID() { return this.ID };
   public editButton = (<Button inverted color='green'>Edit</Button>);
 
-  // constructor(NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Array<Languages>, newID: string) {
-  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, newStarterCode = TemplateStarterCodes) {
+  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, In:Array<string>, Out:Array<string>, newStarterCode = TemplateStarterCodes ) {
     // super(props);
     this.problemName = (props.NewName);
     this.description = (props.NewDescription);
@@ -131,20 +134,24 @@ export class singleProblem {
     if (this.ID === "N/A") {
       this.editButton = <Button content="Make a new problem?" icon="plus" inverted color='blue' />;
     }
+    this.InputData = In;
+    this.OutputResult = Out;
   }
-  // public LanGenerate(): string {
-  //   let tempString = "";
-  //   this.preferredLanguage.forEach(element => {
-  //     tempString += (Languages[element].toString());
-  //     tempString += "/";
-  //   });
-  //   return tempString.slice(0, tempString.length - 1);
-  // }
 
   /**
    * toJSONString
    */
   public toJSONString(): string {
+    // console.log(JSON.stringify({
+    //   ID: this.ID,
+    //   problemName: this.problemName,
+    //   description: this.description,
+    //   correctRate: this.correctRate,
+    //   preferredLanguage: this.preferredLanguage,
+    //   StarterCodes: this.StarterCodes,
+    //   problemInputSet: this.InputData,
+    //   problemOutputSet: this.OutputResult,
+    // }))
     return JSON.stringify({
       ID: this.ID,
       problemName: this.problemName,
@@ -152,6 +159,8 @@ export class singleProblem {
       correctRate: this.correctRate,
       preferredLanguage: this.preferredLanguage,
       StarterCodes: this.StarterCodes,
+      problemInputSet: this.InputData,
+      problemOutputSet: this.OutputResult,
     })
   }
 
@@ -178,6 +187,6 @@ export class singleProblem {
   };
 }
 
-export const PlaceHolderSingleProblem = new singleProblem({ NewName: "Placeholder", NewDescription: "Placeholder", newCorrectRate: 100, newPreferredLanguage: Languages.CPP, newID: "-1" }, null);
+export const PlaceHolderSingleProblem = new singleProblem({ NewName: "Placeholder", NewDescription: "Placeholder", newCorrectRate: 100, newPreferredLanguage: Languages.CPP, newID: "-1" }, null, ["0",], ["1",]);
 
 export default singleProblem;

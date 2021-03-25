@@ -1,17 +1,20 @@
 import React from 'react';
 import { Button, Label, Modal } from 'semantic-ui-react';
 import { deleteProblemSet } from '../../api/problem-set-api';
-import { singleProblem } from './single-problem';
+import { singleProblem, PlaceHolderSingleProblem } from './single-problem';
 
 
-class ProblemDeletion extends React.Component {
+class ProblemRubric extends React.Component {
     state = {
-        open: false
+        open: false,
+        RubricContent: []
     };
+    RC:{ [key: string]: string; }={};
 
-    // props = { BelongingProblem: PlaceHolderSingleProblem }
+    props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
     constructor(props:{BelongingProblem:singleProblem}) {
         super(props);
+        this.setState({RubricContent:props.BelongingProblem.Rubric});
     }
 
     setOpen(newOpen: boolean) {
@@ -21,6 +24,7 @@ class ProblemDeletion extends React.Component {
     }
 
     render() {
+        var RubricLength = this.state.RubricContent.length + 1;
         return (
             <Modal
                 onClose={() => this.setOpen(false)}
@@ -30,9 +34,8 @@ class ProblemDeletion extends React.Component {
                 size='small'
             >
                 {/* <Modal.Header>{this.props.BelongingProblem.problemName}</Modal.Header> */}
-                <Label color='red' size='large' attached='top'>This cannot be UNDONE!</Label>
                 <Modal.Header>
-                    <div style={{ overflow:"hidden",wordWrap:"break-word"}}>Are you sure you want to delete problem with ID: {this.props.BelongingProblem.ID}</div>
+                    <div style={{ overflow:"hidden",wordWrap:"break-word"}}>Rubric of :{this.props.BelongingProblem.problemName}</div>
                 </Modal.Header>
                 <Modal.Actions>
                     <Button  content = "Cancel" color='red' icon='undo' onClick={() => this.setOpen(false)} />
@@ -61,4 +64,4 @@ class ProblemDeletion extends React.Component {
     }
 }
 
-export default ProblemDeletion;
+export default ProblemRubric;

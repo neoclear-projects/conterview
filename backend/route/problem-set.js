@@ -35,7 +35,8 @@ const Languages = [
 //   preferredLanguage:{ String },
 //   starterCodes:{ Array },
 //   problemInputSet:{ Array },
-//   problemOutputSet:{ Array }
+//   problemOutputSet:{ Array },
+//   problemRubric:{ Array }
 // });
 
 // Creation of a new problem
