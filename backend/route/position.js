@@ -31,7 +31,7 @@ router.get('/', (req, res) => {
 router.use('/:positionId', (req, res, next) => {
   Position.findOne({_id:req.params.positionId}, function(err, position){
     if (err) return res.status(500).send(err);
-    if (!position || !req.organization._id.equals(position.organizationId)) return res.status(404).send("position #" + position._id + " not found for organization #" + req.organization._id);
+    if (!position || !req.organization._id.equals(position.organizationId)) return res.status(404).send("position #" + req.params.positionId + " not found for organization #" + req.organization._id);
     req.position = position;
     next();
   });

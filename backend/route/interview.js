@@ -58,7 +58,7 @@ router.get('/', (req, res) => {
 router.use('/:interviewId', (req, res, next) => {
   Interview.findOne({_id:req.params.interviewId}, function(err, interview){
     if (err) return res.status(500).send(err);
-    if (!interview || !req.position._id.equals(interview.position._id)) return res.status(404).send("interview #" + interview._id + " not found for position #" + req.position._id);
+    if (!interview || !req.position._id.equals(interview.position._id)) return res.status(404).send("interview #" + req.params.interviewId + " not found for position #" + req.position._id);
     req.interview = interview;
     next();
   });

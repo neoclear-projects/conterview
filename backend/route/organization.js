@@ -18,7 +18,7 @@ router.post('/', (req, res) => {
 router.use('/:organizationId', (req, res, next) => {
   Organization.findOne({_id:req.params.organizationId}, function(err, organization){
     if (err) return res.status(500).send(err);
-    if (!organization) return res.status(404).send("organization #" + organization._id + " does not exist");
+    if (!organization) return res.status(404).send("organization #" + req.params.organizationId + " does not exist");
     req.organization = organization;
     next();
   });
