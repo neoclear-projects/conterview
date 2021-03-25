@@ -165,7 +165,6 @@ router.route('/delete').post((req, res) => {
   });
 });
 
-
 // Get problems
 router.route('/').get((req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
@@ -179,6 +178,14 @@ router.route('/').get((req, res) => {
       console.log(doc[0]);
       return res.json(doc);
     }
+  });
+});
+
+router.route('/:pid').get((req, res) => {
+  problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
+    if (err) return res.status(500).send(err);
+    if (doc == null) return res.status(404).send("User's problem set does not exist!");
+    else return res.json(doc);
   });
 });
 

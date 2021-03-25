@@ -5,8 +5,8 @@ import { CodeBlock } from "react-code-blocks";
 import './editor.css';
 import { Button, Divider, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
+import { Progress, Statistic } from 'antd';
 import Padding from '../../util/padding';
-import axios from 'axios';
 import './info.css';
 // import Canvas from './canvas';
 import '../../components/video/video.css';
@@ -17,6 +17,7 @@ import Peer from 'peerjs';
 
 import { Splitter } from '@progress/kendo-react-layout';
 import * as Monaco from 'monaco-editor';
+import req from '../../api/req';
 
 // Loading options
 import {
@@ -28,6 +29,9 @@ import {
 // Setup types needed
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
+import Problem from './problem';
+
+const { Countdown } = Statistic;
 
 const ENDPOINT = process.env.REACT_APP_SERVER;
 
@@ -42,7 +46,9 @@ let monaco = null;
 
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
-function Editor() {
+function Editor({
+  match
+}) {
   // const [monaco, setMonaco] = useState(null);
   const monacoRef = useRef(null);
   const editorRef = useRef(null);
@@ -60,6 +66,8 @@ function Editor() {
   const [compiling, setCompiling] = useState(false);
 
   const [videoVisible, setVideoVisible] = useState(false);
+  const [dashboardVisible, setDashboardVisible] = useState(false);
+  const [rubricVisible, setRubricVisible] = useState(false);
 
   const [output, setOutput] = useState('');
 
@@ -74,6 +82,13 @@ function Editor() {
     { size: '60%', min: '50%' },
     { min: '20%' }
   ]);
+
+  const [subPanes, setSubPanes] = useState([
+    { size: '50%', min: '30%' },
+    { min: '30%' }
+  ]);
+
+  const interviewId = match.params.interviewId;
 
   useEffect(() => {
     peer.on('open', id => {
@@ -138,7 +153,6 @@ function Editor() {
       Information
     </Button>
   );
-
   return (
     <div id='editor' style={{ backgroundColor: inverted ? '#222' : 'white' }}>
       <div id='toolbar'>
@@ -292,7 +306,7 @@ function Editor() {
             size='large'
             closeIcon
             open={videoVisible}
-            trigger={<Button color='instagram' onClick={() => setVideoVisible(true)}>Video</Button>}
+            trigger={<Button color='twitter' onClick={() => setVideoVisible(true)}>Video</Button>}
             onClose={() => setVideoVisible(false)}
             onOpen={() => setVideoVisible(true)}
           >
@@ -335,6 +349,67 @@ function Editor() {
           />
         </div>
         <div id='end'>
+          <Modal
+            size='small'
+            closeIcon
+            open={rubricVisible}
+            trigger={<Button >Rubric</Button>}
+            onClose={() => setRubricVisible(false)}
+            onOpen={() => setRubricVisible(true)}
+          >
+            <Modal.Header>2 Sums</Modal.Header>
+            <Modal.Content>
+            <List selection verticalAlign='middle'>
+              <List.Item>
+                <List.Content floated='right'>
+                  <Button color='red'>
+                    <Icon name='play' /> Start Interview
+                  </Button>
+                </List.Content>
+                <List.Content><Header content='' as='h3' /></List.Content>
+              </List.Item>
+              <List.Item>
+                <List.Content floated='right'>
+                  <Button icon={<Icon name='arrow left' />} color='olive' />
+                  <Button icon={<Icon name='arrow right' />} color='olive' />
+                </List.Content>
+                <List.Content><Header content='Question Control' as='h3' /></List.Content>
+              </List.Item>
+            </List>
+            </Modal.Content>
+          </Modal>
+          <Modal
+            size='small'
+            closeIcon
+            open={dashboardVisible}
+            trigger={<Button >DashBoard</Button>}
+            onClose={() => setDashboardVisible(false)}
+            onOpen={() => setDashboardVisible(true)}
+          >
+            <Modal.Header>Control Pannel</Modal.Header>
+            <Modal.Content>
+            <List selection verticalAlign='middle'>
+              <List.Item>
+                <List.Content floated='right'>
+                  <Button color='red'>
+                    <Icon name='play' /> Start Interview
+                  </Button>
+                </List.Content>
+                <List.Content><Header content='Interview Control' as='h3' /></List.Content>
+              </List.Item>
+              <List.Item>
+                <List.Content floated='right'>
+                  <Button icon={<Icon name='arrow left' />} color='olive' />
+                  <Button icon={<Icon name='arrow right' />} color='olive' />
+                </List.Content>
+                <List.Content><Header content='Question Control' as='h3' /></List.Content>
+              </List.Item>
+            </List>
+            </Modal.Content>
+          </Modal>
+          <Padding width={16} />
+          <Countdown value={Date.now() + 1000000} />
+          <Padding width={16} />
           <Button.Group inverted={inverted}>
             <Button toggle active={language === 'cpp'} inverted={inverted} onClick={() => setLanguage('cpp')}>C++</Button>
             <Button toggle active={language === 'java'} inverted={inverted} onClick={() => setLanguage('java')}>Java</Button>
@@ -345,15 +420,12 @@ function Editor() {
           <Padding width={16} />
           <Button onClick={() => {
               setCompiling(true);
-              axios.post(
-                'http://localhost:3001/api/exec/run', {
+              req.post(
+                '/exec/run',
+                JSON.stringify({
                   'language': language,
                   'code': code // monaco.editor.getValue()
-                }, {
-                  headers: {
-                    'Content-Type': 'application/json'
-                  }
-                }
+                })
               )
               .then((res) => {
                 setOutput(output + '[LOG]: \n' + res.data.output);
@@ -367,9 +439,10 @@ function Editor() {
           </Button>
         </div>
       </div>
+      {/* <Progress size='small' color='red' percent={60} label={new Date()} active /> */}
       <Splitter
         style={{
-          height: 'calc(100vh - 80px)',
+          height: 'calc(100vh - 60px)',
           backgroundColor: inverted ? '#222' : 'white'
         }}
         panes={panes}
@@ -377,17 +450,11 @@ function Editor() {
       >
         <div>
           <MonacoEditor
-            height='calc(100vh - 120px)'
+            height='calc(100vh - 100px)'
             width='100%'
             defaultLanguage='cpp'
             language={language}
             value={code}
-            // onChange={newCode => {
-            //   if (newCode != code) {
-            //     socket.emit('code', newCode);
-            //     setCode(newCode);
-            //   }
-            // }}
             onMount={(e, m) => {
               monacoRef.current = m;
               editorRef.current = e;
@@ -399,7 +466,6 @@ function Editor() {
                 });
                 import('monaco-themes/themes/Monokai.json').then(data => {
                   m.editor.defineTheme('monokai', data);
-                  // m.editor.setTheme('monokai');
                 });
           
                 e.onDidChangeModelContent(change => {
@@ -427,8 +493,6 @@ function Editor() {
                           text: change.text
                       }];
 
-                      // e.getSelections().
-
                       e.getModel().pushEditOperations(e.getSelections(), endCursorState, () => {
                         return null;
                       })
@@ -455,9 +519,20 @@ function Editor() {
             }}
           />
         </div>
-        <div>
-          <Terminal colorMode={inverted} text={output} fontSize={fontSize + 4} bold={bold} />
-        </div>
+        <Splitter
+          orientation='vertical'
+          style={{
+            height: 'calc(100vh - 90px)',
+            backgroundColor: inverted ? '#222' : 'white'
+          }}
+          panes={subPanes}
+          onChange={(event) => setSubPanes(event.newState)}
+        >
+          <Problem problemId='605bc2724bf2a2f067d844d0' />
+          <div>
+            <Terminal colorMode={inverted} text={output} fontSize={fontSize + 4} bold={bold} />
+          </div>
+        </Splitter>
       </Splitter>
     </div>
   );

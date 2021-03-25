@@ -15,7 +15,6 @@ router.post('/', (req, res) => {
     status:'pending'
   }).save((err, interview) => {
     if(err) return res.status(500).send(err);
-    /*
     sendMail(interview.candidate.email, 
       `Interview scheduled for ${req.position.name} position at ${req.organization.name} `, 
       `
@@ -24,7 +23,6 @@ router.post('/', (req, res) => {
         <p>${require('config').get('frontend.url')}/running-interview/${interview._id}</p>
       `
     );
-    */
     return res.json(interview);
   });
 });

@@ -63,16 +63,6 @@ app.use('/api/exec', exec);
 app.use('/api/organization', organization);
 app.use('/api/problemSet', problemSet);
 
-// const peerServer = PeerServer({
-//   port: 3002,
-//   path: '/',
-//   ssl: config
-// });
-
-// peerServer.listen(err => {
-//   console.log('listening peer server');
-// });
-
 const http = require('http');
 const PORT = 3001;
 
