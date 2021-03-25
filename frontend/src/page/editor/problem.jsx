@@ -12,8 +12,9 @@ function Problem({
   const [description, setDescription] = useState('');
   const [preferedLang, setPreferedLang] = useState('');
 
-  useEffect(() => {
-    req.get(`/problemSet/${problemId}`)
+  if (problemId != null) {
+    req
+      .get(`/problemSet/${problemId}`)
       .then(res => {
         const dat = res.data;
         setProblemName(dat.problemName);
@@ -21,7 +22,7 @@ function Problem({
         setPreferedLang(dat.preferedLanguage);
       })
       .catch(err => console.log(err));
-  }, []);
+  }
 
   return (
     <div>

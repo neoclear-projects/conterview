@@ -101,6 +101,11 @@ io.on('connection', (socket) => {
     });
   });
 
+  socket.on('refresh', () => {
+    socket.join('1');
+    socket.to('1').emit('refresh');
+  })
+
   socket.on('code', code => {
     console.log('Code updated: ' + code);
     socket.join('1');

@@ -125,4 +125,20 @@ router.get('/:interviewId/prev-problem', (req, res) => {
   });
 });
 
+router.get('/:interviewId/problem/:problemId', (req, res) => {
+  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
+    if (err) return res.status(500).send(err);
+    const idx = req.params.problemId;
+    if (idx < 0 || idx >= interview.problems.length) return res.status(404).send('no problem available');
+    interview.currentProblemIndex = idx;
+    interview.save((err, interview) => {
+      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
+        if (err) return res.status(500).send(err);
+        if (!problem) return res.status(404).send('Problem not found');
+        return res.json(problem);
+      });
+    });
+  });
+});
+
 module.exports = router;
