@@ -30,6 +30,7 @@ const InterviewSchema = new Schema({
   finishTime: Date,
   status: String,
   scheduledLength: Number,
+  currentProblemIndex: Number,
 });
 
 const Interview = mongoose.model('Interview', InterviewSchema);

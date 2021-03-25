@@ -78,13 +78,49 @@ router.delete('/:interviewId', (req, res) => {
   });
 });
 
-router.get('/:interviewId/problem/:problem_number', (req, res) => {
-  Interview.findOne({_id:req.interview._id}, {problemIds: 1}).exec((err, interview) => {
+router.get('/:interviewId/start', (req, res) => {
+  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: {startTime:new Date(), status:'running', currentProblemIndex:-1} }, { returnOriginal: false }, (err, interview) => {
     if (err) return res.status(500).send(err);
-    Problem.findOne({_id:interview.problemIds[problem_number]}).exec((err, problem) => {
+    return res.json(interview);
+  });
+});
+
+router.get('/:interviewId/end', (req, res) => {
+  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: {finishTime:new Date(), status:'finished'} }, { returnOriginal: false }, (err, interview) => {
+    if (err) return res.status(500).send(err);
+    Position.updateOne({_id:req.position._id}, { $inc: {finishedInterviewNum:1, pendingInterviewNum:-1} }, (err) => {
       if (err) return res.status(500).send(err);
-      if (!problem) return res.status(404).send('Problem not found');
-      return res.json(problem);
+      return res.json(interview);
+    });
+  });
+});
+
+router.get('/:interviewId/next-problem', (req, res) => {
+  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
+    if (err) return res.status(500).send(err);
+    if(interview.currentProblemIndex + 1 >= interview.problems.length) return res.status(404).send('no next problem available');
+    interview.currentProblemIndex = interview.currentProblemIndex + 1;
+    interview.save((err, interview) => {
+      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
+        if (err) return res.status(500).send(err);
+        if (!problem) return res.status(404).send('Problem not found');
+        return res.json(problem);
+      });
+    });
+  });
+});
+
+router.get('/:interviewId/prev-problem', (req, res) => {
+  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
+    if (err) return res.status(500).send(err);
+    if(interview.currentProblemIndex - 1 < 0) return res.status(404).send('no previous problem available');
+    interview.currentProblemIndex = interview.currentProblemIndex - 1;
+    interview.save((err, interview) => {
+      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
+        if (err) return res.status(500).send(err);
+        if (!problem) return res.status(404).send('Problem not found');
+        return res.json(problem);
+      });
     });
   });
 });
