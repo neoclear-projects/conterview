@@ -52,7 +52,7 @@ router.get('/:positionId', (req, res) => {
 });
 
 router.delete('/:positionId', (req, res) => {
-  Interview.remove({positionId:req.position._id}).exec((err) => {
+  Interview.remove({'position._id':req.position._id}).exec((err) => {
     if (err) return res.status(500).send(err);
   });
   Position.remove({_id:req.position._id}, {justOne: true}).exec((err, position) => {
