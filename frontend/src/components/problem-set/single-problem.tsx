@@ -97,7 +97,7 @@ export class singleProblem {
     this.OutputResult = Out;
     if (this.ID === "N/A") {
       postProblemSet(this, (value) => {
-        console.log(value);
+        // console.log(value);
         this.parentProblemSet.setState({ NewProblemTemplate: this.parentProblemSet.MakeNewProblemTemplate() });
         this.parentProblemSet.quickUpdateState("");
         return value;

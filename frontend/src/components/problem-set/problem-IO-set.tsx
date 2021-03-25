@@ -84,44 +84,39 @@ class ProblemIOSet extends React.Component {
         this.setState({NeedUpdate:true});
     }
 
-    render() {
-        this.state.NeedUpdate = false;
-        // var IOLength = this.state.InputContent.length;
-        var ArrayOfSingleIO: Array<JSX.Element> = [];
-        var i = 0;
-        this.StandaloneInputContent.forEach(singleInput => {
-            ArrayOfSingleIO.push(<ProblemSingleIO ProblemInput={this.StandaloneInputContent[i]} ProblemOutput={this.StandaloneOutputContent[i]} Index={i} Set={this} />)
-            i += 1
-        });
-        // for (i = 0; i < IOLength; i++) {
-        //     // console.log(`I being ${i}`);
-        // }
-        ArrayOfSingleIO.push((<ProblemSingleIO ProblemOutput={""} ProblemInput={""} Index={-1} Set={this} />))
-        return (
-            <Grid divided='vertically'>
-                <Grid.Row columns={1}>
-                    {ArrayOfSingleIO}
-                </Grid.Row>
-            </Grid>
-        )
-    }
+    // render2() {
+    //     this.state.NeedUpdate = false;
+    //     // var IOLength = this.state.InputContent.length;
+    //     var ArrayOfSingleIO: Array<JSX.Element> = [];
+    //     var i = 0;
+    //     this.StandaloneInputContent.forEach(singleInput => {
+    //         ArrayOfSingleIO.push(<ProblemSingleIO ProblemInput={this.StandaloneInputContent[i]} ProblemOutput={this.StandaloneOutputContent[i]} Index={i} Set={this} />)
+    //         i += 1
+    //     });
+    //     ArrayOfSingleIO.push((<ProblemSingleIO ProblemOutput={""} ProblemInput={""} Index={-1} Set={this} />))
+    //     return (
+    //         <Grid divided='vertically'>
+    //             <Grid.Row columns={1}>
+    //                 {ArrayOfSingleIO}
+    //             </Grid.Row>
+    //         </Grid>
+    //     )
+    // }
 
-    render2() {
+    render() {
         this.state.NeedUpdate = false;
         // var IOLength = this.state.InputContent.length;
         var ArrayOfSingleIO: Array<ProblemSingleIO> = [];
         var i = 0;
         this.StandaloneInputContent.forEach(singleInput => {
             ArrayOfSingleIO.push(new ProblemSingleIO({ NewInput: this.StandaloneInputContent[i], NewOutput: this.StandaloneOutputContent[i], Index: i, Set: this }))
-            i += 1
+            i += 1;
         });
-        // for (i = 0; i < IOLength; i++) {
-        //     // console.log(`I being ${i}`);
-        // }
         ArrayOfSingleIO.push(new ProblemSingleIO({ NewInput: "", NewOutput: "", Index: -1, Set: this }))
 
         var ArrayOfSingleIOElem: Array<JSX.Element> = [];
         ArrayOfSingleIO.forEach(singleInput => {
+            singleInput.tryUpdate();
             ArrayOfSingleIOElem.push(singleInput.render());
         });
         return (
