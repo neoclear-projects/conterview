@@ -40,10 +40,10 @@ const Languages = [
 
 // Creation of a new problem
 router.route('/').post((req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   // ID will be created at backend
-  const { problemName, description, StarterCodes, problemInputSet, problemOutputSet } = req.body;
+  const { problemName, description, StarterCodes, problemInputSet, problemOutputSet, problemRubric } = req.body;
   problemSet.find({ belongingUserId: req.session.user._id }).count((err, docC) => {
     if (err) return res.status(500).send(err);
     console.log(docC)
@@ -62,6 +62,7 @@ router.route('/').post((req, res) => {
         starterCodes: StarterCodes,
         problemInputSet: problemInputSet,
         problemOutputSet: problemOutputSet,
+        problemRubric: problemRubric
       }).save((err, doc) => {
         if (err) return res.status(500).send(err);
         return res.json(doc);
@@ -72,9 +73,9 @@ router.route('/').post((req, res) => {
 
 // Update of an existing problem
 router.route('/update').post((req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
-  const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet } = req.body;
+  const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet, problemRubric } = req.body;
   problemSet.findOne({ _id: ID, belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
@@ -90,6 +91,7 @@ router.route('/update').post((req, res) => {
         preferredLanguage: preferredLanguage == undefined ? doc.preferredLanguage : preferredLanguage,
         problemInputSet: problemInputSet == undefined ? doc.problemInputSet : problemInputSet,
         problemOutputSet: problemOutputSet == undefined ? doc.problemOutputSet : problemOutputSet,
+        problemRubric: problemRubric == undefined ? doc.problemRubric : problemRubric,
       }, function (err, docU) {
         if (err) return res.status(500).send(err);
         return res.status(200).send("Success");
@@ -118,6 +120,7 @@ function BatchRecursive(subset, req, res) {
           preferredLanguage: singleProblem.preferredLanguage == undefined ? doc.preferredLanguage : singleProblem.preferredLanguage,
           problemInputSet: singleProblem.problemInputSet == undefined ? doc.problemInputSet : singleProblem.problemInputSet,
           problemOutputSet: singleProblem.problemOutputSet == undefined ? doc.problemOutputSet : singleProblem.problemOutputSet,
+          problemRubric: singleProblem.problemRubric == undefined ? doc.problemRubric : singleProblem.problemRubric,
         }, function (errr, docU) {
           if (errr) { console.log(`${errr}`); return res.status(500).send(errr); }
           return BatchRecursive(subset.slice(1), req, res);
@@ -132,7 +135,7 @@ function BatchRecursive(subset, req, res) {
 
 // Update of multiple existing problem
 router.route('/updateBatch').post((req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { toBeUpdated } = req.body;
   var toBeUpdatedList;
@@ -149,7 +152,7 @@ router.route('/updateBatch').post((req, res) => {
 
 // Delete of an existing problem
 router.route('/delete').post((req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
   const { ID } = req.body;
   problemSet.findOne({ _id: ID, belongingUserId: req.session.user._id, belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
@@ -168,7 +171,7 @@ router.route('/delete').post((req, res) => {
 
 // Get problems
 router.route('/').get((req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) return res.status(500).send(err);
@@ -176,7 +179,21 @@ router.route('/').get((req, res) => {
       return res.status(404).send("User's problem set does not exist!")
     }
     else {
-      console.log(doc[0]);
+      return res.json(doc);
+    }
+  });
+});
+
+// Get problems with specific ID
+router.route('/:problemID').get((req, res) => {
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+
+  problemSet.findOne({ _id: req.params.problemID }, function (err, doc) {
+    if (err) return res.status(500).send(err);
+    if (!doc) {
+      return res.status(404).send("User's problem set does not exist!")
+    }
+    else {
       return res.json(doc);
     }
   });

@@ -38,6 +38,10 @@ const problemSetSchema = new Schema({
   problemOutputSet:{
     type: Array,
     required: 'Problem Output Set is required',
+  },
+  problemRubric:{
+    type: Array,
+    required: 'Problem Rubric is required',
   }
 });
 
