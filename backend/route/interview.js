@@ -18,8 +18,8 @@ router.post('/', async (req, res) => {
   let problems = [];
   await async.eachSeries(problemIds, async (problemId) => {
     await Problem.findOne({_id:problemId},{problemName:1}).exec().then(problem => {
-    console.log(problem);
-    problems.push(problem)});
+      problems.push(problem)
+    });
   });
 
   new Interview({
@@ -49,7 +49,9 @@ router.post('/', async (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  Interview.find({'position._id':req.position._id}, req.fields).lean().exec((err, interviews) => {
+  let page = req.query.page;
+  if(page === undefined) page = 1;
+  Interview.find({'position._id':req.position._id}, req.fields).skip((page-1)*10).limit(10).exec((err, interviews) => {
     if (err) return res.status(500).send(err);
     return res.json(interviews);
   });
@@ -66,6 +68,35 @@ router.use('/:interviewId', (req, res, next) => {
 
 router.get('/:interviewId', (req, res) => {
   Interview.findOne({_id:req.interview._id}, req.fields).exec((err, interview) => {
+    if (err) return res.status(500).send(err);
+    return res.json(interview);
+  });
+});
+
+router.patch('/:interviewId', async (req, res) => {
+  const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
+
+  let interviewers = [];
+  await async.eachSeries(interviewerIds, async (interviewerId) => {
+    await User.findOne({_id:interviewerId},{username:1}).exec().then(interviewer => interviewers.push(interviewer));
+  });
+
+  let problems = [];
+  await async.eachSeries(problemIds, async (problemId) => {
+    await Problem.findOne({_id:problemId},{problemName:1}).exec().then(problem => {
+    console.log(problem);
+    problems.push(problem)});
+  });
+
+  let interview = {
+    candidate,
+    interviewers,
+    problems,
+    scheduledTime:new Date(scheduledTime),
+    scheduledLength,
+  };
+  
+  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: interview }, { returnOriginal: false }, (err, interview) => {
     if (err) return res.status(500).send(err);
     return res.json(interview);
   });

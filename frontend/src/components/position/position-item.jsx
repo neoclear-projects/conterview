@@ -7,17 +7,17 @@ import CreateInterview from '../interview/create-interview';
 import { getInterviews } from '../../api/interview-api';
 import { getPosition, deletePosition } from '../../api/position-api';
 import { Link } from 'react-router-dom';
+import CreateEditPosition from './create-edit-position';
 
 class PositionItem extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       createIntModal:false, 
+      editPosModal:false,
       interviews:[],
       position:{},
     };
-    this.setCreateIntModal = this.setCreateIntModal.bind(this);
-    this.fetchData = this.fetchData.bind(this);
     this.fetchData();
   }
 
@@ -31,6 +31,8 @@ class PositionItem extends React.Component {
   };
 
   setCreateIntModal = (open) => this.setState({createIntModal: open});
+
+  setEditPosModal = (open) => this.setState({editPosModal: open});
 
   render() {   
     let interviews = this.state.interviews.map((interview) => {
@@ -64,6 +66,7 @@ class PositionItem extends React.Component {
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
+            <Button color='blue' onClick={() => this.setEditPosModal(true)}>Edit Position</Button>,
             <Button color='red' onClick={() => deletePosition(this.props.match.params.positionId, res => {this.props.history.push('/position')})}>Delete Position</Button>
           ]}
           breadcrumbRender = {() => routes}
@@ -94,6 +97,7 @@ class PositionItem extends React.Component {
               </Table.Body>
             </Table>
         </div>
+
         <CreateInterview
           open={this.state.createIntModal}
           onClose={() => this.setCreateIntModal(false)}
@@ -104,6 +108,17 @@ class PositionItem extends React.Component {
           positionId={this.props.match.params.positionId}
         >
         </CreateInterview>
+
+        <CreateEditPosition
+          open={this.state.editPosModal}
+          onClose={() => this.setEditPosModal(false)}
+          onSubmit={() => {
+            this.setEditPosModal(false);
+            this.fetchData();
+          }}
+          position={this.state.position}
+        >
+        </CreateEditPosition>
       </PageWrap>
     );
   }

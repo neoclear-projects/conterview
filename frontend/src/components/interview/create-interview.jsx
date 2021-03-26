@@ -3,7 +3,7 @@ import { Button, Input, Modal, Form, Table } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
 import PageContent from '../header/page-content';
 import { getUsers } from '../../api/user-api';
-import { createInterview } from '../../api/interview-api';
+import { createInterview, updateInterview } from '../../api/interview-api';
 import { getPositions } from '../../api/position-api';
 import { getProblemSet } from '../../api/problem-set-api';
 
@@ -11,12 +11,6 @@ class CreateInterview extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      createIntCandidateName:'',
-      createIntCandidateEmail:'',
-      createIntTime:new Date(),
-      createIntLength:0,
-      createIntInterviewerIds:[],
-      createIntProblemIds:[],
       interviewerOptions:[],
       problemOptions:[],
     };
@@ -24,22 +18,53 @@ class CreateInterview extends React.Component {
       this.state.positionId = '';
       this.state.positionOptions = [];
     }
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    if(props.interview && props.interview.candidateName){
+      this.setStateInterviewByProp();
+      this.lastInterview = props.interview;
+    }else{
+      this.state.candidateName = '';
+      this.state.candidateEmail = '';
+      this.state.scheduledTime = new Date();
+      this.state.scheduledLength = 0;
+      this.state.interviewerIds = [];
+      this.state.problemIds = [];
+    }
     this.fetchData();
+  }
+
+  setStateInterviewByProp(){
+    this.state.candidateName = this.props.interview.candidate.name;
+    this.state.candidateEmail = this.props.interview.candidate.email;
+    this.state.scheduledTime = new Date(this.props.interview.scheduledTime);
+    this.state.scheduledLength = this.props.interview.scheduledLength;
+    this.state.interviewerIds = this.props.interview.interviewers.map(interviewer => {return interviewer._id});
+    this.state.problemIds = this.props.interview.problems.map(problem => {return problem._id});
   }
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   handleSubmit = () => {
-    const { createIntCandidateName, createIntCandidateEmail, createIntTime, createIntInterviewerIds, createIntProblemIds, createIntLength } = this.state;
-    let positionId = this.props.positionId === undefined ? this.state.createIntPosition : this.props.positionId;
-    createInterview(positionId, createIntCandidateName, createIntCandidateEmail, createIntTime, createIntLength, createIntInterviewerIds, createIntProblemIds, 
-      req => {
-        this.props.onCreate();              
-      }, err => {
-      
-    });
+    const { candidateName, candidateEmail, scheduledTime, interviewerIds, problemIds, scheduledLength } = this.state;
+    if(this.props.interview){
+      updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, 
+        req => {
+          this.props.onSubmit();              
+        },
+        err => {
+          console.log(err.response);
+        }
+      );
+    }else{
+      let positionId = this.props.positionId === undefined ? this.state.positionId : this.props.positionId;
+      createInterview(positionId, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, 
+        req => {
+          this.props.onSubmit();              
+        }, 
+        err => {
+
+        }
+      );
+    }
   };
 
   fetchData = () => {
@@ -78,6 +103,11 @@ class CreateInterview extends React.Component {
   };
 
   render() {
+    if(JSON.stringify(this.lastInterview) !== JSON.stringify(this.props.interview)){
+      this.setStateInterviewByProp();
+      this.lastInterview = this.props.interview;
+    }
+    
     return (
       <Modal 
         closeIcon
@@ -91,14 +121,15 @@ class CreateInterview extends React.Component {
             onSubmit={this.handleSubmit} 
             id='create-int-form'>
             {
-              this.props.positionId !== undefined ?
+              this.props.positionId || this.props.interview ?
               undefined :
               <Form.Dropdown
                 label='Position'
                 fluid
                 search
                 selection
-                name='createIntPosition'
+                name='positionId'
+                value={this.state.positionId}
                 onChange={this.handleInputChange}
                 options={this.state.positionOptions}
                 placeholder='Select position'
@@ -108,32 +139,36 @@ class CreateInterview extends React.Component {
             }
             <Form.Input
               label='Candidate Name'
-              name='createIntCandidateName'
+              name='candidateName'
               onChange={this.handleInputChange}
+              value={this.state.candidateName}
               placeholder='Enter candidate name'
               required
             />
             <Form.Input
               label='Candidate Email'
-              name='createIntCandidateEmail'
+              name='candidateEmail'
               type='email'
               onChange={this.handleInputChange}
+              value={this.state.candidateEmail}
               placeholder='Enter candidate email'
               required
             />
             <Form.Input
               label='Scheduled Time'
-              name='createIntTime'
+              name='scheduledTime'
               onChange={this.handleInputChange}
+              value={this.state.scheduledTime}
               placeholder='Enter scheduled time'
               type='datetime-local'
               required
             />
             <Form.Input
               label='Length (minutes)'
-              name='createIntLength'
+              name='scheduledLength'
               type='number'
               onChange={this.handleInputChange}
+              value={this.state.scheduledLength}
               placeholder='Enter interview length'
               required
             />
@@ -143,7 +178,8 @@ class CreateInterview extends React.Component {
               multiple
               search
               selection
-              name='createIntInterviewerIds'
+              name='interviewerIds'
+              value={this.state.interviewerIds}
               onChange={this.handleInputChange}
               options={this.state.interviewerOptions}
               placeholder='Select interviewers'
@@ -156,7 +192,8 @@ class CreateInterview extends React.Component {
               multiple
               search
               selection
-              name='createIntProblemIds'
+              name='problemIds'
+              value={this.state.problemIds}
               onChange={this.handleInputChange}
               options={this.state.problemOptions}
               placeholder='Select interview problems'

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Table } from 'semantic-ui-react';
+import { Button, Input, Table, Pagination } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
 import CreateInterview from './create-interview';
@@ -13,19 +13,24 @@ class Interview extends React.Component {
     this.state = {
       createIntModal:false, 
       interviews:[],
+      totalPage:1,
+      page:1,
     };
-    this.setCreateIntModal = this.setCreateIntModal.bind(this);
-    this.fetchInterviews = this.fetchInterviews.bind(this);
-    this.fetchInterviews();
+    this.fetchData();
   }
   
-  fetchInterviews = () => {
-    getInterviewsAllPosition('', res => {
-      this.setState({interviews: res.data});
+  fetchData = () => {
+    getInterviewsAllPosition('', this.state.page, res => {
+      this.setState({totalPage: res.data.totalPage, interviews: res.data.interviews});
     });
   };
 
   setCreateIntModal = (open) => this.setState({createIntModal: open});
+
+  onPageChange = (e, pageInfo) => {
+    this.state.page = pageInfo.activePage;
+  	this.fetchData();
+  };
 
   render() {
     let tableBody = this.state.interviews.map((interview) => {
@@ -75,13 +80,14 @@ class Interview extends React.Component {
               {tableBody}
             </Table.Body>
           </Table>
+          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
         </div>
         <CreateInterview
           open={this.state.createIntModal}
           onClose={() => this.setCreateIntModal(false)}
-          onCreate={() => {
+          onSubmit={() => {
             this.setCreateIntModal(false);
-            this.fetchInterviews();
+            this.fetchData();
           }}
         >
         </CreateInterview>

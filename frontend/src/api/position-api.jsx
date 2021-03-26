@@ -2,13 +2,19 @@ import req from './req';
 import { getCookie } from '../util/get-cookie';
 
 export function createPosition(name, description, onSuccess, onError){
-	const data = JSON.stringify({ name, description });
+	const data = JSON.stringify({name, description});
 	req.post('organization/'+getCookie('organization-id')+'/position', data).then(onSuccess).catch(onError);
 }
 
-export function getPositions(fields, onSuccess){
+export function updatePosition(positionId, name, description, onSuccess, onError){
+	const data = JSON.stringify({name, description});
+	req.patch('organization/'+getCookie('organization-id')+'/position/'+positionId, data).then(onSuccess).catch(onError);
+}
+
+export function getPositions(fields, page, onSuccess){
 	let params = {};
 	if(fields) params.fields = fields;
+	params.page = page;
 	req.get('organization/'+getCookie('organization-id')+'/position', { params }).then(onSuccess);
 }
 
