@@ -3,13 +3,15 @@ import PageWrap from '../header/page-wrap';
 import { PageHeader, Breadcrumb, Descriptions, Divider } from 'antd';
 import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
-import { Button, Header, Grid, List } from 'semantic-ui-react';
+import { Button, Header, Grid, List, Pagination } from 'semantic-ui-react';
+import CreateInterview from './create-interview';
 
 class InterviewItem extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       loading:true,
+      editIntModal:false,
       interview:{},
     }
     getInterview(this.props.match.params.positionId, this.props.match.params.interviewId, '', res => {
@@ -17,6 +19,14 @@ class InterviewItem extends React.Component {
       this.setState({loading: false});
     });
   }
+
+  fetchData(){
+    getInterview(this.props.match.params.positionId, this.props.match.params.interviewId, '', res => {
+      this.setState({interview: res.data});
+    });
+  }
+
+  setEditIntModal = (open) => this.setState({editIntModal: open});
 
 	render() { 
     if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>)
@@ -48,6 +58,7 @@ class InterviewItem extends React.Component {
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>,
+            <Button color='blue' onClick={() => this.setEditIntModal(true)}>Edit Interview</Button>,
             <Button color='red' onClick={() => deleteInterview(this.props.match.params.positionId, this.props.match.params.interviewId, res => {this.props.history.push(`/position/${this.props.match.params.positionId}`)})}>Delete Interview</Button>
           ]}
           breadcrumbRender = {() => routes}
@@ -77,6 +88,17 @@ class InterviewItem extends React.Component {
             {this.state.interview.problems.map(problem => {return <List.Item>{problem.problemName}</List.Item>})}
           </List>
         </div>
+
+        <CreateInterview
+          open={this.state.editIntModal}
+          onClose={() => this.setEditIntModal(false)}
+          onSubmit={() => {
+            this.setEditIntModal(false);
+            this.fetchData();
+          }}
+          interview={this.state.interview}
+        >
+        </CreateInterview>
       </PageWrap>
 		);
 	};

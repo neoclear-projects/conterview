@@ -22,10 +22,24 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  Position.find({organizationId:req.organization._id}, req.fields).exec((err, positions) => {
-    if (err) return res.status(500).send(err);
-    return res.json(positions);
-  });
+  let page = req.query.page;
+  if(!page){
+    Position.find({organizationId:req.organization._id}, req.fields).exec((err, positions) => {
+      if (err) return res.status(500).send(err);
+      return res.json({positions});
+    });
+  }else{
+    Position.find({organizationId:req.organization._id}, req.fields).skip((page-1)*10).limit(10).exec((err, positions) => {
+      if (err) return res.status(500).send(err);
+      Position.countDocuments({organizationId:req.organization._id}, (err, count) => {
+        if (err) return res.status(500).send(err);
+        let response = {};
+        response.totalPage = Math.ceil(count/10);
+        response.positions = positions;
+        return res.json(response);
+      });
+    });
+  }
 });
 
 router.use('/:positionId', (req, res, next) => {
@@ -38,7 +52,7 @@ router.use('/:positionId', (req, res, next) => {
 });
 
 router.patch('/:positionId', (req, res) => {
-  Position.updateOne({_id:req.position._id}, { $set: req.body }, (err, position) => {
+  Position.findOneAndUpdate({_id:req.position._id}, { $set: req.body }, { returnOriginal: false }, (err, position) => {
     if (err) return res.status(500).send(err);
     return res.json(position);
   });

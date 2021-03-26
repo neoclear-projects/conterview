@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Table } from 'semantic-ui-react';
+import { Button, Table, Pagination } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
 import PageContent from '../header/page-content';
 import './position.css';
@@ -14,19 +14,24 @@ class Position extends React.Component {
     this.state = {
       createPosModal:false, 
       positions:[],
+      totalPage:1,
+      page:1,
     };
-    this.setCreatePosModal = this.setCreatePosModal.bind(this);
-    this.fetchPositions = this.fetchPositions.bind(this);
-    this.fetchPositions();
+    this.fetchData();
   }
 
-  fetchPositions = () => {
-    getPositions('', res => {
-      this.setState({positions: res.data});
+  fetchData = () => {
+    getPositions('', this.state.page, res => {
+      this.setState({positions: res.data.positions, totalPage: res.data.totalPage});
     });
   };
 
   setCreatePosModal = (open) => this.setState({createPosModal: open});
+
+  onPageChange = (e, pageInfo) => {
+    this.state.page = pageInfo.activePage;
+  	this.fetchData();
+  };
 
   render() {   
     let tableBody = this.state.positions.map((position) => {
@@ -74,13 +79,14 @@ class Position extends React.Component {
               {tableBody}
             </Table.Body>
           </Table>
+          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
         </div>
         <CreateEditPosition
           open={this.state.createPosModal}
           onClose={() => this.setCreatePosModal(false)}
-          onCreate={() => {
+          onSubmit={() => {
             this.setCreatePosModal(false);
-            this.fetchPositions();
+            this.fetchData();
           }}
         >
         </CreateEditPosition>
