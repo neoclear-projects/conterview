@@ -14,7 +14,7 @@ export function updatePosition(positionId, name, description, onSuccess, onError
 export function getPositions(fields, page, onSuccess){
 	let params = {};
 	if(fields) params.fields = fields;
-	params.page = page;
+	if(page !== 0) params.page = page;
 	req.get('organization/'+getCookie('organization-id')+'/position', { params }).then(onSuccess);
 }
 
