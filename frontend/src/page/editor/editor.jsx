@@ -3,7 +3,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
-import { Button, Divider, List, Radio, Select } from 'semantic-ui-react';
+import { Button, Divider, Image, Input, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
 import { Statistic } from 'antd';
 import Padding from '../../util/padding';
@@ -32,6 +32,7 @@ import Video from '../../components/video/video';
 import Problem from './problem';
 import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion } from '../../api/editor-api';
 import QuestionSelect from './question-select';
+import TextArea from 'antd/lib/input/TextArea';
 
 const { Countdown } = Statistic;
 
@@ -113,7 +114,7 @@ function Editor({
 
     peer.on('open', id => {
       console.log(id);
-      socket.emit('join', id);
+      socket.emit('join', id, interviewId);
       setId(id);
     });
 
@@ -379,23 +380,30 @@ function Editor({
             onClose={() => setRubricVisible(false)}
             onOpen={() => setRubricVisible(true)}
           >
-            <Modal.Header>2 Sums</Modal.Header>
+            <Modal.Header>Sliding Window</Modal.Header>
             <Modal.Content>
             <List selection verticalAlign='middle'>
               <List.Item>
                 <List.Content floated='right'>
+                  <Input labelPosition='right' label='/10' type='number' />
                 </List.Content>
-                <List.Content><Header content='' as='h3' /></List.Content>
-              </List.Item>
-              <List.Item>
-                <List.Content floated='right'>
-                  <Button icon={<Icon name='arrow left' />} color='olive' />
-                  <Button icon={<Icon name='arrow right' />} color='olive' />
-                </List.Content>
-                <List.Content><Header content='Question Control' as='h3' /></List.Content>
+                <List.Header as='h3'>Rubric One</List.Header>
+                <List.Description>ASDDASDASDAWSD</List.Description>
               </List.Item>
             </List>
+            <TextArea style={{
+              borderRadius: 8,
+              outline: 'none'
+            }} placeholder='Comments' />
             </Modal.Content>
+            <Modal.Actions>
+              <Button color='red'>
+                <Icon name='cancel' /> Cancel
+              </Button>
+              <Button color='green'>
+                <Icon name='checkmark' /> Update
+              </Button>
+            </Modal.Actions>
           </Modal>
           <Padding width={12} />
           <Modal

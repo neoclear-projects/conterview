@@ -88,38 +88,39 @@ const io = require("socket.io")(server, {
 io.on('connection', (socket) => {
   console.log('Socket IO Connection Established');
 
-  socket.on('join', (userId) => {
-    console.log('Someone Joined');
+  socket.on('join', (userId, interviewId) => {
+    console.log('Someone Joined: ' + interviewId);
     
-    socket.join('1');
-    socket.to('1').emit('user-conn', userId);
+    socket.join(interviewId);
+    socket.to(interviewId).emit('user-conn', userId);
 
     socket.on("disconnect", () => {
-      socket.join('1');
-      socket.to('1').emit('user-disconn', userId);
+      socket.join(interviewId);
+      socket.to(interviewId).emit('user-disconn', userId);
       console.log("Client disconnected");
     });
-  });
 
-  socket.on('refresh', () => {
-    socket.join('1');
-    socket.to('1').emit('refresh');
-  })
-
-  socket.on('code', code => {
-    console.log('Code updated: ' + code);
-    socket.join('1');
-    socket.to('1').emit('code', code);
-  })
-
-  socket.on('stream-open', (userId) => {
-    socket.join('1');
-    socket.to('1').emit('stream-open', userId);
-  });
-
-  socket.on('stream-close', (userId) => {
-    socket.join('1');
-    socket.to('1').emit('stream-close', userId);
-    console.log(userId);
+    socket.on('refresh', () => {
+      console.log('Refresh at: ' + interviewId);
+      socket.join(interviewId);
+      socket.to(interviewId).emit('refresh');
+    })
+  
+    socket.on('code', code => {
+      console.log('Code updated: ' + code);
+      socket.join(interviewId);
+      socket.to(interviewId).emit('code', code);
+    })
+  
+    socket.on('stream-open', (userId) => {
+      socket.join(interviewId);
+      socket.to(interviewId).emit('stream-open', userId);
+    });
+  
+    socket.on('stream-close', (userId) => {
+      socket.join(interviewId);
+      socket.to(interviewId).emit('stream-close', userId);
+      console.log(userId);
+    });
   });
 });
