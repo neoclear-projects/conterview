@@ -148,11 +148,6 @@ class ProblemSet extends React.Component {
           ]}
           breadcrumbRender={() => routes}
         >
-
-
-
-
-
         </PageHeader>
         <PageContent>
           <div style={{
@@ -163,8 +158,8 @@ class ProblemSet extends React.Component {
             alignContent: "stretch",
             padding: '30px 60px',
             backgroundColor: 'white',
-            borderBottomWidth: 100,
-            borderColor: 'black'
+            margin:'2%',
+            marginBottom:'10%'
           }}>
             <semanticUiReact.Divider horizontal section color='blue' >
               {/* <Label color='blue'> */}
@@ -180,11 +175,11 @@ class ProblemSet extends React.Component {
             <semanticUiReact.Table celled padded striped basic='very'>
               <semanticUiReact.Table.Body>
                 <semanticUiReact.Table.Row>
-                  <semanticUiReact.Table.HeaderCell singleLine>Problem</semanticUiReact.Table.HeaderCell>
+                  <semanticUiReact.Table.HeaderCell singleLine>Problem Name</semanticUiReact.Table.HeaderCell>
                   {/* <semanticUiReact.Table.HeaderCell>Languages</semanticUiReact.Table.HeaderCell> */}
                   {/* <semanticUiReact.Table.HeaderCell singleLine>Pass Rate</semanticUiReact.Table.HeaderCell> */}
                   <semanticUiReact.Table.HeaderCell>Description</semanticUiReact.Table.HeaderCell>
-                  <semanticUiReact.Table.HeaderCell>Operation</semanticUiReact.Table.HeaderCell>
+                  <semanticUiReact.Table.HeaderCell>OPEN</semanticUiReact.Table.HeaderCell>
                 </semanticUiReact.Table.Row>
                 {userProblemDisplay}
                 {/* {this.userProblemSet} */}
