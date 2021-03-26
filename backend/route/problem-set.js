@@ -47,7 +47,7 @@ router.route('/').post((req, res) => {
   const { problemName, description, StarterCodes, problemInputSet, problemOutputSet, problemRubric } = req.body;
   problemSet.find({ belongingUserId: req.session.user._id }).count((err, docC) => {
     if (err) return res.status(500).send(err);
-    console.log(docC)
+    // console.log(docC)
     if (docC > 999) return res.status(406).send("You have too many problems under this user! Please remove some.");
 
     problemSet.findOne({ problemName: problemName, belongingOrgId: req.organization._id }, (err, doc) => {
@@ -73,7 +73,7 @@ router.route('/').post((req, res) => {
 });
 
 // Update of an existing problem
-router.route('/update').post((req, res) => {
+router.route('/').put((req, res) => {
   // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet, problemRubric } = req.body;
@@ -103,9 +103,9 @@ router.route('/update').post((req, res) => {
 
 
 function BatchRecursive(subset, req, res) {
-  console.log(subset.length);
+  // console.log(subset.length);
   if (subset.length == 0) {
-    console.log("Successfully updated batch!");
+    // console.log("Successfully updated batch!");
     return res.status(200).send("Successfully updated batch!");
   }
   else {
@@ -135,7 +135,7 @@ function BatchRecursive(subset, req, res) {
 }
 
 // Update of multiple existing problem
-router.route('/updateBatch').post((req, res) => {
+router.route('/').patch((req, res) => {
   // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { toBeUpdated } = req.body;
@@ -152,16 +152,17 @@ router.route('/updateBatch').post((req, res) => {
 });
 
 // Delete of an existing problem
-router.route('/delete').post((req, res) => {
+router.route('/:problemID').delete((req, res) => {
   // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
-  const { ID } = req.body;
+  const ID = req.params.problemID;
+  // console.log(ID);
   problemSet.findOne({ _id: ID, belongingUserId: req.session.user._id, belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
       return res.status(202).send("This problem ID does not exist.")
     }
     else {
-      problemSet.deleteOne({ _id: ID }, (err, docR) => {
+      problemSet.deleteOne({ _id: doc._id }, (err, docR) => {
         if (err) return res.status(500).send(err);
         return res.status(200).send("Success!");
       });

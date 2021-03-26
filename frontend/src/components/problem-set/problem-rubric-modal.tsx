@@ -10,10 +10,10 @@ class ProblemRubric extends React.Component {
         open: false,
         NeedUpdate:false
     };
-    public RubricList: Array<[string, string, number]> = [];
+    public RubricList: Array<{name:string, desc:string, rating:number}> = [];
     PO: ProblemOperation;
 
-    props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
+    // props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
     constructor(props: { BelongingProblem: singleProblem, PO: ProblemOperation  }) {
         super(props);
         this.setState({ RubricContent: props.BelongingProblem.Rubric });
@@ -40,21 +40,15 @@ class ProblemRubric extends React.Component {
         this.setState({ NeedUpdate: true });
     }
 
-    public UpdateMe(content: [string, string, number], ind: number) {
+    public UpdateMe(content: {name:string, desc:string, rating:number}, ind: number) {
         var NewIndex = 0;
         if (ind != -1) {
             this.RubricList[ind] = content;
             NewIndex = ind;
         }
         else {
-            // var NewListIn = this.state.InputContent.push(content[0]);
-            // var NewListOut = this.state.OutputContent.push(content[1]);
             this.RubricList.push(content);
             NewIndex = this.RubricList.length - 1;
-            // this.setState({
-            //     InputContent: NewListIn,
-            //     OutputContent: NewListOut
-            // })
 
         }
         this.updator();
@@ -71,7 +65,7 @@ class ProblemRubric extends React.Component {
         var ArrayOfSingleRubric: Array<ProblemSingleRubric> = [];
         var i = 0;
         this.RubricList.forEach(singleInput => {
-            ArrayOfSingleRubric.push(new ProblemSingleRubric({ NewName: singleInput[0], NewDescription: singleInput[1], NewScoreRatio:singleInput[2], Index: i, Set: this }))
+            ArrayOfSingleRubric.push(new ProblemSingleRubric({ NewName: singleInput.name, NewDescription: singleInput.desc, NewScoreRatio:singleInput.rating, Index: i, Set: this }))
             i += 1;
         });
         ArrayOfSingleRubric.push(new ProblemSingleRubric({ NewName: "", NewDescription: "", NewScoreRatio:100, Index: -1, Set: this }))
@@ -88,7 +82,7 @@ class ProblemRubric extends React.Component {
                 onClose={() => this.setOpen(false)}
                 onOpen={() => this.setOpen(true)}
                 open={this.state.open}
-                trigger={<Button inverted color='twitter'>Open Rubric</Button>}
+                trigger={<Button color='twitter' content="Open Rubric" icon="clipboard list" labelPosition='right'/>}
                 size='small'
             >
                 {/* <Modal.Header>{this.props.BelongingProblem.problemName}</Modal.Header> */}

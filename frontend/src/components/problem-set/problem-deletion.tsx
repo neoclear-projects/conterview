@@ -1,6 +1,7 @@
 import React from 'react';
 import { Button, Label, Modal } from 'semantic-ui-react';
 import { deleteProblemSet } from '../../api/problem-set-api';
+import ProblemOperation from './problem-operation';
 import { singleProblem } from './single-problem';
 
 
@@ -10,7 +11,7 @@ class ProblemDeletion extends React.Component {
     };
 
     // props = { BelongingProblem: PlaceHolderSingleProblem }
-    constructor(props:{BelongingProblem:singleProblem}) {
+    constructor(props:{BelongingProblem:singleProblem, Source:ProblemOperation}) {
         super(props);
     }
 
@@ -26,7 +27,7 @@ class ProblemDeletion extends React.Component {
                 onClose={() => this.setOpen(false)}
                 onOpen={() => this.setOpen(true)}
                 open={this.state.open}
-                trigger={<Button inverted color='red'>Delete</Button>}
+                trigger={<Button color='red' icon='trash alternate outline' content='Delete This' labelPosition='right' disabled={this.props.BelongingProblem.ID == "N/A"}/>}
                 size='small'
             >
                 {/* <Modal.Header>{this.props.BelongingProblem.problemName}</Modal.Header> */}
@@ -35,13 +36,14 @@ class ProblemDeletion extends React.Component {
                     <div style={{ overflow:"hidden",wordWrap:"break-word"}}>Are you sure you want to delete problem with ID: {this.props.BelongingProblem.ID}</div>
                 </Modal.Header>
                 <Modal.Actions>
-                    <Button  content = "Cancel" color='red' icon='undo' onClick={() => this.setOpen(false)} />
+                    <Button  content = "Cancel" positive icon='undo' onClick={() => this.setOpen(false)} />
                     <Button
                         content="Yes and Delete"
                         labelPosition='right'
                         icon='trash alternate'
                         onClick={() => {
                             this.setState({ open: false });
+                            this.props.Source.setState({ open: false });
                             deleteProblemSet(this.props.BelongingProblem,
                                 (value) => {
                                     console.log(value);
@@ -53,7 +55,7 @@ class ProblemDeletion extends React.Component {
                                     return err;
                                 });
                         }}
-                        positive
+                        negative
                     />
                 </Modal.Actions>
             </Modal>

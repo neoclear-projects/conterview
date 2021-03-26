@@ -1,9 +1,10 @@
+import { PageHeader, Breadcrumb } from 'antd';
+import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import React from 'react';
 import * as semanticUiReact from 'semantic-ui-react';
 import { getProblemSet, updateBatchProblemSet } from '../../api/problem-set-api';
 import PageContent from '../header/page-content';
-import PageHeader from '../header/page-header';
 import PageWrap from '../header/page-wrap';
 import ProblemOperation from './problem-operation';
 import singleProblem, { Languages } from './single-problem';
@@ -61,7 +62,7 @@ class ProblemSet extends React.Component {
   }
 
 
-  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, problemInputSet: Array<string>, problemOutputSet: Array<string>, problemRubric: Array<[string, string, number]>, starterCodes: {} }>) {
+  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, problemInputSet: Array<string>, problemOutputSet: Array<string>, problemRubric: Array<{ name: string, desc: string, rating: number }>, starterCodes: {} }>) {
     this.userProblemSet = [];
     if (JSON.length === 0) {
       // this.userProblemSet = this.userProblemSetPlaceholder;
@@ -109,18 +110,24 @@ class ProblemSet extends React.Component {
 
     var userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
 
+    const routes = (
+      <Breadcrumb>
+        <Breadcrumb.Item>
+          <Link to='/'>Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to='/problem-set'>Problem Set</Link>
+        </Breadcrumb.Item>
+      </Breadcrumb>
+    );
 
     var HTML = (
       <PageWrap selected='problem-set'>
-        <PageHeader>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            alignContent: "stretch",
-          }}>
-            <h1>Problem Set</h1>
+        <PageHeader
+          title="Problem Set"
+          style={{ backgroundColor: 'white', marginTop: '5px' }}
+          extra={[
+            <semanticUiReact.Grid>
             <semanticUiReact.Search
               loading={this.state.loading}
               noResultsMessage={"Please type in any content you want to find..."}
@@ -134,11 +141,18 @@ class ProblemSet extends React.Component {
                   loading: false
                 });
               }}
-              // results={[this.state.queryString]}
               value={this.state.queryString}
             />
             <ProblemOperation BelongingProblem={this.state.NewProblemTemplate} />
-          </div>
+            </semanticUiReact.Grid>
+          ]}
+          breadcrumbRender={() => routes}
+        >
+
+
+
+
+
         </PageHeader>
         <PageContent>
           <div style={{
@@ -154,7 +168,7 @@ class ProblemSet extends React.Component {
           }}>
             <semanticUiReact.Divider horizontal section color='blue' >
               {/* <Label color='blue'> */}
-              <div style={{ fontSize: 24 }}>Your problem set</div>
+              {/* <div style={{ fontSize: 24 }}>Your problem set</div> */}
 
               {/* </Label> */}
             </semanticUiReact.Divider>
@@ -163,7 +177,7 @@ class ProblemSet extends React.Component {
             {/* <semanticUiReact.Button inverted color='blue' onClick={() => window.location.href = '/editProblem/New'}>
               Make a new problem?
             </semanticUiReact.Button> */}
-            <semanticUiReact.Table celled padded striped>
+            <semanticUiReact.Table celled padded striped basic='very'>
               <semanticUiReact.Table.Body>
                 <semanticUiReact.Table.Row>
                   <semanticUiReact.Table.HeaderCell singleLine>Problem</semanticUiReact.Table.HeaderCell>

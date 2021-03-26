@@ -39,10 +39,13 @@ const problemSetSchema = new Schema({
     type: Array,
     required: 'Problem Output Set is required',
   },
-  problemRubric:{
-    type: Array,
-    required: 'Problem Rubric is required',
-  }
+  problemRubric:[
+    {
+      name:String, 
+      desc:String,
+      rating:Number
+    }
+  ]
 });
 
 const ProblemSet = mongoose.model('ProblemSet', problemSetSchema);

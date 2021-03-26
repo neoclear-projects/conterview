@@ -3,6 +3,7 @@ import { Button, Divider, Dropdown, Form, Label, Modal, TextArea } from 'semanti
 import { LanguageOptions, Languages, PlaceHolderSingleProblem, singleProblem } from './single-problem';
 import ProblemIOSet from './problem-IO-set'
 import ProblemRubric from './problem-rubric-modal';
+import ProblemDeletion from './problem-deletion';
 
 
 class ProblemOperation extends React.Component {
@@ -48,7 +49,7 @@ class ProblemOperation extends React.Component {
         });
     }
 
-    UpdateRub(Rub: Array<[string, string, number]>) {
+    UpdateRub(Rub: Array<{ name: string, desc: string, rating: number }>) {
         this.setState({
             TempRub: Rub
         });
@@ -155,32 +156,42 @@ class ProblemOperation extends React.Component {
                 </Modal.Content>
                 <Modal.Actions>
 
-                    <ProblemRubric BelongingProblem={this.props.BelongingProblem} PO={this}/>
-                    <Button color='red' onClick={() => this.setOpen(false)}>
-                        Cancel and Do Not Save
-                    </Button>
-                    <Button
-                        content="Save and exit"
-                        labelPosition='right'
-                        icon='save'
-                        onClick={() => {
-                            this.props.BelongingProblem.updateModifiableData(
-                                this.state.TempName,
-                                this.state.TempDescription,
-                                {
-                                    'C++': this.state.CPP,
-                                    'Java': this.state.Java,
-                                    'Python': this.state.Python,
-                                    'JavaScript': this.state.JavaScript,
-                                    'TypeScript': this.state.TypeScript,
-                                },
-                                this.state.TempInput,
-                                this.state.TempOutput
-                            );
-                            this.setOpen(false);
-                        }}
-                        positive
-                    />
+                    <Button.Group>
+                        <ProblemRubric BelongingProblem={this.props.BelongingProblem} PO={this} />
+                        <Button.Or />
+                        <Button
+                            color='orange'
+                            content="Cancel Without Save"
+                            labelPosition='right'
+                            icon='x icon'
+                            onClick={() => this.setOpen(false)} />
+
+                        <Button.Or />
+                        <ProblemDeletion BelongingProblem={this.props.BelongingProblem} Source={this}/>
+                        <Button.Or />
+                        <Button
+                            content="Save"
+                            labelPosition='right'
+                            icon='save'
+                            onClick={() => {
+                                this.props.BelongingProblem.updateModifiableData(
+                                    this.state.TempName,
+                                    this.state.TempDescription,
+                                    {
+                                        'C++': this.state.CPP,
+                                        'Java': this.state.Java,
+                                        'Python': this.state.Python,
+                                        'JavaScript': this.state.JavaScript,
+                                        'TypeScript': this.state.TypeScript,
+                                    },
+                                    this.state.TempInput,
+                                    this.state.TempOutput
+                                );
+                                this.setOpen(false);
+                            }}
+                            positive
+                        />
+                    </Button.Group>
                 </Modal.Actions>
             </Modal>
         )

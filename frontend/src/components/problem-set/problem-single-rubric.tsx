@@ -52,9 +52,9 @@ class ProblemSingleRubric extends React.Component {
         var OUP = this.RubricDescription;
         var RTO = this.ScoreRatio;
         if (this.index != -1) {
-            INP = this.TheSet.RubricList[this.index][0];
-            OUP = this.TheSet.RubricList[this.index][1];
-            RTO = this.TheSet.RubricList[this.index][2];
+            INP = this.TheSet.RubricList[this.index].name;
+            OUP = this.TheSet.RubricList[this.index].desc;
+            RTO = this.TheSet.RubricList[this.index].rating;
         }
 
         return (
@@ -77,7 +77,7 @@ class ProblemSingleRubric extends React.Component {
                                     value={INP}
                                     onChange={(e) => {
                                         this.RubricName = e.target.value;
-                                        this.index = this.TheSet.UpdateMe([this.RubricName, this.RubricDescription, this.ScoreRatio], this.index);
+                                        this.index = this.TheSet.UpdateMe({ name: this.RubricName, desc: this.RubricDescription, rating: this.ScoreRatio }, this.index);
                                     }}
                                 />
                             </GridColumn>
@@ -90,7 +90,8 @@ class ProblemSingleRubric extends React.Component {
                                     value={OUP}
                                     onChange={(e) => {
                                         this.RubricDescription = e.target.value;
-                                        this.index = this.TheSet.UpdateMe([this.RubricName, this.RubricDescription, this.ScoreRatio], this.index);
+
+                                        this.index = this.TheSet.UpdateMe({ name: this.RubricName, desc: this.RubricDescription, rating: this.ScoreRatio }, this.index);
                                     }}
                                 />
                             </GridColumn>
@@ -104,7 +105,7 @@ class ProblemSingleRubric extends React.Component {
                                     onChange={(e) => {
                                         const newText = e.target.value.replace(/[^\d]+/, '');
                                         this.ScoreRatio = Number(newText);
-                                        this.index = this.TheSet.UpdateMe([this.RubricName, this.RubricDescription, this.ScoreRatio], this.index);
+                                        this.index = this.TheSet.UpdateMe({ name: this.RubricName, desc: this.RubricDescription, rating: this.ScoreRatio }, this.index);
                                     }}
                                 />
                             </GridColumn>

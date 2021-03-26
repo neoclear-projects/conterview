@@ -77,7 +77,7 @@ export class singleProblem {
   public InputData:Array<string> = [];
   public OutputResult:Array<string> = [];
 
-  public Rubric:Array<[string, string, number]> = [];
+  public Rubric:Array<{name:string, desc:string, rating:number}> = [];
 
   states = {
     problemName: this.problemName,
@@ -117,9 +117,9 @@ export class singleProblem {
 
   public ID: string = "0";
   getID() { return this.ID };
-  public editButton = (<Button inverted color='green'>Edit</Button>);
+  public editButton = (<Button basic content="OPEN" />);
 
-  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, In:Array<string>, Out:Array<string>, Rubric:Array<[string, string, number]>, newStarterCode = TemplateStarterCodes ) {
+  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, In:Array<string>, Out:Array<string>, Rubric:Array<{name:string, desc:string, rating:number}>, newStarterCode = TemplateStarterCodes ) {
     // super(props);
     this.problemName = (props.NewName);
     this.description = (props.NewDescription);
@@ -143,17 +143,17 @@ export class singleProblem {
    * toJSONString
    */
   public toJSONString(): string {
-    console.log(JSON.stringify({
-      ID: this.ID,
-      problemName: this.problemName,
-      description: this.description,
-      correctRate: this.correctRate,
-      preferredLanguage: this.preferredLanguage,
-      StarterCodes: this.StarterCodes,
-      problemInputSet: this.InputData,
-      problemOutputSet: this.OutputResult,
-      problemRubric: this.Rubric
-    }))
+    // console.log(JSON.stringify({
+    //   ID: this.ID,
+    //   problemName: this.problemName,
+    //   description: this.description,
+    //   correctRate: this.correctRate,
+    //   preferredLanguage: this.preferredLanguage,
+    //   StarterCodes: this.StarterCodes,
+    //   problemInputSet: this.InputData,
+    //   problemOutputSet: this.OutputResult,
+    //   problemRubric: this.Rubric
+    // }))
     return JSON.stringify({
       ID: this.ID,
       problemName: this.problemName,
@@ -178,7 +178,6 @@ export class singleProblem {
           {/* {this.editButton} */}
           <ProblemOperation BelongingProblem={this} />
           {/* <Button inverted color='red'>Delete</Button> */}
-          <ProblemDeletion BelongingProblem={this} />
         </Table.Cell>
 
       </Table.Row>
