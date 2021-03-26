@@ -45,6 +45,6 @@ const problemSetSchema = new Schema({
   }
 });
 
-const ProblemSet = mongoose.model('Problem Set', problemSetSchema);
+const ProblemSet = mongoose.model('ProblemSet', problemSetSchema);
 
 module.exports = ProblemSet;

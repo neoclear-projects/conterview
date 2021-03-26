@@ -1,0 +1,26 @@
+.question-select {
+  font-size: 24px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 6px;
+  user-select: none;
+  font-family: "Ubuntu","Helvetica","Arial",sans-serif;
+}
+
+.question-select:hover {
+  background-color: #eee;
+}
+
+.question-select:active {
+  background-color: #ddd;
+}
+
+.question-selected {
+  font-size: 24px;
+  text-align: center;
+  padding: 12px;
+  border-radius: 6px;
+  user-select: none;
+  background-color: #DCD4EF;
+  font-family: "Ubuntu","Helvetica","Arial",sans-serif;
+}

@@ -29,3 +29,7 @@
   margin: 0px 30px;
   margin-bottom: 10px;
 }
+
+.selected {
+  background-color: aqua;
+}

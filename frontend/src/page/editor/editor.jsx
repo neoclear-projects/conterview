@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import MonacoEditor, { loader } from '@monaco-editor/react';
+import MonacoEditor from '@monaco-editor/react';
 import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
 import { Button, Divider, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
-import { Progress, Statistic } from 'antd';
+import { Statistic } from 'antd';
 import Padding from '../../util/padding';
 import './info.css';
 // import Canvas from './canvas';
@@ -30,6 +30,8 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
+import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion } from '../../api/editor-api';
+import QuestionSelect from './question-select';
 
 const { Countdown } = Statistic;
 
@@ -40,9 +42,6 @@ const peer = new Peer();
 const socket = socketIOClient(ENDPOINT);
 
 let ignoreRemoteEvent = false;
-
-let monaco = null;
-
 
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
@@ -88,9 +87,30 @@ function Editor({
     { min: '30%' }
   ]);
 
+  const [interviewState, setInterviewState] = useState('pending');
+  const [endTime, setEndTime] = useState(Date.now());
+  const [questions, setQuestions] = useState([]);
+  const [curQuestionIdx, setCurQuestionIdx] = useState(-1);
+
+  const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
 
+  const refreshState = () => {
+    getInterviewState(positionId, interviewId, res => {
+      console.log(res);
+      if (res.status == 'running') {
+        setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
+        console.log(res);
+        setCurQuestionIdx(res.currentProblemIndex);
+      }
+      setInterviewState(res.status);
+      setQuestions(res.problems);
+    }, err => console.error(err));
+  };
+
   useEffect(() => {
+    refreshState();
+
     peer.on('open', id => {
       console.log(id);
       socket.emit('join', id);
@@ -138,6 +158,8 @@ function Editor({
         streamsRef.current.delete(userId);
         setStreams(new Map(streamsRef.current));
       });
+
+      socket.on('refresh', refreshState);
 
       setMyStream(stream);
     });
@@ -306,7 +328,7 @@ function Editor({
             size='large'
             closeIcon
             open={videoVisible}
-            trigger={<Button color='twitter' onClick={() => setVideoVisible(true)}>Video</Button>}
+            trigger={<Button color='instagram' onClick={() => setVideoVisible(true)}>Video</Button>}
             onClose={() => setVideoVisible(false)}
             onOpen={() => setVideoVisible(true)}
           >
@@ -353,7 +375,7 @@ function Editor({
             size='small'
             closeIcon
             open={rubricVisible}
-            trigger={<Button >Rubric</Button>}
+            trigger={<Button color='facebook'>Rubric</Button>}
             onClose={() => setRubricVisible(false)}
             onOpen={() => setRubricVisible(true)}
           >
@@ -362,9 +384,6 @@ function Editor({
             <List selection verticalAlign='middle'>
               <List.Item>
                 <List.Content floated='right'>
-                  <Button color='red'>
-                    <Icon name='play' /> Start Interview
-                  </Button>
                 </List.Content>
                 <List.Content><Header content='' as='h3' /></List.Content>
               </List.Item>
@@ -378,11 +397,12 @@ function Editor({
             </List>
             </Modal.Content>
           </Modal>
+          <Padding width={12} />
           <Modal
             size='small'
             closeIcon
             open={dashboardVisible}
-            trigger={<Button >DashBoard</Button>}
+            trigger={<Button color='olive' >DashBoard</Button>}
             onClose={() => setDashboardVisible(false)}
             onOpen={() => setDashboardVisible(true)}
           >
@@ -391,24 +411,73 @@ function Editor({
             <List selection verticalAlign='middle'>
               <List.Item>
                 <List.Content floated='right'>
-                  <Button color='red'>
-                    <Icon name='play' /> Start Interview
-                  </Button>
+                  {
+                    (function() {
+                      console.log(interviewState)
+                      if (interviewState == 'pending')
+                        return (
+                          <Button color='green' onClick={() => {
+                            interviewStart(positionId, interviewId, () => {
+                              // Start interview
+                              refreshState();
+                              socket.emit('refresh');
+                            }, err => console.error(err))
+                          }}>
+                            <Icon name='play' /> Start Interview
+                          </Button>
+                        );
+                      else if (interviewState == 'running')
+                        return (
+                          <Button color='red' onClick={() => {
+                            interviewStop(positionId, interviewId, () => {
+                              // Stop interview
+                              refreshState();
+                              socket.emit('refresh');
+                            }, err => console.error(err))
+                          }}>
+                            <Icon name='stop' /> End Interview
+                          </Button>
+                        );
+                      else if (interviewState == 'finished')
+                        return (
+                          <Button color='grey' disabled>
+                            Interview Finished
+                          </Button>
+                        );
+                      else
+                        return null;
+                    })()
+                  }
                 </List.Content>
                 <List.Content><Header content='Interview Control' as='h3' /></List.Content>
               </List.Item>
-              <List.Item>
-                <List.Content floated='right'>
-                  <Button icon={<Icon name='arrow left' />} color='olive' />
-                  <Button icon={<Icon name='arrow right' />} color='olive' />
-                </List.Content>
-                <List.Content><Header content='Question Control' as='h3' /></List.Content>
-              </List.Item>
+              <Divider />
+              {
+                (function() {
+                  let ans = [];
+                  for (let i = 0; i < questions.length; i++) {
+                    ans.push(
+                      <QuestionSelect
+                        content={questions[i].problemName}
+                        onClick={() => {
+                          updateCurrentQuestion(positionId, interviewId, i, () => {
+                            setCurQuestionIdx(i);
+                            refreshState();
+                            socket.emit('refresh');
+                          }, err => console.error(err));
+                        }}
+                        checked={i == curQuestionIdx}
+                      />
+                    );
+                  }
+                  return ans;
+                })()
+              }
             </List>
             </Modal.Content>
           </Modal>
           <Padding width={16} />
-          <Countdown value={Date.now() + 1000000} />
+          <Countdown value={endTime} />
           <Padding width={16} />
           <Button.Group inverted={inverted}>
             <Button toggle active={language === 'cpp'} inverted={inverted} onClick={() => setLanguage('cpp')}>C++</Button>
@@ -528,7 +597,7 @@ function Editor({
           panes={subPanes}
           onChange={(event) => setSubPanes(event.newState)}
         >
-          <Problem problemId='605bc2724bf2a2f067d844d0' />
+          <Problem problemId={curQuestionIdx == -1 || curQuestionIdx >= questions.length ? null : questions[curQuestionIdx]._id} />
           <div>
             <Terminal colorMode={inverted} text={output} fontSize={fontSize + 4} bold={bold} />
           </div>
