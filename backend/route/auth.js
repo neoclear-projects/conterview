@@ -19,11 +19,11 @@ router.route('/login').post((req, res) => {
     req.session.user = user;
     res.cookie('username', user.username, {
       path : '/', 
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 7 * 1000
     });
     res.cookie('organization-id', user.organizationId.toString(), {
       path : '/', 
-      maxAge: 60 * 60 * 24 * 7
+      maxAge: 60 * 60 * 24 * 7 * 1000
     });
     return res.json("user " + username + " signed up");
   });
@@ -33,11 +33,11 @@ router.route('/logout').get((req, res) => {
   req.session.destroy();
   res.cookie('username', '', {
     path : '/', 
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: 60 * 60 * 24 * 7 * 1000
   });
   res.cookie('organization-id', '', {
     path : '/', 
-    maxAge: 60 * 60 * 24 * 7
+    maxAge: 60 * 60 * 24 * 7 * 1000
   });
   return res.json("user " + req.username + " signed out");
 });
@@ -63,11 +63,11 @@ router.route('/register').post((req, res) => {
         req.session.user = user;
         res.cookie('username', user.username, {
           path : '/', 
-          maxAge: 60 * 60 * 24 * 7
+          maxAge: 60 * 60 * 24 * 7 * 1000
         });
         res.cookie('organization-id', user.organizationId.toString(), {
           path : '/', 
-          maxAge: 60 * 60 * 24 * 7
+          maxAge: 60 * 60 * 24 * 7 * 1000
         });
         return res.json("user " + username + " signed up");
       });
