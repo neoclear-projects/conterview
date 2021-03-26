@@ -101,7 +101,7 @@ class PositionItem extends React.Component {
         <CreateInterview
           open={this.state.createIntModal}
           onClose={() => this.setCreateIntModal(false)}
-          onCreate={() => {
+          onSubmit={() => {
             this.setCreateIntModal(false);
             this.fetchData();
           }}
