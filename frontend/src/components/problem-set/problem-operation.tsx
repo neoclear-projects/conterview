@@ -1,9 +1,11 @@
 import React from 'react';
-import { Button, Divider, Dropdown, Form, Label, Modal, TextArea } from 'semantic-ui-react';
+import { Button, Divider, Dropdown, Form, Grid, Label, Modal, TextArea } from 'semantic-ui-react';
 import { LanguageOptions, Languages, PlaceHolderSingleProblem, singleProblem } from './single-problem';
+import MonacoEditor from '@monaco-editor/react';
 import ProblemIOSet from './problem-IO-set'
 import ProblemRubric from './problem-rubric-modal';
 import ProblemDeletion from './problem-deletion';
+import { Upload } from 'antd';
 
 
 class ProblemOperation extends React.Component {
@@ -24,6 +26,7 @@ class ProblemOperation extends React.Component {
         TempOutput: this.props.BelongingProblem.OutputResult,
 
         TempRub: this.props.BelongingProblem.Rubric,
+        fileList: [],
     };
 
     // props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
@@ -104,7 +107,14 @@ class ProblemOperation extends React.Component {
                             value={this.state.TempDescription}
                             onChange={(e) => this.setState({ TempDescription: e.target.value })}
                         />
+                        
                     </Form>
+                    {/* <Form>
+                        <MonacoEditor
+                            value={this.state.TempDescription}
+                            onChange={(e) => this.setState({ TempDescription: e })}
+                        />
+                    </Form> */}
                     <Divider />
                     <div
                         style={{
@@ -125,6 +135,25 @@ class ProblemOperation extends React.Component {
                                 options={LanguageOptions}
                                 onChange={(e, data) => this.setState({ currentDisplayLanguage: data.value })}
                             />
+                            <Upload
+                                beforeUpload={(file) => {
+                                    var fileReader = new FileReader();
+                                    fileReader.onload = event => {
+                                        var Kontent = event.target?.result;
+                                        console.log(event);
+                                        this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: Kontent }) :
+                                            this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: Kontent }) :
+                                                this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: Kontent }) :
+                                                    this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: Kontent }) :
+                                                        this.setState({ TypeScript: Kontent });
+                                    }
+                                    fileReader.readAsText(file);
+                                    return false;
+                                }}
+                                fileList={this.state.fileList}
+                            >
+                                <Button icon="upload" content="Read from local" labelPosition='right' />
+                            </Upload>
                             <TextArea
                                 rows={6}
                                 value={
@@ -163,11 +192,11 @@ class ProblemOperation extends React.Component {
                             color='orange'
                             content="Cancel Without Save"
                             labelPosition='right'
-                            icon='x icon'
+                            icon='x'
                             onClick={() => this.setOpen(false)} />
 
                         <Button.Or />
-                        <ProblemDeletion BelongingProblem={this.props.BelongingProblem} Source={this}/>
+                        <ProblemDeletion BelongingProblem={this.props.BelongingProblem} Source={this} />
                         <Button.Or />
                         <Button
                             content="Save"

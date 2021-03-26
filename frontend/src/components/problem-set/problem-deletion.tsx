@@ -51,7 +51,7 @@ class ProblemDeletion extends React.Component {
                                     return value;
                                 },
                                 (err) => {
-                                    console.log(err);
+                                    console.error(err);
                                     return err;
                                 });
                         }}

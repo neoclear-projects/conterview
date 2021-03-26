@@ -1,8 +1,11 @@
+import React from 'react';
 import { Button, Table } from 'semantic-ui-react';
+// import {ReactMarkdown} from 'react-markdown';
 import { postProblemSet } from '../../api/problem-set-api';
 import ProblemDeletion from './problem-deletion';
 import ProblemOperation from './problem-operation';
 import ProblemSet from './problem-set';
+const ReactMarkdown = require('react-markdown')
 
 
 
@@ -97,7 +100,6 @@ export class singleProblem {
     this.OutputResult = Out;
     if (this.ID === "N/A") {
       postProblemSet(this, (value) => {
-        // console.log(value);
         this.parentProblemSet.setState({ NewProblemTemplate: this.parentProblemSet.MakeNewProblemTemplate() });
         this.parentProblemSet.quickUpdateState("");
         return value;
@@ -106,7 +108,7 @@ export class singleProblem {
           if(String(err).indexOf("409") !== -1){
             alert("There's a same problem name existing already! Please consider create the problem with another name! \r\nNote that your problem content is still here locally :)")
           }
-          console.log(err);
+          console.error(err);
           return err;
         });
     }
@@ -173,7 +175,9 @@ export class singleProblem {
         <Table.Cell singleLine>{this.problemName}</Table.Cell>
         {/* <Table.Cell >{metta}</Table.Cell> */}
         {/* <Table.Cell singleLine>{this.correctRate}</Table.Cell> */}
-        <Table.Cell >{this.description}</Table.Cell>
+        <Table.Cell >
+          <ReactMarkdown source={this.description}/>
+        </Table.Cell>
         <Table.Cell singleLine>
           {/* {this.editButton} */}
           <ProblemOperation BelongingProblem={this} />
