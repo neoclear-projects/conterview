@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import MonacoEditor, { loader } from '@monaco-editor/react';
+import MonacoEditor from '@monaco-editor/react';
 import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
 import { Button, Divider, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
-import { Progress, Statistic } from 'antd';
+import { Statistic } from 'antd';
 import Padding from '../../util/padding';
 import './info.css';
 // import Canvas from './canvas';
@@ -42,9 +42,6 @@ const peer = new Peer();
 const socket = socketIOClient(ENDPOINT);
 
 let ignoreRemoteEvent = false;
-
-let monaco = null;
-
 
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
@@ -331,7 +328,7 @@ function Editor({
             size='large'
             closeIcon
             open={videoVisible}
-            trigger={<Button color='twitter' onClick={() => setVideoVisible(true)}>Video</Button>}
+            trigger={<Button color='instagram' onClick={() => setVideoVisible(true)}>Video</Button>}
             onClose={() => setVideoVisible(false)}
             onOpen={() => setVideoVisible(true)}
           >
@@ -378,7 +375,7 @@ function Editor({
             size='small'
             closeIcon
             open={rubricVisible}
-            trigger={<Button >Rubric</Button>}
+            trigger={<Button color='facebook'>Rubric</Button>}
             onClose={() => setRubricVisible(false)}
             onOpen={() => setRubricVisible(true)}
           >
@@ -400,11 +397,12 @@ function Editor({
             </List>
             </Modal.Content>
           </Modal>
+          <Padding width={12} />
           <Modal
             size='small'
             closeIcon
             open={dashboardVisible}
-            trigger={<Button >DashBoard</Button>}
+            trigger={<Button color='olive' >DashBoard</Button>}
             onClose={() => setDashboardVisible(false)}
             onOpen={() => setDashboardVisible(true)}
           >
