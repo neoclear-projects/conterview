@@ -41,7 +41,7 @@ const Languages = [
 
 // Creation of a new problem
 router.route('/').post((req, res) => {
-  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   // ID will be created at backend
   const { problemName, description, StarterCodes, problemInputSet, problemOutputSet, problemRubric } = req.body;
@@ -74,7 +74,7 @@ router.route('/').post((req, res) => {
 
 // Update of an existing problem
 router.route('/').put((req, res) => {
-  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet, problemRubric } = req.body;
   problemSet.findOne({ _id: ID, belongingOrgId: req.organization._id }, function (err, doc) {
@@ -136,7 +136,7 @@ function BatchRecursive(subset, req, res) {
 
 // Update of multiple existing problem
 router.route('/').patch((req, res) => {
-  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { toBeUpdated } = req.body;
   var toBeUpdatedList;
@@ -153,10 +153,10 @@ router.route('/').patch((req, res) => {
 
 // Delete of an existing problem
 router.route('/:problemID').delete((req, res) => {
-  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
   const ID = req.params.problemID;
-  // console.log(ID);
-  problemSet.findOne({ _id: ID, belongingUserId: req.session.user._id, belongingOrgId: req.organization._id }, function (err, doc) {
+
+  problemSet.findOne({ _id: ID}, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
       return res.status(202).send("This problem ID does not exist.")
@@ -172,7 +172,7 @@ router.route('/:problemID').delete((req, res) => {
 
 // Get problems
 router.route('/').get((req, res) => {
-  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) return res.status(500).send(err);
