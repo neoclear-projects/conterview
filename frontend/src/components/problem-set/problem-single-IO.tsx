@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, GridColumn, Input, Label, Modal } from 'semantic-ui-react';
+import { Button, Form, Grid, GridColumn, Input, Label, Modal, TextArea } from 'semantic-ui-react';
 import ProblemIOSet from './problem-IO-set';
 import { singleProblem, PlaceHolderSingleProblem } from './single-problem';
 
@@ -60,26 +60,51 @@ class ProblemSingleIO extends React.Component {
         return (
             <GridColumn>
                 <h6>
-                {this.index == -1?"New I/O" : `I/O #${this.index}`}
+                    {this.index == -1 ? "New I/O" : `I/O #${this.index}`}
                 </h6>
-                <Input placeholder={INP}
-                    value={INP}
-                    onChange={(e) => {
-                        this.index = this.TheSet.UpdateMe([e.target.value, this.ProblemOutput,], this.index);
-                        // this.setState({ ProblemInput: e.target.value });
-                        this.ProblemInput = e.target.value;
-                    }}
-                />
-                <Input placeholder={OUP}
-                    value={OUP}
-                    onChange={(e) => {
-                        this.index = this.TheSet.UpdateMe([this.ProblemInput, e.target.value,], this.index);
-                        // this.setState({ ProblemOutput: e.target.value });
-                        this.ProblemOutput = e.target.value;
-                    }}
-                />
-                {ifThereIsOne}
-                
+
+                <div
+                // style={{
+                //     display: 'flex',
+                //     flexDirection: 'column',
+                //     flexWrap: 'wrap',
+                //     justifyContent: 'space-around',
+                //     alignContent: "normal",
+                // }}
+                >
+                    <Grid
+                    columns={3}
+                    >
+                        <GridColumn>
+
+
+                            <TextArea
+                                placeholder={INP}
+                                value={INP}
+                                onChange={(e) => {
+                                    this.index = this.TheSet.UpdateMe([e.target.value, this.ProblemOutput,], this.index);
+                                    // this.setState({ ProblemInput: e.target.value });
+                                    this.ProblemInput = e.target.value;
+                                }}
+                            />
+                        </GridColumn>
+                        <GridColumn>
+                            <TextArea
+                                placeholder={OUP}
+                                value={OUP}
+                                onChange={(e) => {
+                                    this.index = this.TheSet.UpdateMe([this.ProblemInput, e.target.value,], this.index);
+                                    // this.setState({ ProblemOutput: e.target.value });
+                                    this.ProblemOutput = e.target.value;
+                                }}
+                            />
+                        </GridColumn>
+                        <GridColumn>
+                            {ifThereIsOne}
+                        </GridColumn>
+                    </Grid>
+                </div>
+
             </GridColumn>
         )
     }

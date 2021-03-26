@@ -27,7 +27,7 @@ import singleProblem, { Languages } from './single-problem';
 
 class ProblemSet extends React.Component {
   MakeNewProblemTemplate(): singleProblem {
-    return new singleProblem({ NewName: "New Problem Name", NewDescription: "Description", newCorrectRate: 100, newPreferredLanguage:Languages['Python'], newID: "N/A" }, this, ["0",], ["1",]);
+    return new singleProblem({ NewName: "New Problem Name", NewDescription: "Description", newCorrectRate: 100, newPreferredLanguage: Languages['Python'], newID: "N/A" }, this, ["0",], ["1",], []);
   }
 
   state = { queryString: '', loading: false, results: [], value: '', needAnUpdate: false, ReallyNeedFetching: true, NewProblemTemplate: this.MakeNewProblemTemplate() };
@@ -61,14 +61,14 @@ class ProblemSet extends React.Component {
   }
 
 
-  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, problemInputSet:Array<string>, problemOutputSet:Array<string>, starterCodes: {} }>) {
+  GenerateProblemsFromJSON(JSON: Array<{ problemName: string, description: string, correctRate: number, preferredLanguage: string, _id: string, problemInputSet: Array<string>, problemOutputSet: Array<string>, problemRubric: Array<[string, string, number]>, starterCodes: {} }>) {
     this.userProblemSet = [];
     if (JSON.length === 0) {
       // this.userProblemSet = this.userProblemSetPlaceholder;
     }
     else {
       JSON.forEach(prob => {
-        this.userProblemSet.push(new singleProblem({ NewName: prob.problemName, NewDescription: prob.description, newCorrectRate: prob.correctRate, newPreferredLanguage: Languages[`${prob.preferredLanguage}`], newID: prob._id }, this, prob.problemInputSet, prob.problemOutputSet, prob.starterCodes))
+        this.userProblemSet.push(new singleProblem({ NewName: prob.problemName, NewDescription: prob.description, newCorrectRate: prob.correctRate, newPreferredLanguage: Languages[`${prob.preferredLanguage}`], newID: prob._id }, this, prob.problemInputSet, prob.problemOutputSet, prob.problemRubric, prob.starterCodes))
       });
     }
   }
@@ -93,7 +93,7 @@ class ProblemSet extends React.Component {
 
     let a: Array<JSX.Element> = [];
     ProblemSet.forEach(element => {
-      var isMatch = (oneSingleProblem: singleProblem) => re.test(oneSingleProblem.problemName) || re.test(oneSingleProblem.description) || re.test(oneSingleProblem.LanGenerate())
+      var isMatch = (oneSingleProblem: singleProblem) => re.test(oneSingleProblem.problemName) || re.test(oneSingleProblem.description) || re.test(oneSingleProblem.ID)
       if (isMatch(element)) {
         a.push(element.renderWithState(this));
       }

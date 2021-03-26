@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Dropdown, Form, Label, Modal, TextArea } from 'semantic-ui-react';
+import { Button, Divider, Dropdown, Form, Label, Modal, TextArea } from 'semantic-ui-react';
 import { LanguageOptions, Languages, PlaceHolderSingleProblem, singleProblem } from './single-problem';
-import  ProblemIOSet  from './problem-IO-set'
+import ProblemIOSet from './problem-IO-set'
+import ProblemRubric from './problem-rubric-modal';
 
 
 class ProblemOperation extends React.Component {
@@ -20,6 +21,8 @@ class ProblemOperation extends React.Component {
 
         TempInput: this.props.BelongingProblem.InputData,
         TempOutput: this.props.BelongingProblem.OutputResult,
+
+        TempRub: this.props.BelongingProblem.Rubric,
     };
 
     // props = { BelongingProblem: PlaceHolderSingleProblem } // NEED COMMENT OUT
@@ -38,13 +41,17 @@ class ProblemOperation extends React.Component {
 
     CopyDown = this.props.BelongingProblem.StarterCodes;
 
-    UpdateIO(In: Array<string>, Out: Array<string>){
-        // In.splice(-1, 1);
-        // Out.splice(-1, 1);
+    UpdateIO(In: Array<string>, Out: Array<string>) {
         this.setState({
-            TempInput:In,
-            TempOutput:Out
-        })
+            TempInput: In,
+            TempOutput: Out
+        });
+    }
+
+    UpdateRub(Rub: Array<[string, string, number]>) {
+        this.setState({
+            TempRub: Rub
+        });
     }
 
     setOpen(newOpen: boolean) {
@@ -53,11 +60,11 @@ class ProblemOperation extends React.Component {
             open: newOpen,
             TempName: this.props.BelongingProblem.problemName,
             TempDescription: this.props.BelongingProblem.description,
-            CPP: this.CopyDown['C++'] === undefined?this.CopyDown[0]['C++']:this.CopyDown['C++'],
-            Java: this.CopyDown['Java']===undefined?this.CopyDown[0]['Java']:this.CopyDown['Java'],
-            Python: this.CopyDown['Python']===undefined?this.CopyDown[0]['Python']:this.CopyDown['Python'],
-            JavaScript: this.CopyDown['JavaScript']===undefined?this.CopyDown[0]['JavaScript']:this.CopyDown['JavaScript'],
-            TypeScript: this.CopyDown['TypeScript']===undefined?this.CopyDown[0]['TypeScript']:this.CopyDown['TypeScript'],
+            CPP: this.CopyDown['C++'] === undefined ? this.CopyDown[0]['C++'] : this.CopyDown['C++'],
+            Java: this.CopyDown['Java'] === undefined ? this.CopyDown[0]['Java'] : this.CopyDown['Java'],
+            Python: this.CopyDown['Python'] === undefined ? this.CopyDown[0]['Python'] : this.CopyDown['Python'],
+            JavaScript: this.CopyDown['JavaScript'] === undefined ? this.CopyDown[0]['JavaScript'] : this.CopyDown['JavaScript'],
+            TypeScript: this.CopyDown['TypeScript'] === undefined ? this.CopyDown[0]['TypeScript'] : this.CopyDown['TypeScript'],
 
             TempInput: this.props.BelongingProblem.InputData,
             TempOutput: this.props.BelongingProblem.OutputResult,
@@ -87,6 +94,8 @@ class ProblemOperation extends React.Component {
                 </Modal.Header>
                 <Modal.Content>
 
+
+
                     <h3>Problem Description</h3>
                     <Form>
                         <TextArea
@@ -95,50 +104,61 @@ class ProblemOperation extends React.Component {
                             onChange={(e) => this.setState({ TempDescription: e.target.value })}
                         />
                     </Form>
-                    <br></br>
-                    <h3>Problem Starter code</h3>
-                    <Label color='yellow'> - It is recommended to have the starter code in your local machine completed, since the editor here does not provide linting.</Label>
-                    <Form>
-                        <Dropdown
-                            placeholder={this.state.currentDisplayLanguage }
-                            // fluid
-                            selection
-                            options={LanguageOptions}
-                            onChange={(e, data) => this.setState({ currentDisplayLanguage: data.value })}
-                        />
-                        <TextArea
-                            rows={6}
-                            value={
-                                this.state.currentDisplayLanguage === Languages.CPP ? this.state.CPP :
-                                    this.state.currentDisplayLanguage === Languages.Java ? this.state.Java :
-                                        this.state.currentDisplayLanguage === Languages.Python ? this.state.Python :
-                                            this.state.currentDisplayLanguage === Languages.JavaScript ? this.state.JavaScript :
-                                                this.state.TypeScript
-                            }
-                            onChange={
-                                (e) =>
-                                    {this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: e.target.value }) :
-                                        this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: e.target.value }) :
-                                            this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: e.target.value }) :
-                                                this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: e.target.value }) :
-                                                    this.setState({ TypeScript: e.target.value });
-                                                // console.log(this.state.currentDisplayLanguage);
-                                                }
-                            }
-                        />
-                        <h3>
-                            Problem Data sets
+                    <Divider />
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flexWrap: 'wrap',
+                            justifyContent: 'space-between',
+                            alignContent: "normal",
+                        }}
+                    >
+                        <h3>Problem Starter code</h3>
+                        <Label color='yellow'> - It is recommended to have the starter code in your local machine completed, since the editor here does not provide linting.</Label>
+                        <Form>
+                            <Dropdown
+                                placeholder={this.state.currentDisplayLanguage}
+                                // fluid
+                                selection
+                                options={LanguageOptions}
+                                onChange={(e, data) => this.setState({ currentDisplayLanguage: data.value })}
+                            />
+                            <TextArea
+                                rows={6}
+                                value={
+                                    this.state.currentDisplayLanguage === Languages.CPP ? this.state.CPP :
+                                        this.state.currentDisplayLanguage === Languages.Java ? this.state.Java :
+                                            this.state.currentDisplayLanguage === Languages.Python ? this.state.Python :
+                                                this.state.currentDisplayLanguage === Languages.JavaScript ? this.state.JavaScript :
+                                                    this.state.TypeScript
+                                }
+                                onChange={
+                                    (e) => {
+                                        this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: e.target.value }) :
+                                            this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: e.target.value }) :
+                                                this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: e.target.value }) :
+                                                    this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: e.target.value }) :
+                                                        this.setState({ TypeScript: e.target.value });
+                                        // console.log(this.state.currentDisplayLanguage);
+                                    }
+                                }
+                            />
+                            <Divider />
+                            <h3>
+                                Problem Data sets
                         </h3>
-                        <ProblemIOSet BelongingProblem={this.props.BelongingProblem} PO={this}/>
-                    </Form>
-                            
+                            <ProblemIOSet BelongingProblem={this.props.BelongingProblem} PO={this} />
+
+                        </Form>
+                    </div>
                 </Modal.Content>
                 <Modal.Actions>
 
-                    {/* Maybe another make sure modal */}
+                    <ProblemRubric BelongingProblem={this.props.BelongingProblem} PO={this}/>
                     <Button color='red' onClick={() => this.setOpen(false)}>
                         Cancel and Do Not Save
-                </Button>
+                    </Button>
                     <Button
                         content="Save and exit"
                         labelPosition='right'
@@ -153,7 +173,7 @@ class ProblemOperation extends React.Component {
                                     'Python': this.state.Python,
                                     'JavaScript': this.state.JavaScript,
                                     'TypeScript': this.state.TypeScript,
-                                }, 
+                                },
                                 this.state.TempInput,
                                 this.state.TempOutput
                             );
