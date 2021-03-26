@@ -52,7 +52,6 @@ class ProblemIOSet extends React.Component {
 
         }
         this.updator();
-        this.ContentCleaner();
         this.PO.UpdateIO(this.StandaloneInputContent, this.StandaloneOutputContent);
         this.setState({ NeedUpdate: true });
 
@@ -69,15 +68,8 @@ class ProblemIOSet extends React.Component {
             // });
         }
         this.updator();
-        this.ContentCleaner();
         this.PO.UpdateIO(this.StandaloneInputContent, this.StandaloneOutputContent);
         this.setState({ NeedUpdate: true });
-    }
-
-    ContentCleaner() {
-        // console.log(this.state.InputContent.splice(-1, 1));
-        // // this.state.InputContent.splice(-1, 1);
-        // this.state.OutputContent.splice(-1, 1);
     }
 
     updator(){

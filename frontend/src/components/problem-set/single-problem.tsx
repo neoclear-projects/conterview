@@ -77,7 +77,7 @@ export class singleProblem {
   public InputData:Array<string> = [];
   public OutputResult:Array<string> = [];
 
-  public Rubric = [];
+  public Rubric:Array<[string, string, number]> = [];
 
   states = {
     problemName: this.problemName,
@@ -119,7 +119,7 @@ export class singleProblem {
   getID() { return this.ID };
   public editButton = (<Button inverted color='green'>Edit</Button>);
 
-  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, In:Array<string>, Out:Array<string>, newStarterCode = TemplateStarterCodes ) {
+  constructor(props: { NewName: string, NewDescription: string, newCorrectRate: number, newPreferredLanguage: Languages, newID: string }, parentPS: any, In:Array<string>, Out:Array<string>, Rubric:Array<[string, string, number]>, newStarterCode = TemplateStarterCodes ) {
     // super(props);
     this.problemName = (props.NewName);
     this.description = (props.NewDescription);
@@ -136,22 +136,24 @@ export class singleProblem {
     }
     this.InputData = In;
     this.OutputResult = Out;
+    this.Rubric = Rubric;
   }
 
   /**
    * toJSONString
    */
   public toJSONString(): string {
-    // console.log(JSON.stringify({
-    //   ID: this.ID,
-    //   problemName: this.problemName,
-    //   description: this.description,
-    //   correctRate: this.correctRate,
-    //   preferredLanguage: this.preferredLanguage,
-    //   StarterCodes: this.StarterCodes,
-    //   problemInputSet: this.InputData,
-    //   problemOutputSet: this.OutputResult,
-    // }))
+    console.log(JSON.stringify({
+      ID: this.ID,
+      problemName: this.problemName,
+      description: this.description,
+      correctRate: this.correctRate,
+      preferredLanguage: this.preferredLanguage,
+      StarterCodes: this.StarterCodes,
+      problemInputSet: this.InputData,
+      problemOutputSet: this.OutputResult,
+      problemRubric: this.Rubric
+    }))
     return JSON.stringify({
       ID: this.ID,
       problemName: this.problemName,
@@ -161,14 +163,11 @@ export class singleProblem {
       StarterCodes: this.StarterCodes,
       problemInputSet: this.InputData,
       problemOutputSet: this.OutputResult,
+      problemRubric: this.Rubric
     })
   }
 
   renderWithState(a: ProblemSet) {
-
-    // let MeRef = '/editProblem/' + this.ID;
-    // let MeDel = '/editProblem/' + this.ID + '/delete';
-    // let metta = this.LanGenerate();
     return (
       <Table.Row>
         <Table.Cell singleLine>{this.problemName}</Table.Cell>
@@ -187,6 +186,6 @@ export class singleProblem {
   };
 }
 
-export const PlaceHolderSingleProblem = new singleProblem({ NewName: "Placeholder", NewDescription: "Placeholder", newCorrectRate: 100, newPreferredLanguage: Languages.CPP, newID: "-1" }, null, ["0",], ["1",]);
+export const PlaceHolderSingleProblem = new singleProblem({ NewName: "Placeholder", NewDescription: "Placeholder", newCorrectRate: 100, newPreferredLanguage: Languages.CPP, newID: "-1" }, null, ["0",], ["1",], [["PlaceHolder", "PlaceHolder", 0],]);
 
 export default singleProblem;
