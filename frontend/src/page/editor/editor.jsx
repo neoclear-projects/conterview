@@ -33,6 +33,7 @@ import Problem from './problem';
 import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
+import errorLog from '../../components/error-log/error-log';
 
 const { Countdown } = Statistic;
 
@@ -106,7 +107,7 @@ function Editor({
       }
       setInterviewState(res.status);
       setQuestions(res.problems);
-    }, err => console.error(err));
+    }, errorLog);
   };
 
   useEffect(() => {
@@ -429,7 +430,7 @@ function Editor({
                               // Start interview
                               refreshState();
                               socket.emit('refresh');
-                            }, err => console.error(err))
+                            }, errorLog)
                           }}>
                             <Icon name='play' /> Start Interview
                           </Button>
@@ -441,7 +442,7 @@ function Editor({
                               // Stop interview
                               refreshState();
                               socket.emit('refresh');
-                            }, err => console.error(err))
+                            }, errorLog)
                           }}>
                             <Icon name='stop' /> End Interview
                           </Button>
@@ -472,7 +473,7 @@ function Editor({
                             setCurQuestionIdx(i);
                             refreshState();
                             socket.emit('refresh');
-                          }, err => console.error(err));
+                          }, errorLog);
                         }}
                         checked={i == curQuestionIdx}
                       />
