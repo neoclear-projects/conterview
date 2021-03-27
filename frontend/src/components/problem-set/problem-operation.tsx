@@ -88,7 +88,9 @@ class ProblemOperation extends React.Component {
                 <Modal.Header>
                     Problem Name
                     <Form>
+                        <div style={{ color: 'white', marginBottom: "15px" }}></div>
                         <Label color='blue'> Problem ID: {this.props.BelongingProblem.getID()}</Label>
+                        <div style={{ color: 'white', marginBottom: "15px" }}></div>
                         <TextArea
                             rows={1}
                             value={this.state.TempName}
@@ -102,12 +104,13 @@ class ProblemOperation extends React.Component {
 
                     <h3>Problem Description</h3>
                     <Form>
-                        <TextArea
-                            rows={6}
-                            value={this.state.TempDescription}
-                            onChange={(e) => this.setState({ TempDescription: e.target.value })}
-                        />
-                        
+                        <div style={{ fontFamily: 'monospace' }} >
+                            <TextArea
+                                rows={6}
+                                value={this.state.TempDescription}
+                                onChange={(e) => this.setState({ TempDescription: e.target.value })}
+                            />
+                        </div>
                     </Form>
                     {/* <Form>
                         <MonacoEditor
@@ -127,53 +130,66 @@ class ProblemOperation extends React.Component {
                     >
                         <h3>Problem Starter code</h3>
                         <Label color='yellow'> - It is recommended to have the starter code in your local machine completed, since the editor here does not provide linting.</Label>
+                        <div style={{ color: 'white', marginBottom: "1%" }}></div>
                         <Form>
-                            <Dropdown
-                                placeholder={this.state.currentDisplayLanguage}
-                                // fluid
-                                selection
-                                options={LanguageOptions}
-                                onChange={(e, data) => this.setState({ currentDisplayLanguage: data.value })}
-                            />
-                            <Upload
-                                beforeUpload={(file) => {
-                                    var fileReader = new FileReader();
-                                    fileReader.onload = event => {
-                                        var Kontent = event.target?.result;
-                                        console.log(event);
-                                        this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: Kontent }) :
-                                            this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: Kontent }) :
-                                                this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: Kontent }) :
-                                                    this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: Kontent }) :
-                                                        this.setState({ TypeScript: Kontent });
-                                    }
-                                    fileReader.readAsText(file);
-                                    return false;
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignContent: 'flex-start',
+                                    marginBottom: '1%'
                                 }}
-                                fileList={this.state.fileList}
                             >
-                                <Button icon="upload" content="Read from local" labelPosition='right' />
-                            </Upload>
-                            <TextArea
-                                rows={6}
-                                value={
-                                    this.state.currentDisplayLanguage === Languages.CPP ? this.state.CPP :
-                                        this.state.currentDisplayLanguage === Languages.Java ? this.state.Java :
-                                            this.state.currentDisplayLanguage === Languages.Python ? this.state.Python :
-                                                this.state.currentDisplayLanguage === Languages.JavaScript ? this.state.JavaScript :
-                                                    this.state.TypeScript
-                                }
-                                onChange={
-                                    (e) => {
-                                        this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: e.target.value }) :
-                                            this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: e.target.value }) :
-                                                this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: e.target.value }) :
-                                                    this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: e.target.value }) :
-                                                        this.setState({ TypeScript: e.target.value });
-                                        // console.log(this.state.currentDisplayLanguage);
+                                <Dropdown
+                                    placeholder={this.state.currentDisplayLanguage}
+                                    // fluid
+                                    selection
+                                    options={LanguageOptions}
+                                    onChange={(e, data) => this.setState({ currentDisplayLanguage: data.value })}
+                                />
+                                {/* <div style={{color:'white'}}>.</div> */}
+                                <Upload
+                                    beforeUpload={(file) => {
+                                        var fileReader = new FileReader();
+                                        fileReader.onload = event => {
+                                            var Kontent = event.target?.result;
+                                            console.log(event);
+                                            this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: Kontent }) :
+                                                this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: Kontent }) :
+                                                    this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: Kontent }) :
+                                                        this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: Kontent }) :
+                                                            this.setState({ TypeScript: Kontent });
+                                        }
+                                        fileReader.readAsText(file);
+                                        return false;
+                                    }}
+                                    fileList={this.state.fileList}
+                                >
+                                    <Button icon="upload" content="Read from local" labelPosition='right' />
+                                </Upload>
+                            </div>
+                            <div style={{ fontFamily: 'monospace' }} >
+                                <TextArea
+                                    rows={10}
+                                    value={
+                                        this.state.currentDisplayLanguage === Languages.CPP ? this.state.CPP :
+                                            this.state.currentDisplayLanguage === Languages.Java ? this.state.Java :
+                                                this.state.currentDisplayLanguage === Languages.Python ? this.state.Python :
+                                                    this.state.currentDisplayLanguage === Languages.JavaScript ? this.state.JavaScript :
+                                                        this.state.TypeScript
                                     }
-                                }
-                            />
+                                    onChange={
+                                        (e) => {
+                                            this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: e.target.value }) :
+                                                this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: e.target.value }) :
+                                                    this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: e.target.value }) :
+                                                        this.state.currentDisplayLanguage === Languages.JavaScript ? this.setState({ JavaScript: e.target.value }) :
+                                                            this.setState({ TypeScript: e.target.value });
+                                            // console.log(this.state.currentDisplayLanguage);
+                                        }
+                                    }
+                                />
+                            </div>
                             <Divider />
                             <h3>
                                 Problem Data sets

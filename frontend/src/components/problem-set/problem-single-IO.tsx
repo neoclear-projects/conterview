@@ -79,6 +79,7 @@ class ProblemSingleIO extends React.Component {
 
 
                             <TextArea
+                                rows={2}
                                 placeholder={INP}
                                 value={INP}
                                 onChange={(e) => {
@@ -90,6 +91,7 @@ class ProblemSingleIO extends React.Component {
                         </GridColumn>
                         <GridColumn>
                             <TextArea
+                            rows={2}
                                 placeholder={OUP}
                                 value={OUP}
                                 onChange={(e) => {

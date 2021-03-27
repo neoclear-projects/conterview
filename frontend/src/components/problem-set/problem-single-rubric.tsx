@@ -44,9 +44,10 @@ class ProblemSingleRubric extends React.Component {
         this.state.Update = false;
 
         var ifThereIsOne: JSX.Element = (this.index != -1 ?
-            (<Button inverted color='red' onClick={(e) => this.TheSet.Remover(this.index)}>
+            (<div><h6>Remove?</h6><Button inverted color='red' onClick={(e) => this.TheSet.Remover(this.index)}>
                 Remove this
-            </Button>)
+            </Button>
+            </div>)
             : <div />);
         var INP = this.RubricName;
         var OUP = this.RubricDescription;
@@ -83,7 +84,7 @@ class ProblemSingleRubric extends React.Component {
                             </GridColumn>
                             <GridColumn>
                                 <h6>
-                                    Descriotion
+                                    Description
                 </h6>
                                 <TextArea
                                     placeholder={OUP}
