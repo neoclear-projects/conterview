@@ -43,11 +43,16 @@ const problemSetSchema = new Schema({
     {
       name:String, 
       desc:String,
-      rating:Number
+      rating:Number,
+      curRating:{
+        type:Number,
+        default:0
+      }
     }
   ]
 });
 
 const ProblemSet = mongoose.model('ProblemSet', problemSetSchema);
 
-module.exports = ProblemSet;
+exports.ProblemSet = ProblemSet;
+exports.ProblemSetSchema = problemSetSchema;

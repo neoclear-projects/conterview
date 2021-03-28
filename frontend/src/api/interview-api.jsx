@@ -19,10 +19,10 @@ export function getInterviews(positionId, fields, onSuccess){
 	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview', { params }).then(onSuccess);
 }
 
-export function getInterview(positionId, interviewId, fields, onSuccess){
+export function getInterview(positionId, interviewId, fields, onSuccess, onError){
 	let params = {};
 	if(fields) params.fields = fields;
-	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId, { params }).then(onSuccess);
+	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId, { params }).then(onSuccess).catch(err => {console.log(err.response)});
 }
 
 export function updateInterview(positionId, interviewId, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, onSuccess, onError){
@@ -32,8 +32,4 @@ export function updateInterview(positionId, interviewId, candidateName, candidat
 
 export function deleteInterview(positionId, interviewId, onSuccess){
 	req.delete('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId).then(onSuccess);
-}
-
-export function operateInterview(positionId, interviewId, operation, onSuccess, onError){
-	req.delete('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview/'+interviewId+'/'+operation).then(onSuccess).catch(onError);
 }

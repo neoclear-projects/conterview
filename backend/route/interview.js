@@ -2,31 +2,18 @@ const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const sendMail = require('../util/mail');
 const toObjectId = require('../util/object-id');
-const Problem = require('../model/problem-set.model');
+const Problem = require('../model/problem-set.model').ProblemSet;
 const Position = require('../model/position.model');
 const User = require('../model/user.model');
-const async = require('async');
 
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
-
-  let interviewers = [];
-  await async.eachSeries(interviewerIds, async (interviewerId) => {
-    await User.findOne({_id:interviewerId},{username:1}).exec().then(interviewer => interviewers.push(interviewer));
-  });
-
-  let problems = [];
-  await async.eachSeries(problemIds, async (problemId) => {
-    await Problem.findOne({_id:problemId},{problemName:1}).exec().then(problem => {
-      problems.push(problem)
-    });
-  });
 
   new Interview({
     candidate,
-    interviewers,
-    problems,
-    position:{ name: req.position.name, _id: req.position._id},
+    interviewers: interviewerIds,
+    problems: problemIds,
+    position: req.position._id,
     organizationId:req.organization._id,
     scheduledTime:new Date(scheduledTime),
     scheduledLength,
@@ -51,14 +38,23 @@ router.post('/', async (req, res) => {
 router.get('/', (req, res) => {
   let page = req.query.page;
   if(page === undefined) page = 1;
-  Interview.find({'position._id':req.position._id}, req.fields).skip((page-1)*10).limit(10).exec((err, interviews) => {
+  Interview
+    .find({'position':req.position._id})
+    .skip((page-1)*10).limit(10)
+    .populate({path:'position'})
+    .populate({path:'interviewers'})
+    .populate({path:'problems'})
+    .exec((err, interviews) => {
     if (err) return res.status(500).send(err);
+    console.log(interviews);
     return res.json(interviews);
   });
 });
 
 router.use('/:interviewId', (req, res, next) => {
-  Interview.findOne({_id:req.params.interviewId}, function(err, interview){
+  Interview
+    .findOne({_id:req.params.interviewId})
+    .exec((err, interview) => {
     if (err) return res.status(500).send(err);
     if (!interview || !req.position._id.equals(interview.position._id)) return res.status(404).send("interview #" + req.params.interviewId + " not found for position #" + req.position._id);
     req.interview = interview;
@@ -67,107 +63,116 @@ router.use('/:interviewId', (req, res, next) => {
 });
 
 router.get('/:interviewId', (req, res) => {
-  Interview.findOne({_id:req.interview._id}, req.fields).exec((err, interview) => {
+  Interview
+    .findOne({_id:req.interview._id})
+    .populate({path:'position'})
+    .populate({path:'interviewers'})
+    .populate({path:'problems'})
+    .exec((err, interview) => {
     if (err) return res.status(500).send(err);
     return res.json(interview);
   });
 });
 
-router.patch('/:interviewId', async (req, res) => {
+router.patch('/:interviewId', (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
-
-  let interviewers = [];
-  await async.eachSeries(interviewerIds, async (interviewerId) => {
-    await User.findOne({_id:interviewerId},{username:1}).exec().then(interviewer => interviewers.push(interviewer));
-  });
-
-  let problems = [];
-  await async.eachSeries(problemIds, async (problemId) => {
-    await Problem.findOne({_id:problemId},{problemName:1}).exec().then(problem => {
-    console.log(problem);
-    problems.push(problem)});
-  });
 
   let interview = {
     candidate,
-    interviewers,
-    problems,
+    interviewers: interviewerIds,
+    problems: problemIds,
     scheduledTime:new Date(scheduledTime),
     scheduledLength,
   };
   
-  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: interview }, { returnOriginal: false }, (err, interview) => {
+  Interview.
+    findOneAndUpdate({_id:req.interview._id}, { $set: interview }, { returnOriginal: false }, (err, interview) => {
     if (err) return res.status(500).send(err);
     return res.json(interview);
   });
 });
 
 router.delete('/:interviewId', (req, res) => {
-  Interview.remove({_id:req.interview._id}, {justOne: true}).exec((err, interview) => {
+  Interview
+    .remove({_id:req.interview._id}, {justOne: true})
+    .exec((err, interview) => {
     if (err) return res.status(500).send(err);
     return res.json(interview);
   });
 });
 
-router.get('/:interviewId/start', (req, res) => {
-  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: {startTime:new Date(), status:'running', currentProblemIndex:-1} }, { returnOriginal: false }, (err, interview) => {
-    if (err) return res.status(500).send(err);
-    return res.json(interview);
-  });
+router.patch('/:interviewId/status', (req, res) => {
+  let status = req.body.status;
+  if(status === undefined) return res.status(400).send('status not provided');
+  switch(status){
+    case 'running':
+      Interview
+        .findOne({_id:req.interview._id})
+        .populate({path:'problems'})
+        .exec((err, interview) => {
+        if (err) return res.status(500).send(err);
+        interview.status = 'running';
+        interview.startTime = new Date();
+        interview.currentProblemIndex = -1;
+        interview.problemsSnapshot = interview.problems;
+        interview.save((err, interview) => {
+          if (err) return res.status(500).send(err);
+          return res.json(interview);
+        });
+      });
+      break;
+    case 'finished':
+      Interview
+        .findOne({_id:req.interview._id})
+        .exec((err, interview) => {
+        interview.status = 'finished';
+        interview.finishTime = new Date();
+        Position.updateOne({_id:req.position._id}, { $inc: {finishedInterviewNum:1, pendingInterviewNum:-1} }, (err) => {
+          if (err) return res.status(500).send(err);
+        });
+        interview.save((err, interview) => {
+          if (err) return res.status(500).send(err);
+          return res.json(interview);
+        });
+      });
+      break;
+    default:
+      return res.status(400).send('invalid status');
+  }
 });
 
-router.get('/:interviewId/end', (req, res) => {
-  Interview.findOneAndUpdate({_id:req.interview._id}, { $set: {finishTime:new Date(), status:'finished'} }, { returnOriginal: false }, (err, interview) => {
+router.patch('/:interviewId/current-problem-index', (req, res) => {
+  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
-    Position.updateOne({_id:req.position._id}, { $inc: {finishedInterviewNum:1, pendingInterviewNum:-1} }, (err) => {
+    let target;
+    if(req.body.index !== undefined){
+      target = req.body.index;
+    }else if(req.body.next !== undefined){
+      target = interview.currentProblemIndex + 1;
+    }else if(req.body.prev !== undefined){
+      target = interview.currentProblemIndex - 1;
+    }else{
+      return res.status(400).send('index or next or prev should be specified');
+    }
+    if(target >= interview.problemsSnapshot.length || target < 0) return res.status(404).send('no specified problem available');
+    interview.currentProblemIndex = target;
+    interview.save((err, interview) => {
       if (err) return res.status(500).send(err);
-      return res.json(interview);
+      return res.json(interview.problemsSnapshot[target]);
     });
   });
 });
 
-router.get('/:interviewId/next-problem', (req, res) => {
+router.patch('/:interviewId/problem/:index/rating', (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
-    if(interview.currentProblemIndex + 1 >= interview.problems.length) return res.status(404).send('no next problem available');
-    interview.currentProblemIndex = interview.currentProblemIndex + 1;
+    if(interview.problemsSnapshot[req.params.index].problemRubric.length !== req.body.rating.length) return res.status(400).send('incorrect number of ratings');
+    for(let i=0;i<req.body.rating.length;i++){
+      interview.problemsSnapshot[req.params.index].problemRubric[i].curRating = req.body.rating[i];
+    }
     interview.save((err, interview) => {
-      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
-        if (err) return res.status(500).send(err);
-        if (!problem) return res.status(404).send('Problem not found');
-        return res.json(problem);
-      });
-    });
-  });
-});
-
-router.get('/:interviewId/prev-problem', (req, res) => {
-  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
-    if (err) return res.status(500).send(err);
-    if(interview.currentProblemIndex - 1 < 0) return res.status(404).send('no previous problem available');
-    interview.currentProblemIndex = interview.currentProblemIndex - 1;
-    interview.save((err, interview) => {
-      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
-        if (err) return res.status(500).send(err);
-        if (!problem) return res.status(404).send('Problem not found');
-        return res.json(problem);
-      });
-    });
-  });
-});
-
-router.get('/:interviewId/problem/:problemId', (req, res) => {
-  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
-    if (err) return res.status(500).send(err);
-    const idx = req.params.problemId;
-    if (idx < 0 || idx >= interview.problems.length) return res.status(404).send('no problem available');
-    interview.currentProblemIndex = idx;
-    interview.save((err, interview) => {
-      Problem.findOne({_id:interview.problems[interview.currentProblemIndex]._id}).exec((err, problem) => {
-        if (err) return res.status(500).send(err);
-        if (!problem) return res.status(404).send('Problem not found');
-        return res.json(problem);
-      });
+      if (err) return res.status(500).send(err);
+      return res.json(interview.problemsSnapshot[req.params.index].problemRubric);
     });
   });
 });

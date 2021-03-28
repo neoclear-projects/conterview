@@ -13,8 +13,9 @@ export function getInterviewState(positionId: string, interviewId: string, onSuc
 };
 
 export function interviewStart(positionId: string, interviewId: string, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({status:'running'});
   req
-    .get(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/start`)
+    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
     .then(() => {
       console.log('What the fuck')
       onSuccess();
@@ -23,8 +24,9 @@ export function interviewStart(positionId: string, interviewId: string, onSucces
 };
 
 export function interviewStop(positionId: string, interviewId: string, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({status:'finished'});
   req
-    .get(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/end`)
+    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
     .then(() => {
       onSuccess();
     })
@@ -32,8 +34,9 @@ export function interviewStop(positionId: string, interviewId: string, onSuccess
 };
 
 export function updateCurrentQuestion(positionId: string, interviewId: string, questionIdx: number, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({index:questionIdx});
   req
-    .get(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}`)
+    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/current-problem-index`, data)
     .then(res => {
       onSuccess();
     })

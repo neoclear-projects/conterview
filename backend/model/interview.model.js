@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const ProblemSetSchema = require('./problem-set.model').ProblemSetSchema;
 
 const Schema = mongoose.Schema;
 const ObjectId = Schema.ObjectId;
@@ -10,19 +11,20 @@ const InterviewSchema = new Schema({
   },
   interviewers: [
     {
-      _id: ObjectId,
-      username: String
+      type: ObjectId,
+      ref: 'User'
     }
   ],
   problems: [
     {
-      _id: ObjectId,
-      problemName: String
+      type: ObjectId,
+      ref: 'ProblemSet'
     }
   ],
+  problemsSnapshot: [ProblemSetSchema],
   position: {
-    _id: ObjectId,
-    name: String
+    type: ObjectId,
+    ref: 'Position'
   },
   organizationId: ObjectId,
   scheduledTime: Date,
