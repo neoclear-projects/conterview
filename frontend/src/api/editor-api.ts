@@ -42,3 +42,16 @@ export function updateCurrentQuestion(positionId: string, interviewId: string, q
     })
     .catch(err => onError(err));
 }
+
+export function updateRubric(positionId: string, interviewId: string, questionIdx: number, rubricIdx: number, grade: number, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({
+    idx: rubricIdx,
+    rating: grade
+  });
+  req
+    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/rating`, data)
+    .then(res => {
+      onSuccess();
+    })
+    .catch(err => onError(err));
+}

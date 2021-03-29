@@ -30,7 +30,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -96,6 +96,8 @@ function Editor({
 
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
+  
+  const rubricRef = useRef(null);
 
   const refreshState = () => {
     getInterviewState(positionId, interviewId, res => {
@@ -105,8 +107,10 @@ function Editor({
         console.log(res);
         setCurQuestionIdx(res.currentProblemIndex);
       }
+
       setInterviewState(res.status);
-      setQuestions(res.problems);
+      setQuestions(res.problemsSnapshot);
+      console.log(res.problemsSnapshot);
     }, errorLog);
   };
 
@@ -384,13 +388,30 @@ function Editor({
             <Modal.Header>Sliding Window</Modal.Header>
             <Modal.Content>
             <List selection verticalAlign='middle'>
-              <List.Item>
-                <List.Content floated='right'>
-                  <Input labelPosition='right' label='/10' type='number' />
-                </List.Content>
-                <List.Header as='h3'>Rubric One</List.Header>
-                <List.Description>ASDDASDASDAWSD</List.Description>
-              </List.Item>
+              {
+                (function() {
+                  let res = [];
+                  if (curQuestionIdx == -1 || curQuestionIdx >= questions.length)
+                    return [];
+                  console.log(questions[curQuestionIdx].problemRubric);
+                  for (let i = 0; i < questions[curQuestionIdx].problemRubric.length; i++) {
+                    let rubric = questions[curQuestionIdx].problemRubric[i];
+                    res.push(
+                      <List.Item>
+                        <List.Content floated='right'>
+                          <Input labelPosition='right' label={`/${rubric.rating}`} type='number' defaultValue={rubric.curRating} onChange={(event, data) => {
+                            updateRubric(positionId, interviewId, curQuestionIdx, i, parseInt(data.value) || 0, refreshState, errorLog);
+                            socket.emit('refresh');
+                          }} />
+                        </List.Content>
+                        <List.Header as='h3'>{rubric.name}</List.Header>
+                        <List.Description>{rubric.desc}</List.Description>
+                      </List.Item>
+                    );
+                  }
+                  return res;
+                })()
+              }
             </List>
             <TextArea style={{
               borderRadius: 8,
