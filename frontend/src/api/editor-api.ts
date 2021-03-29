@@ -45,11 +45,13 @@ export function updateCurrentQuestion(positionId: string, interviewId: string, q
 
 export function updateRubric(positionId: string, interviewId: string, questionIdx: number, rubricIdx: number, grade: number, onSuccess: () => void, onError: (err: string) => void) {
   let data = JSON.stringify({
-    idx: rubricIdx,
-    rating: grade
+    grade:{
+      idx: rubricIdx,
+      value: grade
+    }
   });
   req
-    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/rating`, data)
+    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
     .then(res => {
       onSuccess();
     })

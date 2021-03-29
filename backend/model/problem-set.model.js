@@ -49,7 +49,11 @@ const problemSetSchema = new Schema({
         default:0
       }
     }
-  ]
+  ],
+  comment:{
+    type:String,
+    default:'',
+  }
 });
 
 const ProblemSet = mongoose.model('ProblemSet', problemSetSchema);

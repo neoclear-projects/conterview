@@ -177,16 +177,17 @@ router.patch('/:interviewId/current-problem-index', (req, res) => {
 //   });
 // });
 
-router.patch('/:interviewId/problem/:index/rating', (req, res) => {
+router.patch('/:interviewId/problem/:index/evaluation', (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
-    let idx = req.body.idx;
-    let grade = req.body.rating;
-
-    if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(400).send('incorrect number of ratings');
-
-    interview.problemsSnapshot[req.params.index].problemRubric[idx].curRating = grade;
-
+    if(req.body.grade){
+      let { idx, value } = req.body.grade;
+      if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(400).send('incorrect index of rubric');
+      interview.problemsSnapshot[req.params.index].problemRubric[idx].curRating = value;
+    }
+    if(req.body.comment){
+      interview.problemsSnapshot[req.params.index].comment = req.body.comment;
+    }
     interview.save((err, interview) => {
       if (err) return res.status(500).send(err);
       return res.json(interview.problemsSnapshot[req.params.index].problemRubric);
