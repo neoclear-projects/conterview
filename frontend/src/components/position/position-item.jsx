@@ -22,7 +22,7 @@ class PositionItem extends React.Component {
   }
 
   fetchData = () => {
-    getInterviews(this.props.match.params.positionId, '', res => {
+    getInterviews(this.props.match.params.positionId, '', '', res => {
       this.setState({interviews: res.data});
     });
     getPosition(this.props.match.params.positionId, '', res => {
@@ -66,6 +66,7 @@ class PositionItem extends React.Component {
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
+            <Button color='blue' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/statistics`)}>Statistics</Button>,
             <Button color='blue' onClick={() => this.setEditPosModal(true)}>Edit Position</Button>,
             <Button color='red' onClick={() => deletePosition(this.props.match.params.positionId, res => {this.props.history.push('/position')})}>Delete Position</Button>
           ]}
@@ -84,18 +85,18 @@ class PositionItem extends React.Component {
           </Descriptions>
           <Divider/>
           <Header>Interviews</Header>
-            <Table striped basic='very'>
-              <Table.Header>
-                <Table.Row>
-                  <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
-                  <Table.HeaderCell width='1'>Time</Table.HeaderCell>
-                  <Table.HeaderCell width='1'>Status</Table.HeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {interviews}
-              </Table.Body>
-            </Table>
+          <Table striped basic='very'>
+            <Table.Header>
+              <Table.Row>
+                <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
+                <Table.HeaderCell width='1'>Time</Table.HeaderCell>
+                <Table.HeaderCell width='1'>Status</Table.HeaderCell>
+              </Table.Row>
+            </Table.Header>
+            <Table.Body>
+              {interviews}
+            </Table.Body>
+          </Table>
         </div>
 
         <CreateInterview

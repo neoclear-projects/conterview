@@ -13,9 +13,10 @@ export function getInterviewsAllPosition(fields, page, onSuccess){
 	req.get('organization/'+getCookie('organization-id')+'/interview', { params }).then(onSuccess);
 }
 
-export function getInterviews(positionId, fields, onSuccess){
+export function getInterviews(positionId, fields, status, onSuccess){
 	let params = {};
 	if(fields) params.fields = fields;
+	if(status) params.status = status;
 	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId+'/interview', { params }).then(onSuccess);
 }
 

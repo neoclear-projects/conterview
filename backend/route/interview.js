@@ -38,8 +38,12 @@ router.post('/', (req, res) => {
 router.get('/', (req, res) => {
   let page = req.query.page;
   if(page === undefined) page = 1;
+  let query = {'position':req.position._id};
+  if(req.query.status !== undefined){
+    query['status'] = req.query.status;
+  }
   Interview
-    .find({'position':req.position._id})
+    .find(query)
     .skip((page-1)*10).limit(10)
     .populate({path:'position'})
     .populate({path:'interviewers'})
@@ -127,6 +131,7 @@ router.patch('/:interviewId/status', (req, res) => {
         .exec((err, interview) => {
         interview.status = 'finished';
         interview.finishTime = new Date();
+        interview.totalGrade = getInterviewTotalGrade(interview);
         Position.updateOne({_id:req.position._id}, { $inc: {finishedInterviewNum:1, pendingInterviewNum:-1} }, (err) => {
           if (err) return res.status(500).send(err);
         });
@@ -196,3 +201,11 @@ router.patch('/:interviewId/problem/:index/evaluation', (req, res) => {
 });
 
 module.exports = router;
+
+function getProblemTotalGrade(problem){
+  return problem.problemRubric.map(rubric => {return rubric.curRating}).reduce((pv, cv) => pv + cv, 0);
+}
+
+function getInterviewTotalGrade(interview){
+  return interview.problemsSnapshot.map(getProblemTotalGrade).reduce((pv, cv) => pv + cv, 0);
+}
