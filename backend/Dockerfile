@@ -27,5 +27,11 @@ VOLUME /var/lib/docker
 CMD ["wrapdocker"]
 
 CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
+CMD ["echo", "SHIT"]
 
 CMD ["node", "app.js"]
