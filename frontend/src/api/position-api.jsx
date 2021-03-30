@@ -18,10 +18,10 @@ export function getPositions(fields, page, onSuccess){
 	req.get('organization/'+getCookie('organization-id')+'/position', { params }).then(onSuccess);
 }
 
-export function getPosition(positionId, fields, onSuccess){
+export function getPosition(positionId, fields, onSuccess, onError){
 	let params = {};
 	if(fields) params.fields = fields;
-	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId, { params }).then(onSuccess);
+	req.get('organization/'+getCookie('organization-id')+'/position/'+positionId, { params }).then(onSuccess).catch(onError);
 }
 
 export function deletePosition(positionId, onSuccess){

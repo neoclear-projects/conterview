@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Input, Modal, Form, Table, Grid, Label, Header, Container, Segment } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
-import { Card, Descriptions, Divider, PageHeader, Breadcrumb } from 'antd';
+import { Card, Descriptions, Divider, PageHeader, Breadcrumb, Result } from 'antd';
 import './position.css';
 import CreateInterview from '../interview/create-interview';
 import { getInterviews } from '../../api/interview-api';
@@ -17,16 +17,29 @@ class PositionItem extends React.Component {
       editPosModal:false,
       interviews:[],
       position:{},
+      loading:true,
+      notFound:false,
     };
-    this.fetchData();
+    getPosition(this.props.match.params.positionId, '', 
+      res => {
+        this.state.position = res.data;
+        getInterviews(this.props.match.params.positionId, '', '', res => {
+          this.state.interviews = res.data;
+          this.setState({loading:false});
+        });
+      },
+      err => {
+        if(err.response.status === 404) this.setState({notFound:true});
+      }
+    );
   }
 
   fetchData = () => {
-    getInterviews(this.props.match.params.positionId, '', '', res => {
-      this.setState({interviews: res.data});
-    });
     getPosition(this.props.match.params.positionId, '', res => {
-      this.setState({position: res.data});
+      this.state.position = res.data;
+      getInterviews(this.props.match.params.positionId, '', '', res => {
+        this.setState({interviews: res.data});
+      });
     });
   };
 
@@ -35,6 +48,9 @@ class PositionItem extends React.Component {
   setEditPosModal = (open) => this.setState({editPosModal: open});
 
   render() {   
+    if(this.state.notFound) return (<PageWrap selected='position'><Result status="404" title="Position not found" subTitle="This position might have been deleted"/></PageWrap>);
+    if(this.state.loading) return (<PageWrap selected='position' loading></PageWrap>);
+
     let interviews = this.state.interviews.map((interview) => {
       return (
         <Table.Row>

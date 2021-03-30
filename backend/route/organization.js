@@ -28,10 +28,12 @@ const position = require('./position');
 const user = require('./user');
 const problemSet = require('./problem-set');
 const interview = require('./interview-all-position');
+const event = require('./event');
 
 router.use('/:organizationId/position', position);
 router.use('/:organizationId/user', user);
 router.use('/:organizationId/problemSet', problemSet);
 router.use('/:organizationId/interview', interview);
+router.use('/:organizationId/event', event);
 
 module.exports = router;

@@ -1,6 +1,6 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb, Descriptions, Divider } from 'antd';
+import { PageHeader, Breadcrumb, Descriptions, Divider, Result } from 'antd';
 import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
 import { Button, Header, Grid, List, Pagination } from 'semantic-ui-react';
@@ -13,11 +13,17 @@ class InterviewItem extends React.Component {
       loading:true,
       editIntModal:false,
       interview:{},
+      notFound:false,
     }
-    getInterview(this.props.match.params.positionId, this.props.match.params.interviewId, '', res => {
-      this.state.interview = res.data;
-      this.setState({loading: false});
-    });
+    getInterview(this.props.match.params.positionId, this.props.match.params.interviewId, '', 
+      res => {
+        this.state.interview = res.data;
+        this.setState({loading: false});
+      },
+      err => {
+        if(err.response.status === 404) this.setState({notFound:true});
+      }
+    );
   }
 
   fetchData(){
@@ -29,7 +35,8 @@ class InterviewItem extends React.Component {
   setEditIntModal = (open) => this.setState({editIntModal: open});
 
 	render() { 
-    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>)
+    if(this.state.notFound) return (<PageWrap selected='interview'><Result status="404" title="Interview not found" subTitle="This interview might have been deleted"/></PageWrap>);
+    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>);
 		const routes = (
       <Breadcrumb>
         <Breadcrumb.Item>
