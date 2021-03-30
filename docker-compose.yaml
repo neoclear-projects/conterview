@@ -26,6 +26,9 @@ services:
     depends_on:
      - mongodb
     restart: on-failure
+    cli:
+      volumes:
+        - cli-volume: /var/run/docker.sock:/var/run/docker.sock
 
   frontend:
     build: ./frontend
