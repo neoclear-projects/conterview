@@ -24,7 +24,7 @@ router.route('/run').post((req, res) => {
     return res.status(404).send('Language not found');
   }
 
-  runner('core', code, (output) => {
+  runner('code', code, (output) => {
     return res.json({
       "output": output
     });

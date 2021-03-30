@@ -26,12 +26,6 @@ RUN chmod +x /usr/local/bin/wrapdocker
 VOLUME /var/lib/docker
 CMD ["wrapdocker"]
 
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
-CMD ["echo", "SHIT"]
+CMD ["docker", "run", "-d", "--rm", "--name", "code", "-it", "-v", "code", "neoclear/conterview-code-engine"]
 
 CMD ["node", "app.js"]
