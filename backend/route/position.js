@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const Position = require('../model/position.model');
 const Interview = require('../model/interview.model');
+const Event = require('../model/event.model');
 
 router.post('/', (req, res) => {
   const { name, description } = req.body;
-  Position.findOne({name, userId: req.session.user._id}, (err, position) => {
+  Position.findOne({name}, (err, position) => {
     if (err) return res.status(500).send(err);
     if (position) return res.status(409).send("Position with this name already exists");
     new Position({
@@ -16,6 +17,15 @@ router.post('/', (req, res) => {
       finishedInterviewNum: 0})
       .save((err, position) => {
       if(err) return res.status(500).send(err);
+      new Event({
+        user: req.session.user._id,
+        action: 'create',
+        itemTypeRef: 'Position',
+        itemType: 'position',
+        item: position._id,
+        time: new Date(),
+        organizationId: req.organization._id,
+      }).save(err => {if(err) return res.status(500).send(err);});
       return res.json(position);
     });
   });
