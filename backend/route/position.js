@@ -3,6 +3,18 @@ const Position = require('../model/position.model');
 const Interview = require('../model/interview.model');
 const Event = require('../model/event.model');
 
+function event(action, req, position){
+  return {
+    user: req.session.user._id,
+    action,
+    itemTypeRef: 'Position',
+    itemType: 'position',
+    item1: {_id: position._id, name: position.name},
+    time: new Date(),
+    organizationId: req.organization._id,
+  }
+}
+
 router.post('/', (req, res) => {
   const { name, description } = req.body;
   Position.findOne({name}, (err, position) => {
@@ -17,15 +29,7 @@ router.post('/', (req, res) => {
       finishedInterviewNum: 0})
       .save((err, position) => {
       if(err) return res.status(500).send(err);
-      new Event({
-        user: req.session.user._id,
-        action: 'create',
-        itemTypeRef: 'Position',
-        itemType: 'position',
-        item: position._id,
-        time: new Date(),
-        organizationId: req.organization._id,
-      }).save(err => {if(err) return res.status(500).send(err);});
+      new Event(event('create', req, position)).save(err => {if(err) return res.status(500).send(err);});
       return res.json(position);
     });
   });
@@ -64,6 +68,7 @@ router.use('/:positionId', (req, res, next) => {
 router.patch('/:positionId', (req, res) => {
   Position.findOneAndUpdate({_id:req.position._id}, { $set: req.body }, { returnOriginal: false }, (err, position) => {
     if (err) return res.status(500).send(err);
+    new Event(event('update', req, position)).save(err => {if(err) return res.status(500).send(err);});
     return res.json(position);
   });
 });
@@ -76,12 +81,13 @@ router.get('/:positionId', (req, res) => {
 });
 
 router.delete('/:positionId', (req, res) => {
-  Interview.remove({'position._id':req.position._id}).exec((err) => {
+  Interview.remove({'position':req.position._id}).exec((err) => {
     if (err) return res.status(500).send(err);
   });
-  Position.remove({_id:req.position._id}, {justOne: true}).exec((err, position) => {
+  Position.remove({_id:req.position._id}, {justOne: true}).exec((err) => {
     if (err) return res.status(500).send(err);
-    return res.json(position);
+    new Event(event('delete', req, req.position)).save(err => {if(err) return res.status(500).send(err);});
+    return res.json(req.position);
   });
 });
 

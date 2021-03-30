@@ -5,6 +5,20 @@ const toObjectId = require('../util/object-id');
 const Problem = require('../model/problem-set.model').ProblemSet;
 const Position = require('../model/position.model');
 const User = require('../model/user.model');
+const Event = require('../model/event.model');
+
+function event(action, req, interview, position){
+  return {
+    user: req.session.user._id,
+    action,
+    itemTypeRef: 'Interview',
+    itemType: 'interview',
+    item1: {_id: interview._id, name: interview.candidate.name},
+    item2: {_id: position._id, name: position.name},
+    time: new Date(),
+    organizationId: req.organization._id,
+  }
+}
 
 router.post('/', (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
@@ -31,6 +45,7 @@ router.post('/', (req, res) => {
         <p>https://www.conterview.com/position/${req.position._id}/interview/${interview._id}/running</p>
       `
     );
+    new Event(event('create', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
     return res.json(interview);
   });
 });
@@ -50,7 +65,6 @@ router.get('/', (req, res) => {
     .populate({path:'problems'})
     .exec((err, interviews) => {
     if (err) return res.status(500).send(err);
-    console.log(interviews);
     return res.json(interviews);
   });
 });
@@ -60,7 +74,7 @@ router.use('/:interviewId', (req, res, next) => {
     .findOne({_id:req.params.interviewId})
     .exec((err, interview) => {
     if (err) return res.status(500).send(err);
-    if (!interview || !req.position._id.equals(interview.position._id)) return res.status(404).send("interview #" + req.params.interviewId + " not found for position #" + req.position._id);
+    if (!interview || !req.position._id.equals(interview.position)) return res.status(404).send("interview #" + req.params.interviewId + " not found for position #" + req.position._id);
     req.interview = interview;
     next();
   });
@@ -92,6 +106,7 @@ router.patch('/:interviewId', (req, res) => {
   Interview.
     findOneAndUpdate({_id:req.interview._id}, { $set: interview }, { returnOriginal: false }, (err, interview) => {
     if (err) return res.status(500).send(err);
+    new Event(event('update', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
     return res.json(interview);
   });
 });
@@ -101,6 +116,7 @@ router.delete('/:interviewId', (req, res) => {
     .remove({_id:req.interview._id}, {justOne: true})
     .exec((err, interview) => {
     if (err) return res.status(500).send(err);
+    new Event(event('delete', req, req.interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
     return res.json(interview);
   });
 });

@@ -15,6 +15,7 @@ class Home extends React.Component {
     getEvents(
       res => {
         this.state.events = res.data;
+        console.log(res.data);
         this.setState({loading: false});
       },
       err => {}
@@ -54,21 +55,27 @@ class Home extends React.Component {
         case 'position':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} position `} <Link to={`/position/${event.item._id}`}>{event.item.name}</Link>
+              {`${event.user.username} ${actionWord} position `} 
+              <Link to={`/position/${event.item1._id}`}>{event.item1.name}</Link>
             </div>
           );
           break;
         case 'interview':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} interview with candidate `} <Link to={`/position/${event.item.position._id}/interview/${event.item._id}`}>${event.item.candidate.name}</Link> for position <Link to={`/position/${event.item.position._id}`}>{event.item.position.name}</Link>
+              {`${event.user.username} ${actionWord} interview with candidate `} 
+              <Link to={`/position/${event.item2._id}/interview/${event.item1._id}`}>{event.item1.name}</Link> for position <Link to={`/position/${event.item2._id}`}>{event.item2.name}</Link>
             </div>
           );
           break;
         case 'problem':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} problem ${event.item.problemName}`} 
+              {`${event.user.username} ${actionWord} problem `} 
+              {event.action === 'delete'?
+                event.deletedName :
+                event.item.problemName
+              }
             </div>
           );
           break;

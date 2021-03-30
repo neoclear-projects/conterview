@@ -10,9 +10,13 @@ const EventSchema = new Schema({
   action: String,
   itemTypeRef: String,
   itemType: String,
-  item: {
-    type: ObjectId,
-    refPath: 'itemTypeRef'
+  item1: {
+    _id: ObjectId,
+    name: String,
+  },
+  item2: {
+    _id: ObjectId,
+    name: String,
   },
   time: Date,
   organizationId: ObjectId,
