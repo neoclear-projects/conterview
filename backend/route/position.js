@@ -7,7 +7,6 @@ function event(action, req, position){
   return {
     user: req.session.user._id,
     action,
-    itemTypeRef: 'Position',
     itemType: 'position',
     item1: {_id: position._id, name: position.name},
     time: new Date(),

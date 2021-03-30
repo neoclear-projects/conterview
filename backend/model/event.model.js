@@ -8,7 +8,6 @@ const EventSchema = new Schema({
     ref: 'User'
   },
   action: String,
-  itemTypeRef: String,
   itemType: String,
   item1: {
     _id: ObjectId,

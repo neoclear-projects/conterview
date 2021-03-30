@@ -11,7 +11,6 @@ function event(action, req, interview, position){
   return {
     user: req.session.user._id,
     action,
-    itemTypeRef: 'Interview',
     itemType: 'interview',
     item1: {_id: interview._id, name: interview.candidate.name},
     item2: {_id: position._id, name: position.name},
