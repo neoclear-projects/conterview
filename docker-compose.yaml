@@ -26,6 +26,7 @@ services:
     depends_on:
      - mongodb
     restart: on-failure
+    command: ["start", "--swarmOverlayNetwork", "STACK_zalenium", "--videoRecordingEnabled", "false", "--privileged"]
 
   frontend:
     build: ./frontend
