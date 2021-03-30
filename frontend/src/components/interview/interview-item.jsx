@@ -59,6 +59,7 @@ class InterviewItem extends React.Component {
           extra={[
             <Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>,
             <Button color='blue' onClick={() => this.setEditIntModal(true)}>Edit Interview</Button>,
+            <Button color='blue' onClick={() => this.props.history.push('/position/'+this.state.interview.position._id+'/interview/'+this.state.interview._id+'/statistics')}>Statistics</Button>,
             <Button color='red' onClick={() => deleteInterview(this.props.match.params.positionId, this.props.match.params.interviewId, res => {this.props.history.push(`/position/${this.props.match.params.positionId}`)})}>Delete Interview</Button>
           ]}
           breadcrumbRender = {() => routes}

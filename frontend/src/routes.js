@@ -16,6 +16,7 @@ import Home from './components/home/home';
 import ProblemSet from './components/problem-set/problem-set';
 import Statistics from './components/statistics/statistics';
 import PositionStat from './components/statistics/position-stat';
+import InterviewStat from './components/statistics/interview-stat';
 import Profile from './components/profile/profile';
 
 import PrivateRoute from './auth/private-route';
@@ -38,6 +39,7 @@ class Routes extends React.Component {
         <PrivateRoute exact path='/problem-set' component={ProblemSet} />
         <PrivateRoute exact path='/statistics' component={Statistics} />
         <PrivateRoute exact path='/position/:positionId/statistics' component={PositionStat} />
+        <PrivateRoute exact path='/position/:positionId/interview/:interviewId/statistics' component={InterviewStat} />
         <PrivateRoute exact path='/profile' component={Profile} />
         <Route path='*' component={NotFoundPage} />
       </Switch>
