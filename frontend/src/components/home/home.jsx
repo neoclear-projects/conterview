@@ -71,11 +71,7 @@ class Home extends React.Component {
         case 'problem':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} problem `} 
-              {event.action === 'delete'?
-                event.deletedName :
-                event.item.problemName
-              }
+              {`${event.user.username} ${actionWord} problem ${event.item1.name}`} 
             </div>
           );
           break;
