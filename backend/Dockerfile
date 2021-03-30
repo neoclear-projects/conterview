@@ -26,6 +26,6 @@ RUN chmod +x /usr/local/bin/wrapdocker
 VOLUME /var/lib/docker
 CMD ["wrapdocker"]
 
-CMD ["docker", "run", "hello-world"]
+CMD ["echo", "SHIT"]
 
 CMD ["node", "app.js"]
