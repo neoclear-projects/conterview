@@ -46,6 +46,7 @@ class InterviewStat extends React.Component {
     let content = this.state.interview.problemsSnapshot.map((problem) => {
       return (
         <div>
+          <Divider style={{marginBottom:'20px'}}/>
           <Header style={{marginBottom:'30px'}} as='h2' content={problem.problemName}/>
           <div style={{marginLeft:'20px'}}>
             {
@@ -60,7 +61,6 @@ class InterviewStat extends React.Component {
             }
             <Header style={{marginBottom:'20px'}} content='Interviewer Comments' subheader={problem.comment}/>
           </div>
-          <Divider style={{marginBottom:'20px'}}/>
         </div>
       );
     });
@@ -77,6 +77,9 @@ class InterviewStat extends React.Component {
         >
         </PageHeader>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
+          <div style={{display:'flex', flexDirection:'row', justifyContent:'flex-end'}}>
+            <Statistic title='Total Grade' value={this.state.interview.totalGrade} suffix={'/ ' + this.state.interview.maxTotalGrade} />
+          </div>
           { content }
         </div>
       </PageWrap>

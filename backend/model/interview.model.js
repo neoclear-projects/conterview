@@ -34,6 +34,7 @@ const InterviewSchema = new Schema({
   scheduledLength: Number,
   currentProblemIndex: Number,
   totalGrade: Number,
+  maxTotalGrade: Number,
 });
 
 const Interview = mongoose.model('Interview', InterviewSchema);

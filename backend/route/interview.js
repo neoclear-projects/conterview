@@ -132,6 +132,7 @@ router.patch('/:interviewId/status', (req, res) => {
         interview.status = 'finished';
         interview.finishTime = new Date();
         interview.totalGrade = getInterviewTotalGrade(interview);
+        interview.maxTotalGrade = getInterviewMaxTotalGrade(interview);
         Position.updateOne({_id:req.position._id}, { $inc: {finishedInterviewNum:1, pendingInterviewNum:-1} }, (err) => {
           if (err) return res.status(500).send(err);
         });
@@ -208,4 +209,12 @@ function getProblemTotalGrade(problem){
 
 function getInterviewTotalGrade(interview){
   return interview.problemsSnapshot.map(getProblemTotalGrade).reduce((pv, cv) => pv + cv, 0);
+}
+
+function getProblemMaxTotalGrade(problem){
+  return problem.problemRubric.map(rubric => {return rubric.rating}).reduce((pv, cv) => pv + cv, 0);
+}
+
+function getInterviewMaxTotalGrade(interview){
+  return interview.problemsSnapshot.map(getProblemMaxTotalGrade).reduce((pv, cv) => pv + cv, 0);
 }
