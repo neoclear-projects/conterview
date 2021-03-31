@@ -32,20 +32,6 @@ function Problem({
       .catch(err => console.log(err));
   }
 
-  const text = `
-  ### Description: Here's what you need
-  
-  #### The problem needs several inputs
-
-  1. First example
-
-  \`\`\`js
-  var React = require('js')
-  \`\`\`
-
-  2. Second example
-  `;
-
   return (
     <div>
       <div className='tab-header'>
@@ -54,8 +40,7 @@ function Problem({
       <div id='problem'>
         <Header>{problemName}</Header>
         <Divider />
-        {/* <Text>{description}</Text> */}
-        <ReactMarkdown renderers={renderers}>{text}</ReactMarkdown>
+        <ReactMarkdown renderers={renderers}>{description}</ReactMarkdown>
         <Divider />
         <div>{preferedLang}</div>
       </div>
