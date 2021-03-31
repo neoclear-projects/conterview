@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Table } from 'semantic-ui-react';
 // import {ReactMarkdown} from 'react-markdown';
-import { postProblemSet } from '../../api/problem-set-api';
+import { postProblemSet, updateProblemSet } from '../../api/problem-set-api';
 import ProblemDeletion from './problem-deletion';
 import ProblemOperation from './problem-operation';
 import ProblemSet from './problem-set';
@@ -113,7 +113,16 @@ export class singleProblem {
         });
     }
     else {
-      this.parentProblemSet.quickUpdateState();
+      updateProblemSet(this, (value) => {
+        this.parentProblemSet.quickUpdateState();
+        return value;
+      },(err) => {
+        if(String(err).indexOf("409") !== -1){
+          alert("There's a same problem name existing already! Please consider create the problem with another name! \r\nNote that your problem content is still here locally :)")
+        }
+        console.error(err);
+        return err;
+      });
     }
   }
 

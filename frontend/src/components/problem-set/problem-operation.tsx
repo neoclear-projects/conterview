@@ -105,6 +105,7 @@ class ProblemOperation extends React.Component {
                     <h3>Problem Description</h3>
                     <Form>
                         <div style={{ fontFamily: 'monospace' }} >
+
                             <TextArea
                                 rows={6}
                                 value={this.state.TempDescription}

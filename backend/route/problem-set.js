@@ -4,6 +4,7 @@ const problemSet = require('../model/problem-set.model').ProblemSet;
 const crypto = require('crypto');
 const cookie = require('cookie');
 const session = require('express-session');
+const Event = require('../model/event.model');
 
 const Languages = [
   "C++",
@@ -66,7 +67,16 @@ router.route('/').post((req, res) => {
         problemRubric: problemRubric
       }).save((err, doc) => {
         if (err) return res.status(500).send(err);
-        return res.json(doc);
+        new Event({
+          user: req.session.user._id,
+          action: 'create',
+          itemTypeRef: 'ProblemSet',
+          itemType: 'problem',
+          item: doc._id,
+          time: new Date(),
+          organizationId: req.organization._id,
+        }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Success"); });
+
       });
     });
   });
@@ -95,7 +105,15 @@ router.route('/').put((req, res) => {
         problemRubric: problemRubric == undefined ? doc.problemRubric : problemRubric,
       }, function (err, docU) {
         if (err) return res.status(500).send(err);
-        return res.status(200).send("Success");
+        new Event({
+          user: req.session.user._id,
+          action: 'update',
+          itemTypeRef: 'ProblemSet',
+          itemType: 'problem',
+          item: docU._id,
+          time: new Date(),
+          organizationId: req.organization._id,
+        }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Success"); });
       });
     }
   });
@@ -127,7 +145,7 @@ function BatchRecursive(subset, req, res) {
           return BatchRecursive(subset.slice(1), req, res);
         });
       }
-      else{
+      else {
         return BatchRecursive(subset.slice(1), req, res);
       }
     });
@@ -156,7 +174,7 @@ router.route('/:problemID').delete((req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
   const ID = req.params.problemID;
 
-  problemSet.findOne({ _id: ID}, function (err, doc) {
+  problemSet.findOne({ _id: ID }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
       return res.status(202).send("This problem ID does not exist.")
@@ -164,7 +182,15 @@ router.route('/:problemID').delete((req, res) => {
     else {
       problemSet.deleteOne({ _id: doc._id }, (err, docR) => {
         if (err) return res.status(500).send(err);
-        return res.status(200).send("Success!");
+        new Event({
+          user: req.session.user._id,
+          action: 'delete',
+          itemTypeRef: 'ProblemSet',
+          itemType: 'problem',
+          item: docR._id,
+          time: new Date(),
+          organizationId: req.organization._id,
+        }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Deletion Success"); });
       });
     }
   });
@@ -174,31 +200,42 @@ router.route('/:problemID').delete((req, res) => {
 router.route('/').get((req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
-  problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
+  var PageNum = req.query.pageNum;
+  const Limiter = 10;
+  if (PageNum == undefined) {
+    // If page was not designated
+    problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
+      if (err) return res.status(500).send(err);
+      if (!doc) {
+        return res.status(404).send("User's problem set does not exist!")
+      }
+      else {
+        return res.json(doc);
+      }
+    });
+  }
+  else {
+    // If page was designated
+    problemSet.find({ belongingOrgId: req.organization._id }).skip(PageNum * Limiter).find(Limiter).exec((err, doc) => {
+      if (err) return res.status(500).send(err);
+      if (!doc) {
+        return res.status(404).send("User's problem set does not exist!")
+      }
+      else {
+        return res.json(doc);
+      }
+    });
+  }
+});
+
+router.route('/pageCount').get((req, res) => {
+  problemSet.count({ belongingOrgId: req.organization._id }, (err, Kount) => {
     if (err) return res.status(500).send(err);
-    if (!doc) {
-      return res.status(404).send("User's problem set does not exist!")
-    }
-    else {
-      return res.json(doc);
-    }
+    if (doc == null) return res.status(404).send("User's problem set does not exist!");
+    else return res.json({count:Kount});
   });
 });
 
-// // Get problems with specific ID
-// router.route('/:problemID').get((req, res) => {
-//   // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
-
-//   problemSet.findOne({ _id: req.params.problemID }, function (err, doc) {
-//     if (err) return res.status(500).send(err);
-//     if (!doc) {
-//       return res.status(404).send("User's problem set does not exist!")
-//     }
-//     else {
-//       return res.json(doc);
-//     }
-//   });
-// });
 
 router.route('/:pid').get((req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
@@ -212,7 +249,7 @@ router.route('/:pid/dataset').get((req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("User's problem set does not exist!");
-    else return res.json({Input:doc.problemInputSet, Output:doc.problemOutputSet});
+    else return res.json({ Input: doc.problemInputSet, Output: doc.problemOutputSet });
   });
 });
 

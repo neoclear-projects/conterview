@@ -10,6 +10,7 @@ const problemSetSchema = new Schema({
   belongingOrgId: {
     type: String,
     required: 'belonging user ID is required',
+    index: true,
   },
   problemName:{
     type: String,
