@@ -1,14 +1,14 @@
 const { exec } = require('child_process');
 
-module.exports = function cppRunner(id, code, callback) {
-  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > a.cpp\'`);
+module.exports = function cppRunner(id, interviewId, code, callback) {
+  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interview}.cpp\'`);
 
   writeProc.stdin.write(code);
   writeProc.stdin.end();
 
   // After write code to file, execute
   writeProc.on('exit', (code) => {
-    const compileProc = exec(`docker exec ${id} g++ -std=c++17 a.cpp`, (err, stdout, stderr) => {
+    const compileProc = exec(`docker exec ${id} g++ -std=c++17 ${interviewId}.cpp -o ${interviewId}`, (err, stdout, stderr) => {
       if (err) {
         console.error(err.stack);
         console.error('Error code: ' + err.code);
@@ -20,7 +20,7 @@ module.exports = function cppRunner(id, code, callback) {
         return callback(stdout + stderr);
 
       // After finished compilation
-      const runProc = exec(`docker exec ${id} ./a.out`, (err, stdout, stderr) => {
+      const runProc = exec(`docker exec ${id} ./${interviewId}`, (err, stdout, stderr) => {
         if (err) {
           console.error(err.stack);
           console.error('Error code: ' + err.code);

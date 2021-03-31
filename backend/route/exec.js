@@ -13,8 +13,9 @@ const executor = {
   'typescript': typescriptRunner
 };
 
-router.route('/run').post((req, res) => {
+router.route('/run/:interviewId').post((req, res) => {
   const { language, code } = req.body;
+  const interviewId = req.params.interviewId;
 
   let runner = executor[language];
   

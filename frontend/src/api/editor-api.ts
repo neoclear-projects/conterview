@@ -2,6 +2,7 @@ import { getCookie } from '../util/get-cookie';
 import req from './req';
 
 // export type InterviewState = 'pending' | 'running' | 'finished';
+export type languageType = 'cpp' | 'java' | 'python' | 'javascript' | 'typescript';
 
 export function getInterviewState(positionId: string, interviewId: string, onSuccess: (state: any) => void, onError: (err: string) => void) {
   req
@@ -56,4 +57,16 @@ export function updateRubric(positionId: string, interviewId: string, questionId
       onSuccess();
     })
     .catch(err => onError(err));
+}
+
+export function runCode(interviewId: string, code: string, language: languageType, onSuccess: (output: string) => void, onError: (err: any) => void) {
+  req.post(
+    `exec/run/${interviewId}`,
+    JSON.stringify({
+      language: language,
+      code: code
+    })
+  )
+  .then(res => onSuccess(res.data.output))
+  .catch(onError);
 }

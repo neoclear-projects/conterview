@@ -30,7 +30,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -519,15 +519,11 @@ function Editor({
           <Padding width={16} />
           <Button onClick={() => {
               setCompiling(true);
-              req.post(
-                '/exec/run',
-                JSON.stringify({
-                  'language': language,
-                  'code': code // monaco.editor.getValue()
-                })
-              )
-              .then((res) => {
-                setOutput(output + '[LOG]: \n' + res.data.output);
+              runCode(interviewId, code, language, output => {
+                setOutput(output + '[LOG]: \n' + output);
+                setCompiling(false);
+              }, err => {
+                errorLog(err);
                 setCompiling(false);
               });
             }}
