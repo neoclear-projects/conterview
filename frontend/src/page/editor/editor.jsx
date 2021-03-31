@@ -519,8 +519,8 @@ function Editor({
           <Padding width={16} />
           <Button onClick={() => {
               setCompiling(true);
-              runCode(interviewId, code, language, output => {
-                setOutput(output + '[LOG]: \n' + output);
+              runCode(interviewId, code, language, out => {
+                setOutput(output + '[LOG]: \n' + out);
                 setCompiling(false);
               }, err => {
                 errorLog(err);

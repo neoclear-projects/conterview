@@ -8,7 +8,7 @@ module.exports = function pythonRunner(id, interviewId, code, callback) {
 
   // After write code to file, execute
   writeProc.on('exit', (code) => {
-    const execProc = exec(`docker exec ${id} python3 ${interview}.py`, (err, stdout, stderr) => {
+    const execProc = exec(`docker exec ${id} python3 ${interviewId}.py`, (err, stdout, stderr) => {
       if (err) {
         console.error(err.stack);
         console.error('Error code: ' + err.code);

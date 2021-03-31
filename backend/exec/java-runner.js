@@ -1,14 +1,14 @@
 const { exec } = require('child_process');
 
 module.exports = function javaRunner(id, interviewId, code, callback) {
-  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interview}.java\'`);
+  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interviewId}.java\'`);
 
   writeProc.stdin.write(code);
   writeProc.stdin.end();
 
   // After write code to file, execute
   writeProc.on('exit', (code) => {
-    const execProc = exec(`docker exec ${id} java ${interview}.java`, (err, stdout, stderr) => {
+    const execProc = exec(`docker exec ${id} java ${interviewId}.java`, (err, stdout, stderr) => {
       if (err) {
         console.error(err.stack);
         console.error('Error code: ' + err.code);

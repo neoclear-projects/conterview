@@ -1,7 +1,7 @@
 const { exec } = require('child_process');
 
 module.exports = function cppRunner(id, interviewId, code, callback) {
-  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interview}.cpp\'`);
+  const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interviewId}.cpp\'`);
 
   writeProc.stdin.write(code);
   writeProc.stdin.end();
