@@ -1,7 +1,6 @@
 import React from 'react';
 import { Button, Input, Modal, Form, Table } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
-import PageContent from '../header/page-content';
 import { createPosition, updatePosition, getPositions } from '../../api/position-api';
 import { withRouter } from 'react-router-dom';
 

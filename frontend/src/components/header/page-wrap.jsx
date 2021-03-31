@@ -4,8 +4,6 @@ import { useHistory } from 'react-router-dom';
 import { Icon, Image, Button } from 'semantic-ui-react';
 import logo from '../../static/images/logo-dashboard.png';
 import { logout } from '../../api/auth-api';
-import PageTopHeader from './page-header';
-import PageContent from './page-content';
 import { Spin } from 'antd';
 
 export default function PageWrap(props) {
