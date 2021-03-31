@@ -4,7 +4,6 @@ import _ from 'lodash';
 import React from 'react';
 import * as semanticUiReact from 'semantic-ui-react';
 import { getProblemSet, updateBatchProblemSet } from '../../api/problem-set-api';
-import PageContent from '../header/page-content';
 import PageWrap from '../header/page-wrap';
 import ProblemOperation from './problem-operation';
 import singleProblem, { Languages } from './single-problem';
@@ -149,7 +148,6 @@ class ProblemSet extends React.Component {
           breadcrumbRender={() => routes}
         >
         </PageHeader>
-        <PageContent>
           <div style={{
             display: 'flex',
             flexDirection: 'row',
@@ -186,7 +184,6 @@ class ProblemSet extends React.Component {
               </semanticUiReact.Table.Body>
             </semanticUiReact.Table>
           </div>
-        </PageContent>
       </PageWrap>
     );
     return HTML;
