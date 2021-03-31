@@ -17,7 +17,6 @@ import Peer from 'peerjs';
 
 import { Splitter } from '@progress/kendo-react-layout';
 import * as Monaco from 'monaco-editor';
-import req from '../../api/req';
 
 // Loading options
 import {
