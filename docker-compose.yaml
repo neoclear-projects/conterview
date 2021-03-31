@@ -27,7 +27,9 @@ services:
      - mongodb
     restart: on-failure
     volumes:
-     - "/var/run/docker.sock:/var/run/docker.sock"
+     - /usr/bin/docker:/usr/bin/docker
+     - /var/run/docker.sock:/var/run/docker.sock
+    user: root
 
   frontend:
     build: ./frontend
