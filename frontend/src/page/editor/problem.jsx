@@ -1,8 +1,16 @@
-import Text from 'antd/lib/typography/Text';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import ReactMarkdown from 'react-markdown'
 import { Divider, Header } from 'semantic-ui-react';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import req from '../../api/req';
 import './problem.css';
+
+const renderers = {
+  code: ({language, value}) => {
+    return <SyntaxHighlighter style={tomorrow} language={language} children={value} />
+  }
+};
 
 function Problem({
   problemId
@@ -32,7 +40,7 @@ function Problem({
       <div id='problem'>
         <Header>{problemName}</Header>
         <Divider />
-        <Text>{description}</Text>
+        <ReactMarkdown renderers={renderers}>{description}</ReactMarkdown>
         <Divider />
         <div>{preferedLang}</div>
       </div>

@@ -1,45 +1,64 @@
 import React from 'react';
 import './page-wrap.css';
-import { useHistory } from 'react-router-dom';
-import { Icon, Image, Button } from 'semantic-ui-react';
+import { Icon, Image, List } from 'semantic-ui-react';
 import logo from '../../static/images/logo-dashboard.png';
 import { logout } from '../../api/auth-api';
-import { Spin } from 'antd';
+import { Spin, Popover, Space } from 'antd';
+import { withRouter } from 'react-router-dom';
 
-export default function PageWrap(props) {
-  const history = useHistory();
-  return (
-    <div className='c-page-wrap'>
-      <div className='c-page-menu'>
-        <div className='c-menu-logo'>
-          <Image src={logo} horizontal size='small' />
+class PageWrap extends React.Component {
+  render(){
+    const content = (
+      <List divided relaxed style={{width: '100px'}}>
+        <List.Item 
+          icon='user' 
+          content='Profile'
+          onClick={()=>{
+            this.props.history.push('/profile');
+          }}
+        />
+        <List.Item 
+          icon='sign-out' 
+          content='Logout' 
+          onClick={()=>{
+            logout(res => this.props.history.push('/login'));
+          }}
+        />
+      </List>
+    );
+    return (
+      <div className='c-page-wrap'>
+        <div className='c-page-menu'>
+          <div className='c-menu-logo'>
+            <Image src={logo} horizontal size='small' />
+          </div>
+          <div className={this.props.selected === 'home' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/')}><Icon name='home' /> Home</div>
+          <div className={this.props.selected === 'position' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/position')}><Icon name='suitcase' /> Position</div>
+          <div className={this.props.selected === 'interview' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/interview')}><Icon name='film' /> Interview</div>
+          <div className={this.props.selected === 'problem-set' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/problem-set')}><Icon name='pencil' /> Problem Set</div>
+          <div className={this.props.selected === 'statistics' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/statistics')}><Icon name='chart pie' /> Statistics</div>
+          <div className={this.props.selected === 'profile' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/profile')}><Icon name='database' /> Profile</div>
         </div>
-        <div className={props.selected == 'home' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/')}><Icon name='home' /> Home</div>
-        <div className={props.selected == 'position' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/position')}><Icon name='suitcase' /> Position</div>
-        <div className={props.selected == 'interview' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/interview')}><Icon name='film' /> Interview</div>
-        <div className={props.selected == 'problem-set' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/problem-set')}><Icon name='pencil' /> Problem Set</div>
-        <div className={props.selected == 'statistics' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/statistics')}><Icon name='chart pie' /> Statistics</div>
-        <div className={props.selected == 'profile' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => history.push('/profile')}><Icon name='database' /> Profile</div>
+        <div className='c-page-body'>
+          <div className='c-page-header'>
+            <Popover content={content}>
+              <Space>
+                <Image src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' avatar />
+                <span>Username</span>
+              </Space>
+            </Popover>
+          </div>
+          <div className='c-page-content'>
+            { this.props.loading ? 
+              <Spin size='large' delay={50} style={{position:'relative',top:'calc(50% - 25px)',left:'calc(50% - 25px)'}} /> 
+              : 
+              this.props.children
+            }
+          </div>
+        </div>
       </div>
-      <div className='c-page-body'>
-        <div className='c-page-header'>
-          <Button
-            color='red'
-            onClick={()=>{
-              logout(res => history.push('/login'));
-            }}
-          >
-            Logout
-          </Button>
-        </div>
-        <div className='c-page-content'>
-          { props.loading ? 
-            <Spin size='large' delay={50} style={{position:'relative',top:'calc(50% - 25px)',left:'calc(50% - 25px)'}} /> 
-            : 
-            props.children
-          }
-        </div>
-      </div>
-    </div>
-  );
-};
+    );
+  };
+}
+
+export default withRouter(PageWrap);

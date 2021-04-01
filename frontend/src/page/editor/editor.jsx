@@ -3,7 +3,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
-import { Button, Divider, Image, Input, List, Radio, Select } from 'semantic-ui-react';
+import { Button, ButtonGroup, Divider, Input, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
 import { Statistic } from 'antd';
 import Padding from '../../util/padding';
@@ -17,7 +17,6 @@ import Peer from 'peerjs';
 
 import { Splitter } from '@progress/kendo-react-layout';
 import * as Monaco from 'monaco-editor';
-import req from '../../api/req';
 
 // Loading options
 import {
@@ -30,7 +29,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -65,6 +64,7 @@ function Editor({
   const [cursorWidth, setCursorWidth] = useState(2);
   const [code, setCode] = useState('');
   const [compiling, setCompiling] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   const [videoVisible, setVideoVisible] = useState(false);
   const [dashboardVisible, setDashboardVisible] = useState(false);
@@ -97,20 +97,15 @@ function Editor({
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
   
-  const rubricRef = useRef(null);
-
   const refreshState = () => {
     getInterviewState(positionId, interviewId, res => {
-      console.log(res);
-      if (res.status == 'running') {
+      if (res.status === 'running') {
         setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
-        console.log(res);
         setCurQuestionIdx(res.currentProblemIndex);
       }
 
       setInterviewState(res.status);
       setQuestions(res.problemsSnapshot);
-      console.log(res.problemsSnapshot);
     }, errorLog);
   };
 
@@ -118,7 +113,6 @@ function Editor({
     refreshState();
 
     peer.on('open', id => {
-      console.log(id);
       socket.emit('join', id, interviewId);
       setId(id);
     });
@@ -139,7 +133,6 @@ function Editor({
       });
 
       socket.on('user-conn', (userId) => {
-        console.log('User connected ' + userId);
         const call = peer.call(userId, stream);
         call.on('stream', (newStream) => {
           streamsRef.current.set(call.peer, {
@@ -391,9 +384,8 @@ function Editor({
               {
                 (function() {
                   let res = [];
-                  if (curQuestionIdx == -1 || curQuestionIdx >= questions.length)
+                  if (curQuestionIdx === -1 || curQuestionIdx >= questions.length)
                     return [];
-                  console.log(questions[curQuestionIdx].problemRubric);
                   for (let i = 0; i < questions[curQuestionIdx].problemRubric.length; i++) {
                     let rubric = questions[curQuestionIdx].problemRubric[i];
                     res.push(
@@ -443,8 +435,7 @@ function Editor({
                 <List.Content floated='right'>
                   {
                     (function() {
-                      console.log(interviewState)
-                      if (interviewState == 'pending')
+                      if (interviewState === 'pending')
                         return (
                           <Button color='green' onClick={() => {
                             interviewStart(positionId, interviewId, () => {
@@ -456,7 +447,7 @@ function Editor({
                             <Icon name='play' /> Start Interview
                           </Button>
                         );
-                      else if (interviewState == 'running')
+                      else if (interviewState === 'running')
                         return (
                           <Button color='red' onClick={() => {
                             interviewStop(positionId, interviewId, () => {
@@ -468,7 +459,7 @@ function Editor({
                             <Icon name='stop' /> End Interview
                           </Button>
                         );
-                      else if (interviewState == 'finished')
+                      else if (interviewState === 'finished')
                         return (
                           <Button color='grey' disabled>
                             Interview Finished
@@ -496,7 +487,7 @@ function Editor({
                             socket.emit('refresh');
                           }, errorLog);
                         }}
-                        checked={i == curQuestionIdx}
+                        checked={i === curQuestionIdx}
                       />
                     );
                   }
@@ -517,7 +508,8 @@ function Editor({
             <Button toggle active={language === 'typescript'} inverted={inverted} onClick={() => setLanguage('typescript')}>Typescript</Button>
           </Button.Group>
           <Padding width={16} />
-          <Button onClick={() => {
+          <ButtonGroup>
+            <Button basic onClick={() => {
               setCompiling(true);
               runCode(interviewId, code, language, out => {
                 setOutput(output + '[LOG]: \n' + out);
@@ -527,14 +519,31 @@ function Editor({
                 setCompiling(false);
               });
             }}
-            color={compiling ? 'grey' : 'red'}
-            disabled={compiling}
-          >
-            <Icon name='play' /> {compiling ? 'Building' : 'Run'}
-          </Button>
+              color={compiling ? 'grey' : 'red'}
+              disabled={compiling}
+            >
+              <Icon name='play' /> {compiling ? 'Building' : 'Run'}
+            </Button>
+            <Button onClick={() => {
+              setTesting(true);
+              testCode(interviewId, code, language, questions[curQuestionIdx]._id, (result, msg) => {
+                if (result === 'pass') testPassed(questions[curQuestionIdx].problemName);
+                else if (result === 'fail') testFailed(questions[curQuestionIdx].problemName);
+                else if (result === 'cperror') testCompilerError(msg);
+                setTesting(false);
+              }, err => {
+                errorLog(err);
+                setTesting(false);
+              })
+            }}
+              color={testing ? 'grey' : 'red'}
+              disabled={testing}
+            >
+              <Icon name='bug' /> {testing ? 'Building' : 'Test'}
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
-      {/* <Progress size='small' color='red' percent={60} label={new Date()} active /> */}
       <Splitter
         style={{
           height: 'calc(100vh - 60px)',
@@ -623,7 +632,7 @@ function Editor({
           panes={subPanes}
           onChange={(event) => setSubPanes(event.newState)}
         >
-          <Problem problemId={curQuestionIdx == -1 || curQuestionIdx >= questions.length ? null : questions[curQuestionIdx]._id} />
+          <Problem problemId={curQuestionIdx === -1 || curQuestionIdx >= questions.length ? null : questions[curQuestionIdx]._id} />
           <div>
             <Terminal colorMode={inverted} text={output} fontSize={fontSize + 4} bold={bold} />
           </div>

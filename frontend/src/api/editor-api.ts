@@ -1,8 +1,10 @@
+import { notification } from 'antd';
 import { getCookie } from '../util/get-cookie';
 import req from './req';
 
 // export type InterviewState = 'pending' | 'running' | 'finished';
 export type languageType = 'cpp' | 'java' | 'python' | 'javascript' | 'typescript';
+export type testResult = 'pass' | 'fail' | 'cperror';
 
 export function getInterviewState(positionId: string, interviewId: string, onSuccess: (state: any) => void, onError: (err: string) => void) {
   req
@@ -17,10 +19,7 @@ export function interviewStart(positionId: string, interviewId: string, onSucces
   let data = JSON.stringify({status:'running'});
   req
     .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
-    .then(() => {
-      console.log('What the fuck')
-      onSuccess();
-    })
+    .then(onSuccess)
     .catch(err => onError(err));
 };
 
@@ -69,4 +68,37 @@ export function runCode(interviewId: string, code: string, language: languageTyp
   )
   .then(res => onSuccess(res.data.output))
   .catch(onError);
+}
+
+export function testCode(interviewId: string, code: string, language: languageType, problemId: string, onSuccess: (res: testResult, msg: string) => void, onError: (err: any) => void) {
+  req.post(
+    `exec/test/${interviewId}/problem/${problemId}`,
+    JSON.stringify({
+      language: language,
+      code: code
+    })
+  )
+  .then(res => onSuccess(res.data.result, res.data.message))
+  .catch(onError);
+}
+
+export function testPassed(problemName: string) {
+  notification['success']({
+    message: 'Test Passed',
+    description: `All tests from ${problemName} passed`,
+  });
+}
+
+export function testFailed(problemName: string) {
+  notification['error']({
+    message: 'Test Failed',
+    description: `Some tests from ${problemName} failed`
+  })
+}
+
+export function testCompilerError(errMessage: string) {
+  notification['warning']({
+    message: 'Compiler Error',
+    description: errMessage
+  })
 }

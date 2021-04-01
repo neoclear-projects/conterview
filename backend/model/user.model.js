@@ -15,6 +15,10 @@ const UserSchema = new Schema({
     unique: true,
   },
   organizationId: ObjectId,
+  department: String,
+  title: String,
+  personalStatement: String,
+  avatar: Object,
 });
 
 const User = mongoose.model('User', UserSchema);

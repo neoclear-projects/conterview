@@ -6,7 +6,6 @@ import RegisterOrganization from './auth/register-organization';
 import NotFoundPage from './doc/not-found-page';
 import Note from './page/note/note';
 import Editor from './page/editor/editor';
-import RunningInterview from './page/running-interview/running-interview';
 
 import Position from './components/position/position';
 import PositionItem from './components/position/position-item';

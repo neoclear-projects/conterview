@@ -2,7 +2,6 @@ import req from './req';
 import singleProblem from '../components/problem-set/single-problem'
 import { AxiosResponse } from 'axios';
 import { getCookie } from '../util/get-cookie';
-import { string } from 'prop-types';
 
 function prefix(){return `organization/${getCookie('organization-id')}`;}
 
@@ -36,5 +35,4 @@ export function updateBatchProblemSet(problems:Array<singleProblem>, onSuccess: 
 export function deleteProblemSet(problem:singleProblem, onSuccess: ((value: AxiosResponse<any>) => AxiosResponse<any> | PromiseLike<AxiosResponse<any>>) | null | undefined, onError: ((reason: any) => PromiseLike<never>) | null | undefined){
 	const toBeDeletedID = problem.ID;
 	req.delete(`${prefix()}/problemSet/${toBeDeletedID}`).then(onSuccess).catch(onError);
-	// req.delete('/problemSet', {data:{ID:toBeDeletedID}}).then(onSuccess).catch(onError);
 }

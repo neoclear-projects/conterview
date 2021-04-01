@@ -1,7 +1,7 @@
 import React from 'react';
-import { Button, Input, Modal, Form, Table, Grid, Label, Header, Container, Segment } from 'semantic-ui-react';
+import { Button, Table, Header } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
-import { Card, Descriptions, Divider, PageHeader, Breadcrumb, Result } from 'antd';
+import { Descriptions, Divider, PageHeader, Breadcrumb, Result } from 'antd';
 import './position.css';
 import CreateInterview from '../interview/create-interview';
 import { getInterviews } from '../../api/interview-api';

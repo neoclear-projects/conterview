@@ -1,12 +1,11 @@
 import React from 'react';
-import { Button, Divider, Dropdown, Form, Grid, Label, Modal, TextArea } from 'semantic-ui-react';
-import { LanguageOptions, Languages, PlaceHolderSingleProblem, singleProblem } from './single-problem';
-import MonacoEditor from '@monaco-editor/react';
+import { Button, Divider, Dropdown, Form, Label, Modal, TextArea } from 'semantic-ui-react';
+import { LanguageOptions, Languages, singleProblem } from './single-problem';
 import ProblemIOSet from './problem-IO-set'
 import ProblemRubric from './problem-rubric-modal';
 import ProblemDeletion from './problem-deletion';
 import { Upload } from 'antd';
-
+import MarkdownEditor from '@uiw/react-markdown-editor';
 
 class ProblemOperation extends React.Component {
     state = {
@@ -104,14 +103,23 @@ class ProblemOperation extends React.Component {
 
                     <h3>Problem Description</h3>
                     <Form>
+<<<<<<< HEAD
                         <div style={{ fontFamily: 'monospace' }} >
 
+=======
+                        {/* New Code Here */}
+                        <MarkdownEditor
+                            value={"\n\n\n\n\n\nFuck"}
+                        />
+                        {/* New Code End Here */}
+                        {/* <div style={{ fontFamily: 'monospace' }} >
+>>>>>>> c74fb5ce07ee07c68309c446807946004cdf7368
                             <TextArea
                                 rows={6}
                                 value={this.state.TempDescription}
                                 onChange={(e) => this.setState({ TempDescription: e.target.value })}
                             />
-                        </div>
+                        </div> */}
                     </Form>
                     {/* <Form>
                         <MonacoEditor
