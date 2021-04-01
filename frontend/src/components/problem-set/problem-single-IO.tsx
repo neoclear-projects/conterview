@@ -83,9 +83,10 @@ class ProblemSingleIO extends React.Component {
                                 placeholder={INP}
                                 value={INP}
                                 onChange={(e) => {
-                                    this.index = this.TheSet.UpdateMe([e.target.value, this.ProblemOutput,], this.index);
+                                    var PreAddLineSeperator = e.target.value + ((e.target.value === "" || e.target.value.endsWith("\n"))?"":"\n");
+                                    this.index = this.TheSet.UpdateMe([PreAddLineSeperator, this.ProblemOutput,], this.index);
                                     // this.setState({ ProblemInput: e.target.value });
-                                    this.ProblemInput = e.target.value;
+                                    this.ProblemInput = PreAddLineSeperator;
                                 }}
                             />
                         </GridColumn>
@@ -95,9 +96,10 @@ class ProblemSingleIO extends React.Component {
                                 placeholder={OUP}
                                 value={OUP}
                                 onChange={(e) => {
-                                    this.index = this.TheSet.UpdateMe([this.ProblemInput, e.target.value,], this.index);
+                                    var PreAddLineSeperator = e.target.value + ((e.target.value === "" || e.target.value.endsWith("\n"))?"":"\n");
+                                    this.index = this.TheSet.UpdateMe([this.ProblemInput, PreAddLineSeperator,], this.index);
                                     // this.setState({ ProblemOutput: e.target.value });
-                                    this.ProblemOutput = e.target.value;
+                                    this.ProblemOutput = PreAddLineSeperator;
                                 }}
                             />
                         </GridColumn>

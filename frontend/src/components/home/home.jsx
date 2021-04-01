@@ -70,7 +70,8 @@ class Home extends React.Component {
         case 'problem':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} problem ${event.item1.name}`} 
+              {console.log(event.item1)}
+              {`${event.user.username} ${actionWord} problem <${event.item1.name}>`} 
             </div>
           );
           break;

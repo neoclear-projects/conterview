@@ -27,7 +27,7 @@ import singleProblem, { Languages } from './single-problem';
 
 class ProblemSet extends React.Component {
   MakeNewProblemTemplate(): singleProblem {
-    return new singleProblem({ NewName: "New Problem Name", NewDescription: "# Description \r\n - Markdown is supported for description!", newCorrectRate: 100, newPreferredLanguage: Languages['Python'], newID: "N/A" }, this, ["0",], ["1",], []);
+    return new singleProblem({ NewName: "New Problem Name", NewDescription: "# Description \r\n - Markdown is supported for description!", newCorrectRate: 100, newPreferredLanguage: Languages['Python'], newID: "N/A" }, this, ["0\n",], ["1\n",], []);
   }
 
   state = { queryString: '', loading: false, results: [], value: '', needAnUpdate: false, ReallyNeedFetching: true, NewProblemTemplate: this.MakeNewProblemTemplate() };

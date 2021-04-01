@@ -70,9 +70,8 @@ router.route('/').post((req, res) => {
         new Event({
           user: req.session.user._id,
           action: 'create',
-          itemTypeRef: 'ProblemSet',
           itemType: 'problem',
-          item: doc._id,
+          item1: {name:doc.problemName, id:doc._id},
           time: new Date(),
           organizationId: req.organization._id,
         }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Success"); });
@@ -93,6 +92,8 @@ router.route('/').put((req, res) => {
       return res.status(404).send("Given problem ID does not exist!")
     }
     else {
+      var SaveName = doc.problemName;
+      var SaveID = doc._id;
       problemSet.updateOne({ _id: ID, belongingOrgId: req.organization._id }, {
         belongingUserId: req.session.user._id,
         problemName: problemName == undefined ? doc.problemName : problemName,
@@ -108,9 +109,8 @@ router.route('/').put((req, res) => {
         new Event({
           user: req.session.user._id,
           action: 'update',
-          itemTypeRef: 'ProblemSet',
           itemType: 'problem',
-          item: docU._id,
+          item1: {name:SaveName, id:SaveID},
           time: new Date(),
           organizationId: req.organization._id,
         }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Success"); });
@@ -180,14 +180,15 @@ router.route('/:problemID').delete((req, res) => {
       return res.status(202).send("This problem ID does not exist.")
     }
     else {
+      var SaveName = doc.problemName;
+      var SaveID = doc._id;
       problemSet.deleteOne({ _id: doc._id }, (err, docR) => {
         if (err) return res.status(500).send(err);
         new Event({
           user: req.session.user._id,
           action: 'delete',
-          itemTypeRef: 'ProblemSet',
           itemType: 'problem',
-          item: docR._id,
+          item1: {name:SaveName, id:SaveID},
           time: new Date(),
           organizationId: req.organization._id,
         }).save(err => { if (err) { return res.status(500).send(err); } return res.status(200).send("Deletion Success"); });

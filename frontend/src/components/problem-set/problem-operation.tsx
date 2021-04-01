@@ -6,6 +6,7 @@ import ProblemRubric from './problem-rubric-modal';
 import ProblemDeletion from './problem-deletion';
 import { Upload } from 'antd';
 import MarkdownEditor from '@uiw/react-markdown-editor';
+import ReactCodeMirror from '@uiw/react-markdown-editor/lib/cjs/components/CodeMirror';
 
 class ProblemOperation extends React.Component {
     state = {
@@ -102,25 +103,18 @@ class ProblemOperation extends React.Component {
 
 
                     <h3>Problem Description</h3>
-                    <Form>
-<<<<<<< HEAD
-                        <div style={{ fontFamily: 'monospace' }} >
-
-=======
-                        {/* New Code Here */}
                         <MarkdownEditor
-                            value={"\n\n\n\n\n\nFuck"}
+                            value={this.state.TempDescription}
+                            onChange={(e, a, c) => {this.setState({ TempDescription: c}); }}
+                            height='200'
                         />
-                        {/* New Code End Here */}
                         {/* <div style={{ fontFamily: 'monospace' }} >
->>>>>>> c74fb5ce07ee07c68309c446807946004cdf7368
                             <TextArea
                                 rows={6}
                                 value={this.state.TempDescription}
                                 onChange={(e) => this.setState({ TempDescription: e.target.value })}
                             />
                         </div> */}
-                    </Form>
                     {/* <Form>
                         <MonacoEditor
                             value={this.state.TempDescription}
