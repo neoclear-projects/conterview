@@ -1,6 +1,5 @@
 import React from 'react';
-import { Button, Input, Modal, Form, Table } from 'semantic-ui-react';
-import PageWrap from '../header/page-wrap';
+import { Button, Modal, Form } from 'semantic-ui-react';
 import { getUsers } from '../../api/user-api';
 import { createInterview, updateInterview } from '../../api/interview-api';
 import { getPositions } from '../../api/position-api';

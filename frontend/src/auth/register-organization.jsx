@@ -1,8 +1,6 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Form, Image } from 'semantic-ui-react';
+import { Form, Image } from 'semantic-ui-react';
 import { registerOrganization } from '../api/organization-api';
-import Register from './register';
 import './auth.css';
 import logo from '../static/images/logo.jpg';
 

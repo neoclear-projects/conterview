@@ -3,7 +3,7 @@ import PageWrap from '../header/page-wrap';
 import { PageHeader, Breadcrumb, Descriptions, Divider, Result } from 'antd';
 import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
-import { Button, Header, Grid, List, Pagination } from 'semantic-ui-react';
+import { Button, Header, List } from 'semantic-ui-react';
 import CreateInterview from './create-interview';
 
 class InterviewItem extends React.Component {

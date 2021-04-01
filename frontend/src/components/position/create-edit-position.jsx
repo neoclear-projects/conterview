@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button, Input, Modal, Form, Table } from 'semantic-ui-react';
-import PageWrap from '../header/page-wrap';
-import { createPosition, updatePosition, getPositions } from '../../api/position-api';
+import { Button, Modal, Form } from 'semantic-ui-react';
+import { createPosition, updatePosition } from '../../api/position-api';
 import { withRouter } from 'react-router-dom';
 
 class CreateEditPosition extends React.Component {

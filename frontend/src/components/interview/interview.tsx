@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Input, Table, Pagination } from 'semantic-ui-react';
+import { Button, Table, Pagination } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
 import CreateInterview from './create-interview';

@@ -32,12 +32,12 @@ class PageWrap extends React.Component {
           <div className='c-menu-logo'>
             <Image src={logo} horizontal size='small' />
           </div>
-          <div className={this.props.selected == 'home' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/')}><Icon name='home' /> Home</div>
-          <div className={this.props.selected == 'position' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/position')}><Icon name='suitcase' /> Position</div>
-          <div className={this.props.selected == 'interview' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/interview')}><Icon name='film' /> Interview</div>
-          <div className={this.props.selected == 'problem-set' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/problem-set')}><Icon name='pencil' /> Problem Set</div>
-          <div className={this.props.selected == 'statistics' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/statistics')}><Icon name='chart pie' /> Statistics</div>
-          <div className={this.props.selected == 'profile' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/profile')}><Icon name='database' /> Profile</div>
+          <div className={this.props.selected === 'home' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/')}><Icon name='home' /> Home</div>
+          <div className={this.props.selected === 'position' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/position')}><Icon name='suitcase' /> Position</div>
+          <div className={this.props.selected === 'interview' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/interview')}><Icon name='film' /> Interview</div>
+          <div className={this.props.selected === 'problem-set' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/problem-set')}><Icon name='pencil' /> Problem Set</div>
+          <div className={this.props.selected === 'statistics' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/statistics')}><Icon name='chart pie' /> Statistics</div>
+          <div className={this.props.selected === 'profile' ? 'c-menu-item-selected' : 'c-menu-item'} onClick={() => this.props.history.push('/profile')}><Icon name='database' /> Profile</div>
         </div>
         <div className='c-page-body'>
           <div className='c-page-header'>
