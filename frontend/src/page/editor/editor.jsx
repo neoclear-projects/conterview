@@ -99,16 +99,13 @@ function Editor({
   
   const refreshState = () => {
     getInterviewState(positionId, interviewId, res => {
-      console.log(res);
       if (res.status === 'running') {
         setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
-        console.log(res);
         setCurQuestionIdx(res.currentProblemIndex);
       }
 
       setInterviewState(res.status);
       setQuestions(res.problemsSnapshot);
-      console.log(res.problemsSnapshot);
     }, errorLog);
   };
 
@@ -116,7 +113,6 @@ function Editor({
     refreshState();
 
     peer.on('open', id => {
-      console.log(id);
       socket.emit('join', id, interviewId);
       setId(id);
     });
@@ -137,7 +133,6 @@ function Editor({
       });
 
       socket.on('user-conn', (userId) => {
-        console.log('User connected ' + userId);
         const call = peer.call(userId, stream);
         call.on('stream', (newStream) => {
           streamsRef.current.set(call.peer, {
@@ -391,7 +386,6 @@ function Editor({
                   let res = [];
                   if (curQuestionIdx === -1 || curQuestionIdx >= questions.length)
                     return [];
-                  console.log(questions[curQuestionIdx].problemRubric);
                   for (let i = 0; i < questions[curQuestionIdx].problemRubric.length; i++) {
                     let rubric = questions[curQuestionIdx].problemRubric[i];
                     res.push(
@@ -441,7 +435,6 @@ function Editor({
                 <List.Content floated='right'>
                   {
                     (function() {
-                      console.log(interviewState)
                       if (interviewState === 'pending')
                         return (
                           <Button color='green' onClick={() => {

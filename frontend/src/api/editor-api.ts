@@ -19,10 +19,7 @@ export function interviewStart(positionId: string, interviewId: string, onSucces
   let data = JSON.stringify({status:'running'});
   req
     .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
-    .then(() => {
-      console.log('What the fuck')
-      onSuccess();
-    })
+    .then(onSuccess)
     .catch(err => onError(err));
 };
 

@@ -15,7 +15,6 @@ class Home extends React.Component {
     getEvents(
       res => {
         this.state.events = res.data;
-        console.log(res.data);
         this.setState({loading: false});
       },
       err => {}

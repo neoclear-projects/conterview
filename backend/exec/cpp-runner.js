@@ -7,7 +7,6 @@ module.exports = function cppRunner(id, interviewId, input, code, callback) {
   writeProc.stdin.end();
 
   const randomExecutable = interviewId + Math.random().toString(36);
-  console.log(randomExecutable);
 
   // After write code to file, execute
   writeProc.on('exit', (code) => {
