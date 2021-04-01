@@ -29,7 +29,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, testCode, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -535,8 +535,10 @@ function Editor({
             </Button>
             <Button onClick={() => {
               setTesting(true);
-              testCode(interviewId, code, language, questions[curQuestionIdx]._id, result => {
-                errorLog(result);
+              testCode(interviewId, code, language, questions[curQuestionIdx]._id, (result, msg) => {
+                if (result === 'pass') testPassed(questions[curQuestionIdx].problemName);
+                else if (result === 'fail') testFailed(questions[curQuestionIdx].problemName);
+                else if (result === 'cperror') testCompilerError(msg);
                 setTesting(false);
               }, err => {
                 errorLog(err);
@@ -546,7 +548,7 @@ function Editor({
               color={testing ? 'grey' : 'red'}
               disabled={testing}
             >
-              <Icon name='play' /> {testing ? 'Building' : 'Test'}
+              <Icon name='bug' /> {testing ? 'Building' : 'Test'}
             </Button>
           </ButtonGroup>
         </div>

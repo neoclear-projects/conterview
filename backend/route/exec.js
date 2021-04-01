@@ -26,7 +26,7 @@ router.route('/run/:interviewId').post((req, res) => {
     return res.status(404).send('Language not found');
   }
 
-  runner('code', interviewId, null, code, output => res.json({"output": output }));
+  runner('code', interviewId, null, code, (stdout, stderr, cperr) => res.json({"output": stdout + stderr + cperr }));
 });
 
 function outputComparator(expected, actual) {
@@ -54,11 +54,11 @@ router.route('/test/:interviewId/problem/:problemId').post((req, res) => {
 
     const promisedRunner = (input, output) => {
       return new Promise((resolve, reject) => {
-        runner('code', interviewId, input, code, o => {
-          if (outputComparator(output, o)) return resolve();
-          console.log('Expected: ' + output);
-          console.log('Actual: ' + o);
-          return reject();
+        runner('code', interviewId, input, code, (stdout, stderr) => {
+          if (stderr && stderr != '') return reject(stderr);
+
+          if (outputComparator(output, stdout)) return resolve();
+          return reject(null);
         });
       });
     };
@@ -71,10 +71,11 @@ router.route('/test/:interviewId/problem/:problemId').post((req, res) => {
 
     Promise.all(promisedArray)
       .then(() => {
-        return res.json({ result: 'pass' })
+        return res.json({ result: 'pass', message: 'Passed all tests' })
       })
-      .catch(() => {
-        return res.json({ result: 'fail' });
+      .catch(msg => {
+        if (msg == null) return res.json({ result: 'fail', message: 'Failed to pass all tests' });
+        return res.json({ result: 'cperror', message: msg });
       });
   });
 });

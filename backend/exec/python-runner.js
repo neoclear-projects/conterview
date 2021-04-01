@@ -15,10 +15,10 @@ module.exports = function pythonRunner(id, interviewId, input, code, callback) {
         console.error(err.stack);
         console.error('Error code: ' + err.code);
         console.error('Signal received: ' + err.signal);
-        return callback(stderr);
+        return callback('', stderr);
       }
 
-      callback(stdout + stderr);
+      callback(stdout, stderr);
     });
 
     execProc.stdin.write(input || '');
