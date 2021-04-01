@@ -1,6 +1,6 @@
 const { exec } = require('child_process');
 
-module.exports = function javascriptRunner(id, interviewId, code, callback) {
+module.exports = function javascriptRunner(id, interviewId, input, code, callback) {
   const writeProc = exec(`docker exec -i ${id} sh -c \'cat > ${interviewId}.js\'`);
 
   writeProc.stdin.write(code);
@@ -8,7 +8,9 @@ module.exports = function javascriptRunner(id, interviewId, code, callback) {
 
   // After write code to file, execute
   writeProc.on('exit', (code) => {
-    const execProc = exec(`docker exec ${id} node ${interviewId}.js`, (err, stdout, stderr) => {
+    const execProc = exec(`docker exec -i ${id} node ${interviewId}.js`, {
+      timeout: 1000
+    }, (err, stdout, stderr) => {
       if (err) {
         console.error(err.stack);
         console.error('Error code: ' + err.code);
@@ -18,5 +20,6 @@ module.exports = function javascriptRunner(id, interviewId, code, callback) {
 
       callback(stdout + stderr);
     });
+    execProc.stdin.write(input || '');
   });
 };

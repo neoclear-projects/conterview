@@ -3,6 +3,7 @@ import req from './req';
 
 // export type InterviewState = 'pending' | 'running' | 'finished';
 export type languageType = 'cpp' | 'java' | 'python' | 'javascript' | 'typescript';
+export type testResult = 'pass' | 'fail';
 
 export function getInterviewState(positionId: string, interviewId: string, onSuccess: (state: any) => void, onError: (err: string) => void) {
   req
@@ -68,5 +69,17 @@ export function runCode(interviewId: string, code: string, language: languageTyp
     })
   )
   .then(res => onSuccess(res.data.output))
+  .catch(onError);
+}
+
+export function testCode(interviewId: string, code: string, language: languageType, problemId: string, onSuccess: (res: testResult) => void, onError: (err: any) => void) {
+  req.post(
+    `exec/test/${interviewId}/problem/${problemId}`,
+    JSON.stringify({
+      language: language,
+      code: code
+    })
+  )
+  .then(res => onSuccess(res.data.result))
   .catch(onError);
 }

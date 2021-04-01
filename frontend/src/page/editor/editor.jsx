@@ -3,7 +3,7 @@ import MonacoEditor from '@monaco-editor/react';
 import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
-import { Button, Divider, Image, Input, List, Radio, Select } from 'semantic-ui-react';
+import { Button, ButtonGroup, Divider, Image, Input, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
 import { Statistic } from 'antd';
 import Padding from '../../util/padding';
@@ -29,7 +29,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -64,6 +64,7 @@ function Editor({
   const [cursorWidth, setCursorWidth] = useState(2);
   const [code, setCode] = useState('');
   const [compiling, setCompiling] = useState(false);
+  const [testing, setTesting] = useState(false);
 
   const [videoVisible, setVideoVisible] = useState(false);
   const [dashboardVisible, setDashboardVisible] = useState(false);
@@ -516,7 +517,8 @@ function Editor({
             <Button toggle active={language === 'typescript'} inverted={inverted} onClick={() => setLanguage('typescript')}>Typescript</Button>
           </Button.Group>
           <Padding width={16} />
-          <Button onClick={() => {
+          <ButtonGroup>
+            <Button basic onClick={() => {
               setCompiling(true);
               runCode(interviewId, code, language, out => {
                 setOutput(output + '[LOG]: \n' + out);
@@ -526,11 +528,27 @@ function Editor({
                 setCompiling(false);
               });
             }}
-            color={compiling ? 'grey' : 'red'}
-            disabled={compiling}
-          >
-            <Icon name='play' /> {compiling ? 'Building' : 'Run'}
-          </Button>
+              color={compiling ? 'grey' : 'red'}
+              disabled={compiling}
+            >
+              <Icon name='play' /> {compiling ? 'Building' : 'Run'}
+            </Button>
+            <Button onClick={() => {
+              setTesting(true);
+              testCode(interviewId, code, language, questions[curQuestionIdx]._id, result => {
+                errorLog(result);
+                setTesting(false);
+              }, err => {
+                errorLog(err);
+                setTesting(false);
+              })
+            }}
+              color={testing ? 'grey' : 'red'}
+              disabled={testing}
+            >
+              <Icon name='play' /> {testing ? 'Building' : 'Test'}
+            </Button>
+          </ButtonGroup>
         </div>
       </div>
       {/* <Progress size='small' color='red' percent={60} label={new Date()} active /> */}
