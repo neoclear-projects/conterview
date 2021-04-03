@@ -4,6 +4,8 @@ import ProblemIOSet from './problem-IO-set';
 import { singleProblem, PlaceHolderSingleProblem } from './single-problem';
 
 
+const TooManyNote = "got more than one line seperator. (\\n)\r\n";
+const NotExistingNode = "got no line seperator. (\\n)\r\n";
 
 class ProblemSingleIO extends React.Component {
     state = {
@@ -76,8 +78,6 @@ class ProblemSingleIO extends React.Component {
                     columns={3}
                     >
                         <GridColumn>
-
-
                             <TextArea
                                 rows={2}
                                 placeholder={INP}
@@ -89,6 +89,7 @@ class ProblemSingleIO extends React.Component {
                                     this.ProblemInput = PreAddLineSeperator;
                                 }}
                             />
+                            {/* {this.ProblemInput.split('\n').length > 2?(<Label color='orange'content={("Input " + TooManyNote)}/>):<div/>} */}
                         </GridColumn>
                         <GridColumn>
                             <TextArea
@@ -102,6 +103,7 @@ class ProblemSingleIO extends React.Component {
                                     this.ProblemOutput = PreAddLineSeperator;
                                 }}
                             />
+                            {/* {this.ProblemOutput.split('\n').length > 2?(<Label color='orange'content={("Output " + TooManyNote)}/>):<div/>} */}
                         </GridColumn>
                         <GridColumn>
                             {ifThereIsOne}
