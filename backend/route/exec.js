@@ -26,7 +26,7 @@ router.route('/run/:interviewId').post((req, res) => {
     return res.status(404).send('Language not found');
   }
 
-  runner('code', interviewId, null, code, (stdout, stderr, cperr) => res.json({"output": stdout + stderr + cperr }));
+  runner('code', interviewId, null, code, (stdout, stderr) => res.json({"output": stdout + stderr }));
 });
 
 function outputComparator(expected, actual) {

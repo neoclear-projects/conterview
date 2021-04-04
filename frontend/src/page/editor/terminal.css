@@ -1,6 +1,6 @@
 #terminal {
   padding: 20px 20px;
-  font-family: "Source Code Pro", Consolas, Monaco, Menlo, Consolas, monospace;
+  font-family: 'Ubuntu Mono', monospace;
   height: 100%;
   width: 100%;
   overflow: scroll;

@@ -44,11 +44,24 @@ export function updateCurrentQuestion(positionId: string, interviewId: string, q
 
 export function updateRubric(positionId: string, interviewId: string, questionIdx: number, rubricIdx: number, grade: number, onSuccess: () => void, onError: (err: string) => void) {
   let data = JSON.stringify({
-    grade:{
+    grade: {
       idx: rubricIdx,
       value: grade
     }
   });
+  req
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
+    .then(res => {
+      onSuccess();
+    })
+    .catch(err => onError(err));
+}
+
+export function updateComment(positionId: string, interviewId: string, questionIdx: number, comment: string, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({
+    comment: comment
+  });
+
   req
     .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
     .then(res => {

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import MonacoEditor from '@monaco-editor/react';
-import { CodeBlock } from "react-code-blocks";
 
 import './editor.css';
 import { Button, ButtonGroup, Divider, Input, List, Radio, Select } from 'semantic-ui-react';
@@ -29,10 +28,11 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
+import InfoModal from './info-modal';
 
 const { Countdown } = Statistic;
 
@@ -43,6 +43,7 @@ const peer = new Peer();
 const socket = socketIOClient(ENDPOINT);
 
 let ignoreRemoteEvent = false;
+let initializing = true;
 
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
@@ -59,7 +60,6 @@ function Editor({
   const [language, setLanguage] = useState('cpp');
   const [bold, setBold] = useState(false);
   const [settingVisible, setSettingVisible] = useState(false);
-  const [infoVisible, setInfoVisible] = useState(false);
   const [tabSize, setTabSize] = useState(2);
   const [cursorWidth, setCursorWidth] = useState(2);
   const [code, setCode] = useState('');
@@ -132,15 +132,37 @@ function Editor({
         })
       });
 
-      socket.on('user-conn', (userId) => {
+      peer.on('connection', conn => {
+        conn.on('open', () => {
+          conn.on('data', dat => {
+            if (initializing) {
+              monacoRef.current.editor.getModels()[0].setValue(dat);
+              initializing = false;
+            }
+          });
+        });
+      });
+
+      socket.on('user-conn', userId => {
         const call = peer.call(userId, stream);
-        call.on('stream', (newStream) => {
+        call.on('stream', newStream => {
           streamsRef.current.set(call.peer, {
             stream: newStream,
             visibility: true
           });
           setStreams(new Map(streamsRef.current));
         });
+        
+
+        const conn = peer.connect(userId);
+        conn.on('open', () => {
+          const editorContent = monacoRef.current.editor.getModels()[0].getValue();
+
+          conn.send(editorContent);
+          console.log('Sent: ' + editorContent);
+
+          // conn.close();
+        })
       });
 
       socket.on('stream-open', userId => {
@@ -164,94 +186,11 @@ function Editor({
     });
   }, []);
 
-  const infoButton = (
-    <Button
-      basic={!inverted}
-      color='black'
-      floated='left'
-      inverted={inverted}
-    >
-      Information
-    </Button>
-  );
   return (
     <div id='editor' style={{ backgroundColor: inverted ? '#222' : 'white' }}>
       <div id='toolbar'>
         <div id='begin'>
-          <Modal
-            closeIcon
-            open={infoVisible}
-            onClose={() => setInfoVisible(false)}
-            onOpen={() => setInfoVisible(true)}
-            trigger={infoButton}
-          >
-            <Modal.Header content='Information' as='h1' />
-            <Modal.Content scrolling>
-              <Header content='Execution Environment' as='h2' />
-              <p>
-                To safely run code in various language, a sandbox is used to prevent malicious code execution contaminate backend environment. For conterview, docker is used as the sandbox in the backend.
-              </p>
-              <p>
-                To prevent information leakage, docker container of conterview will not mount host directory into virtual file system. Instead, for all possible language execution, stdin is used to write to files in docker image, outputs are read from stdout of docker image.
-              </p>
-              <Divider />
-              <Header content='Language Execution Command' as='h2' />
-              <p>
-                The execution docker image is based on ubuntu 20.04 with all necessary compiling softwares installed.
-              </p>
-              <p>
-                Five languages are supported in conterview online interview IDE. These five languages are chosen carefully: C++ and Java are classical competitive programming languages, python is the language for data analytics, javascript and typescript for web design. All codes written in conterview IDE will be executed as one of these five languages.
-              </p>
-              <p>All C++ codes would be executed using g++ 9.3.0 with the following flag</p>
-              <CodeBlock
-                text='g++ -std=c++17; ./{binary}'
-                language='shell'
-                showLineNumbers={true}
-                wrapLines
-              />
-              <p>All Java codes would be executed using openjdk 11.0.10 with the following flag</p>
-              <CodeBlock
-                text='java ./{code}'
-                language='shell'
-                showLineNumbers={true}
-                wrapLines
-              />
-              <p>All Python codes would be executed using python 3.8.5 with the following flag</p>
-              <CodeBlock
-                text='python ./{code}'
-                language='shell'
-                showLineNumbers={true}
-                wrapLines
-              />
-              <p>All Javascript codes would be executed using nodejs v10.19.0 with the following flag</p>
-              <CodeBlock
-                text='node ./{code}'
-                language='shell'
-                showLineNumbers={true}
-                wrapLines
-              />
-              <p>All Typescript codes would be executed using ts-nodejs v9.1.1 with the following flag</p>
-              <CodeBlock
-                text='ts-node ./{code}'
-                language='shell'
-                showLineNumbers={true}
-                wrapLines
-              />
-              <Divider />
-              <Header content='Testing And IO' as='h2' />
-              <p>
-                Programs are tested using standard IO. Programs read inputs from stdin as specified by problem description, and testing software obtains output from stdout and compare to the expected output. A match in the output would give you a passed test case.
-              </p>
-              <p>
-                Users are also allowed to run programs without testing. However, users have to hard-code data into their code because stdin is disabled in running mode.
-              </p>
-            </Modal.Content>
-            <Modal.Actions>
-              <Button color='green' onClick={() => setInfoVisible(false)}>
-                <Icon name='checkmark' /> Ok
-              </Button>
-            </Modal.Actions>
-          </Modal>
+          <InfoModal inverted={inverted} />
           <Padding width={8} />
           <Modal
             size='tiny'
@@ -408,16 +347,15 @@ function Editor({
             <TextArea style={{
               borderRadius: 8,
               outline: 'none'
-            }} placeholder='Comments' />
+            }}
+              placeholder='Comments'
+              defaultValue={questions[curQuestionIdx] ? questions[curQuestionIdx].comment : null}
+              onChange={e => {
+                updateComment(positionId, interviewId, curQuestionIdx, e.target.innerHTML, refreshState, errorLog);
+                socket.emit('refresh');
+              }}
+            />
             </Modal.Content>
-            <Modal.Actions>
-              <Button color='red'>
-                <Icon name='cancel' /> Cancel
-              </Button>
-              <Button color='green'>
-                <Icon name='checkmark' /> Update
-              </Button>
-            </Modal.Actions>
           </Modal>
           <Padding width={12} />
           <Modal
@@ -512,7 +450,7 @@ function Editor({
             <Button basic onClick={() => {
               setCompiling(true);
               runCode(interviewId, code, language, out => {
-                setOutput(output + '[LOG]: \n' + out);
+                setOutput(out);
                 setCompiling(false);
               }, err => {
                 errorLog(err);
@@ -573,7 +511,7 @@ function Editor({
                 });
           
                 e.onDidChangeModelContent(change => {
-                  if (ignoreRemoteEvent)
+                  if (ignoreRemoteEvent || initializing)
                     return;
 
                   socket.emit('code', change);

@@ -17,7 +17,7 @@ export class Terminal extends React.Component {
         <div
           id='terminal'
           style={{
-            fontSize: this.props.fontSize - 4,
+            fontSize: this.props.fontSize - 2,
             backgroundColor: this.props.colorMode ? '#222' : 'white',
             color: this.props.colorMode ? '#ddd' : 'black',
             fontWeight: this.props.bold ? 'bold' : 'normal'
