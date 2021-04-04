@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Table, Header } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
-import { Descriptions, Divider, PageHeader, Breadcrumb, Result } from 'antd';
+import { Descriptions, Divider, PageHeader, Breadcrumb, Result, Empty } from 'antd';
 import './position.css';
 import CreateInterview from '../interview/create-interview';
 import { getInterviews } from '../../api/interview-api';
@@ -76,17 +76,23 @@ class PositionItem extends React.Component {
       </Breadcrumb>
     );
 
+    let headerExtra = [
+      <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
+      <Button color='blue' onClick={() => this.setEditPosModal(true)}>Edit Position</Button>,
+      <Button color='red' onClick={() => deletePosition(this.props.match.params.positionId, res => {this.props.history.push('/position')})}>Delete Position</Button>
+    ];
+
+    if(this.state.position.finishedInterviewNum > 0){
+      console.log(this.state.position.finishedInterviewNum);
+      headerExtra.push(<Button color='blue' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/statistics`)}>Statistics</Button>);
+    }
+
     return (
       <PageWrap selected='position'>
         <PageHeader
           title={this.state.position.name}
           style={{backgroundColor:'white',marginTop:'5px'}}
-          extra={[
-            <Button color='green' onClick={() => this.setCreateIntModal(true)}>Create Interview</Button>,
-            <Button color='blue' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/statistics`)}>Statistics</Button>,
-            <Button color='blue' onClick={() => this.setEditPosModal(true)}>Edit Position</Button>,
-            <Button color='red' onClick={() => deletePosition(this.props.match.params.positionId, res => {this.props.history.push('/position')})}>Delete Position</Button>
-          ]}
+          extra={headerExtra}
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
@@ -94,6 +100,8 @@ class PositionItem extends React.Component {
           <Header>Basic Information</Header>
           <Descriptions>
             <Descriptions.Item label="Name" labelStyle={{fontWeight:'600'}}>{this.state.position.name}</Descriptions.Item>
+            <Descriptions.Item label="Pending Interviews" labelStyle={{fontWeight:'600'}}>{this.state.position.pendingInterviewNum}</Descriptions.Item>
+            <Descriptions.Item label="Finished Interviews" labelStyle={{fontWeight:'600'}}>{this.state.position.finishedInterviewNum}</Descriptions.Item>
           </Descriptions>
           <Divider/>
           <Header>Description</Header>
@@ -102,18 +110,25 @@ class PositionItem extends React.Component {
           </Descriptions>
           <Divider/>
           <Header>Interviews</Header>
-          <Table striped basic='very'>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Time</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Status</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {interviews}
-            </Table.Body>
-          </Table>
+          {
+            this.state.interviews.length === 0 ?
+            <Empty
+              description='No interviews yet'
+            />
+            :
+            <Table striped basic='very'>
+              <Table.Header>
+                <Table.Row>
+                  <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
+                  <Table.HeaderCell width='1'>Time</Table.HeaderCell>
+                  <Table.HeaderCell width='1'>Status</Table.HeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {interviews}
+              </Table.Body>
+            </Table>
+          }
         </div>
 
         <CreateInterview
