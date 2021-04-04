@@ -7,6 +7,7 @@ import { getEvents } from '../../api/event-api';
 import { getUser } from '../../api/user-api';
 import { avatarProps } from '../../util/avatar-props';
 import { toLocalTimeString } from '../../util/time';
+import UserPopover from '../user/user-popover';
 
 class Home extends React.Component {
   constructor(props){
@@ -62,7 +63,8 @@ class Home extends React.Component {
         case 'position':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} position `} 
+              <UserPopover user={event.user}/>
+              {` ${actionWord} position `} 
               <Link to={`/position/${event.item1._id}`}>{event.item1.name}</Link>
             </div>
           );
@@ -70,7 +72,8 @@ class Home extends React.Component {
         case 'interview':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} interview with candidate `} 
+              <UserPopover user={event.user}/>
+              {` ${actionWord} interview with candidate `} 
               <Link to={`/position/${event.item2._id}/interview/${event.item1._id}`}>{event.item1.name}</Link> for position <Link to={`/position/${event.item2._id}`}>{event.item2.name}</Link>
             </div>
           );
@@ -78,7 +81,8 @@ class Home extends React.Component {
         case 'problem':
           description = (
             <div>
-              {`${event.user.username} ${actionWord} problem <${event.item1.name}>`} 
+              <UserPopover user={event.user}/>
+              {` ${actionWord} problem <${event.item1.name}>`} 
             </div>
           );
           break;
@@ -86,7 +90,7 @@ class Home extends React.Component {
 
       return (
         <Header>
-          <Avatar {...avatarProps(event.user._id, event.user.username, 50)} style={{marginRight:'10px'}} />
+          <Avatar {...avatarProps(event.user._id, event.user.username, 40)} style={{marginRight:'10px'}} />
           <Header.Content>
             {description}
             <Header.Subheader>{toLocalTimeString(event.time)}</Header.Subheader>

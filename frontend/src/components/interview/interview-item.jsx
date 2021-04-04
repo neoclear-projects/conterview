@@ -1,11 +1,13 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb, Descriptions, Divider, Result } from 'antd';
+import { PageHeader, Breadcrumb, Descriptions, Divider, Result, Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
 import { Button, Header, List } from 'semantic-ui-react';
 import CreateInterview from './create-interview';
 import { toLocalTimeString } from '../../util/time';
+import { avatarProps } from '../../util/avatar-props';
+import UserPopover from '../user/user-popover';
 
 class InterviewItem extends React.Component {
   constructor(props){
@@ -88,9 +90,16 @@ class InterviewItem extends React.Component {
           </Descriptions>
           <Divider/>
           <Header>Interviewers</Header>
-          <List>
-            {this.state.interview.interviewers.map(interviewer => {return <List.Item>{interviewer.username}</List.Item>})}
-          </List>
+          <div>
+            {this.state.interview.interviewers.map(interviewer => {return (
+              <Header>
+                <Avatar {...avatarProps(interviewer._id, interviewer.username, 25)} style={{marginRight:'10px'}} />
+                <Header.Content>
+                  <UserPopover user={interviewer}/>
+                </Header.Content>
+              </Header>
+            )})}
+          </div>
           <Divider/>
           <Header>Problems</Header>
           <List>

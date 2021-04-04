@@ -56,7 +56,7 @@ class CreateEditPosition extends React.Component {
         onClose={this.props.onClose}
         open={this.props.open}
       >
-        <Modal.Header>Create position</Modal.Header>
+        <Modal.Header>{this.props.position ? 'Edit Position' : 'Create Position'}</Modal.Header>
           <Modal.Content>
             <Form 
               className='create-pos-form' 
@@ -81,7 +81,7 @@ class CreateEditPosition extends React.Component {
           </Modal.Content>
           <Modal.Actions>
             <Button color='green' form='create-pos-form'>
-              Create Position
+              {this.props.position ? 'Edit Position' : 'Create Position'}
             </Button>
           </Modal.Actions>
       </Modal>

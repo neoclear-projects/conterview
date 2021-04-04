@@ -113,7 +113,7 @@ class CreateInterview extends React.Component {
         onClose={this.props.onClose}
         open={this.props.open}
       >
-        <Modal.Header>Create Interview</Modal.Header>
+        <Modal.Header>{this.props.interview ? 'Edit Interview' : 'Create Interview'}</Modal.Header>
         <Modal.Content>
           <Form 
             className='create-pos-form' 
@@ -203,7 +203,7 @@ class CreateInterview extends React.Component {
         </Modal.Content>
         <Modal.Actions>
           <Button color='green' form='create-int-form'>
-            Create Interview
+            {this.props.interview ? 'Edit Interview' : 'Create Interview'}
           </Button>
         </Modal.Actions>
       </Modal>
