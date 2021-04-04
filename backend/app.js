@@ -120,6 +120,8 @@ io.on('connection', (socket) => {
       console.log('Code updated: ' + code);
       socket.join(interviewId);
       socket.to(interviewId).emit('code', code);
+
+      console.log(socket.id + ' updated code in ' + interviewId);
     })
   
     socket.on('stream-open', (userId) => {

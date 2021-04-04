@@ -547,6 +547,8 @@ function Editor({
                       e.setSelections(endCursorState);
 
                       e.executeEdits();
+
+                      setCode(m.editor.getModels()[0].getValue());
                     } finally {
                       ignoreRemoteEvent = false;
                     }
