@@ -52,6 +52,7 @@ class Register extends React.Component {
     }
     if(valid){
       register(organization, username, password, email, req => this.props.history.push("/"), err =>{
+        console.log(err.response);
         if(err.response.status === 409) this.setState({usernameExistErr: this.usernameExistErr});
         if(err.response.status === 404) this.setState({organizationNotExistErr: this.organizationNotExistErr});
       });

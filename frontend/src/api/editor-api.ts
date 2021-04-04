@@ -1,5 +1,4 @@
 import { notification } from 'antd';
-import { getCookie } from '../util/get-cookie';
 import req from './req';
 
 // export type InterviewState = 'pending' | 'running' | 'finished';
@@ -8,7 +7,7 @@ export type testResult = 'pass' | 'fail' | 'cperror';
 
 export function getInterviewState(positionId: string, interviewId: string, onSuccess: (state: any) => void, onError: (err: string) => void) {
   req
-    .get(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/`)
+    .get(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/`)
     .then(res => {
       onSuccess(res.data);
     })
@@ -18,7 +17,7 @@ export function getInterviewState(positionId: string, interviewId: string, onSuc
 export function interviewStart(positionId: string, interviewId: string, onSuccess: () => void, onError: (err: string) => void) {
   let data = JSON.stringify({status:'running'});
   req
-    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/status`, data)
     .then(onSuccess)
     .catch(err => onError(err));
 };
@@ -26,7 +25,7 @@ export function interviewStart(positionId: string, interviewId: string, onSucces
 export function interviewStop(positionId: string, interviewId: string, onSuccess: () => void, onError: (err: string) => void) {
   let data = JSON.stringify({status:'finished'});
   req
-    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/status`, data)
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/status`, data)
     .then(() => {
       onSuccess();
     })
@@ -36,7 +35,7 @@ export function interviewStop(positionId: string, interviewId: string, onSuccess
 export function updateCurrentQuestion(positionId: string, interviewId: string, questionIdx: number, onSuccess: () => void, onError: (err: string) => void) {
   let data = JSON.stringify({index:questionIdx});
   req
-    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/current-problem-index`, data)
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/current-problem-index`, data)
     .then(res => {
       onSuccess();
     })
@@ -51,7 +50,7 @@ export function updateRubric(positionId: string, interviewId: string, questionId
     }
   });
   req
-    .patch(`/organization/${getCookie('organization-id')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
     .then(res => {
       onSuccess();
     })

@@ -1,12 +1,11 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { Space, Upload } from 'antd';
+import { Space, Upload, Avatar } from 'antd';
 import { Form, Image, Button, Modal } from 'semantic-ui-react';
-import { getCookie } from '../../util/get-cookie';
 import { getUser, updateUser } from '../../api/user-api';
-import { avatarUrl } from '../../api/avatar-url';
 import ImgCrop from 'antd-img-crop';
 import { PlusOutlined } from '@ant-design/icons';
+import { avatarProps } from '../../util/avatar-props';
 
 class Profile extends React.Component {
   constructor(props){
@@ -15,7 +14,7 @@ class Profile extends React.Component {
       loading:true,
       changeAvatarModal:false,
     }
-    getUser(getCookie('user-id'),
+    getUser(window.localStorage.getItem('userId'),
       res => {
         let user = res.data;
         this.state.username = user.username;
@@ -24,19 +23,10 @@ class Profile extends React.Component {
         this.state.title = user.title;
         this.state.personalStatement = user.personalStatement;
         this.state._id = user._id;
-        this.state.avatarUrl = avatarUrl(user._id);
         this.setState({loading: false});
       },
     );
   }
-
-  fetchData = () => {
-    getUser(getCookie('user-id'),
-      res => {
-        this.setState({avatarUrl: avatarUrl(res.data._id)});
-      },
-    );
-  };
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
@@ -58,7 +48,7 @@ class Profile extends React.Component {
       <PageWrap selected='profile'>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px', display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
           <Space align='center' direction='vertical'>
-            <Image key={new Date()} src={this.state.avatarUrl} size='small' circular/>
+            <Avatar {...avatarProps(this.state._id, this.state.username, 130)} key={new Date()}/>
             <Button color='green' onClick={() => this.setChangeAvatarModal(true)}>Change Avatar</Button>
             <Form style={{width: '480px'}} onSubmit={this.handleSubmit}>
               <Form.Input
@@ -118,7 +108,7 @@ class Profile extends React.Component {
               <Upload
                 method='PATCH'
                 name='avatar'
-                action={process.env.REACT_APP_SERVER+'/api/organization/'+getCookie('organization-id')+'/user/'+this.state._id+'/avatar'}
+                action={process.env.REACT_APP_SERVER+'/api/organization/'+window.localStorage.getItem('organizationId')+'/user/'+this.state._id+'/avatar'}
                 listType="picture-card"
                 showUploadList={false}
                 withCredentials={true}
