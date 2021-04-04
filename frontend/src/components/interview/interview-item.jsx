@@ -60,18 +60,27 @@ class InterviewItem extends React.Component {
       </Breadcrumb>
     );
 
+    let headerExtra = [];
+    if(this.state.interview.status !== 'finished'){
+      headerExtra.push(<Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>);
+    }
+    if(this.state.interview.status === 'pending'){
+      headerExtra.push(<Button color='blue' onClick={() => this.setEditIntModal(true)}>Edit Interview</Button>);
+      headerExtra.push(<Button color='red' onClick={() => deleteInterview(this.props.match.params.positionId, this.props.match.params.interviewId, res => {this.props.history.push(`/position/${this.props.match.params.positionId}`)})}>Delete Interview</Button>);
+    }
+    if(this.state.interview.status === 'finished'){
+      headerExtra.push(<Button color='blue' onClick={() => this.props.history.push('/position/'+this.state.interview.position._id+'/interview/'+this.state.interview._id+'/statistics')}>Statistics</Button>,);
+    }
+    
+    const status = this.state.interview.status;
+
 		return (
 			<PageWrap selected='interview'>
         <PageHeader
           title={this.state.interview.candidate.name}
           subTitle={this.state.interview.position.name}
           style={{backgroundColor:'white',marginTop:'5px'}}
-          extra={[
-            <Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>,
-            <Button color='blue' onClick={() => this.setEditIntModal(true)}>Edit Interview</Button>,
-            <Button color='blue' onClick={() => this.props.history.push('/position/'+this.state.interview.position._id+'/interview/'+this.state.interview._id+'/statistics')}>Statistics</Button>,
-            <Button color='red' onClick={() => deleteInterview(this.props.match.params.positionId, this.props.match.params.interviewId, res => {this.props.history.push(`/position/${this.props.match.params.positionId}`)})}>Delete Interview</Button>
-          ]}
+          extra={headerExtra}
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
@@ -84,9 +93,12 @@ class InterviewItem extends React.Component {
           <Divider/>
           <Header>Basic Information</Header>
           <Descriptions>
-            <Descriptions.Item label="Status" labelStyle={{fontWeight:'600'}}>{this.state.interview.status}</Descriptions.Item>
-            <Descriptions.Item label="Scheduled Time" labelStyle={{fontWeight:'600'}}>{toLocalTimeString(this.state.interview.scheduledTime)}</Descriptions.Item>
-            <Descriptions.Item label="Scheduled Length" labelStyle={{fontWeight:'600'}}>{`${this.state.interview.scheduledLength} minutes`}</Descriptions.Item>
+            <Descriptions.Item label="Position" labelStyle={{fontWeight:'600'}}>{this.state.interview.position.name}</Descriptions.Item>
+            <Descriptions.Item label="Status" labelStyle={{fontWeight:'600'}}>{status}</Descriptions.Item>
+            { status === 'pending' ? <Descriptions.Item label="Scheduled Time" labelStyle={{fontWeight:'600'}}>{toLocalTimeString(this.state.interview.scheduledTime)}</Descriptions.Item> : undefined}
+            { status !== 'pending' ? <Descriptions.Item label="Start Time" labelStyle={{fontWeight:'600'}}>{toLocalTimeString(this.state.interview.startTime)}</Descriptions.Item> : undefined}
+            { status !== 'finished' ? <Descriptions.Item label="Scheduled Length" labelStyle={{fontWeight:'600'}}>{`${this.state.interview.scheduledLength} minutes`}</Descriptions.Item> : undefined}
+            { status === 'finished' ? <Descriptions.Item label="Finish Time" labelStyle={{fontWeight:'600'}}>{toLocalTimeString(this.state.interview.finishTime)}</Descriptions.Item> : undefined}
           </Descriptions>
           <Divider/>
           <Header>Interviewers</Header>

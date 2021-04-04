@@ -33,10 +33,16 @@ class Position extends React.Component {
   	this.fetchData();
   };
 
-  onSearch = (e) => {
+  onSearch = () => {
     this.state.page = 1;
     this.fetchData();
   };
+
+  onClear = () => {
+    this.state.page = 1;
+    this.state.nameContains = '';
+    this.fetchData();
+  }
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
@@ -78,11 +84,15 @@ class Position extends React.Component {
             <Header>Name:</Header>
             <Input 
               name='nameContains'
+              value={this.state.nameContains}
               onChange={this.handleInputChange}
               placeholder='Search by name'
             />
           </Space>
-          <Button color='blue' onClick={this.onSearch} >Search</Button>
+          <Space>
+            <Button color='white' onClick={this.onClear}>Clear</Button>
+            <Button color='blue' onClick={this.onSearch}>Search</Button>
+          </Space>
         </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
           <Table striped basic='very'>

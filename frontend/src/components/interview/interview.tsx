@@ -35,6 +35,13 @@ class Interview extends React.Component {
     this.fetchData();
   };
 
+  onClear = () => {
+    this.state.page = 1;
+    this.state.positionContains = '';
+    this.state.candidateContains = '';
+    this.fetchData();
+  }
+
   setCreateIntModal = (open) => this.setState({createIntModal: open});
 
   onPageChange = (e, pageInfo) => {
@@ -81,6 +88,7 @@ class Interview extends React.Component {
             <Header>Position:</Header>
             <Input 
               name='positionContains'
+              value={this.state.positionContains}
               onChange={this.handleInputChange}
               placeholder='Search by position'
             />
@@ -89,11 +97,15 @@ class Interview extends React.Component {
             <Header>Candidate:</Header>
             <Input 
               name='candidateContains'
+              value={this.state.candidateContains}
               onChange={this.handleInputChange}
               placeholder='Search by candidate'
             />
           </Space>
-          <Button color='blue' onClick={this.onSearch} >Search</Button>
+          <Space>
+            <Button color='white' onClick={this.onClear}>Clear</Button>
+            <Button color='blue' onClick={this.onSearch}>Search</Button>
+          </Space>
         </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
           <Table striped basic='very'>

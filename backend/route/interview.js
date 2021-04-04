@@ -108,6 +108,10 @@ router.patch('/:interviewId', (req, res) => {
 });
 
 router.delete('/:interviewId', (req, res) => {
+  if(req.interview.status === 'finished') return res.status(403).send('cannot delete a finished interview');
+  Position.update({_id:req.position._id}, { $inc: {pendingInterviewNum:-1} }, (err) => {
+    if (err) return res.status(500).send(err);
+  });
   Interview
     .remove({_id:req.interview._id}, {justOne: true})
     .exec((err, interview) => {
