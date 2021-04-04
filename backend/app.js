@@ -86,6 +86,10 @@ const io = require("socket.io")(server, {
   }
 });
 
+function roomSize(roomId) {
+  return io.of("/").adapter.rooms.get(roomId).size;
+}
+
 io.on('connection', (socket) => {
   console.log('Socket IO Connection Established');
 
@@ -95,9 +99,14 @@ io.on('connection', (socket) => {
     socket.join(interviewId);
     socket.to(interviewId).emit('user-conn', userId);
 
+    if (roomSize(interviewId) === 1) {
+      socket.emit('first-joined');
+    }
+
     socket.on("disconnect", () => {
       socket.join(interviewId);
       socket.to(interviewId).emit('user-disconn', userId);
+      socket.leave(interviewId);
       console.log("Client disconnected");
     });
 

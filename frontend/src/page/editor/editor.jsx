@@ -135,12 +135,18 @@ function Editor({
       peer.on('connection', conn => {
         conn.on('open', () => {
           conn.on('data', dat => {
+            console.log('Data: ' + dat);
             if (initializing) {
               monacoRef.current.editor.getModels()[0].setValue(dat);
               initializing = false;
             }
           });
         });
+      });
+
+      socket.on('first-joined', () => {
+        initializing = false;
+        console.log('First joined!');
       });
 
       socket.on('user-conn', userId => {
@@ -160,8 +166,6 @@ function Editor({
 
           conn.send(editorContent);
           console.log('Sent: ' + editorContent);
-
-          // conn.close();
         })
       });
 
@@ -511,6 +515,7 @@ function Editor({
                 });
           
                 e.onDidChangeModelContent(change => {
+                  console.log(`ignoreRemoteEvent: ${ignoreRemoteEvent}, initializing: ${initializing}`);
                   if (ignoreRemoteEvent || initializing)
                     return;
 
