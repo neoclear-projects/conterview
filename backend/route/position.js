@@ -42,9 +42,12 @@ router.get('/', (req, res) => {
       return res.json({positions});
     });
   }else{
-    Position.find({organizationId:req.organization._id}, req.fields).skip((page-1)*10).limit(10).exec((err, positions) => {
+    let nameContains = req.query.nameContains;
+    let query = {organizationId:req.organization._id};
+    if(nameContains) query.name = { "$regex": nameContains, "$options": "i" };
+    Position.find(query, req.fields).skip((page-1)*10).limit(10).exec((err, positions) => {
       if (err) return res.status(500).send(err);
-      Position.countDocuments({organizationId:req.organization._id}, (err, count) => {
+      Position.countDocuments(query, (err, count) => {
         if (err) return res.status(500).send(err);
         let response = {};
         response.totalPage = Math.ceil(count/10);

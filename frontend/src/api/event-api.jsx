@@ -1,5 +1,7 @@
 import req from './req';
 
-export function getEvents(onSuccess, onError){
-	req.get('organization/'+window.localStorage.getItem('organizationId')+'/event').then(onSuccess).catch(onError);
+export function getEvents(page, onSuccess, onError){
+	let params = {};
+	params.page = page;
+	req.get('organization/'+window.localStorage.getItem('organizationId')+'/event', { params }).then(onSuccess).catch(onError);
 }

@@ -5,9 +5,11 @@ export function createInterview(positionId, candidateName, candidateEmail, sched
 	req.post('organization/'+window.localStorage.getItem('organizationId')+'/position/'+positionId+'/interview', data).then(onSuccess).catch(onError);
 }
 
-export function getInterviewsAllPosition(fields, page, onSuccess){
+export function getInterviewsAllPosition(fields, page, positionContains, candidateContains, onSuccess){
 	let params = {};
 	if(fields) params.fields = fields;
+	if(positionContains) params.positionContains = positionContains;
+	if(candidateContains) params.candidateContains = candidateContains;
 	params.page = page;
 	req.get('organization/'+window.localStorage.getItem('organizationId')+'/interview', { params }).then(onSuccess);
 }
