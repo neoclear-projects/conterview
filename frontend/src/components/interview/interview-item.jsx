@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
 import { Button, Header, List } from 'semantic-ui-react';
 import CreateInterview from './create-interview';
+import { toLocalTimeString } from '../../util/time';
 
 class InterviewItem extends React.Component {
   constructor(props){
@@ -82,7 +83,7 @@ class InterviewItem extends React.Component {
           <Header>Basic Information</Header>
           <Descriptions>
             <Descriptions.Item label="Status" labelStyle={{fontWeight:'600'}}>{this.state.interview.status}</Descriptions.Item>
-            <Descriptions.Item label="Scheduled Time" labelStyle={{fontWeight:'600'}}>{this.state.interview.scheduledTime}</Descriptions.Item>
+            <Descriptions.Item label="Scheduled Time" labelStyle={{fontWeight:'600'}}>{toLocalTimeString(this.state.interview.scheduledTime)}</Descriptions.Item>
             <Descriptions.Item label="Scheduled Length" labelStyle={{fontWeight:'600'}}>{`${this.state.interview.scheduledLength} minutes`}</Descriptions.Item>
           </Descriptions>
           <Divider/>

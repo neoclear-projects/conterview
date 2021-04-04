@@ -6,6 +6,7 @@ import { PageHeader, Breadcrumb, Avatar } from 'antd';
 import { getEvents } from '../../api/event-api';
 import { getUser } from '../../api/user-api';
 import { avatarProps } from '../../util/avatar-props';
+import { toLocalTimeString } from '../../util/time';
 
 class Home extends React.Component {
   constructor(props){
@@ -77,7 +78,6 @@ class Home extends React.Component {
         case 'problem':
           description = (
             <div>
-              {console.log(event.item1)}
               {`${event.user.username} ${actionWord} problem <${event.item1.name}>`} 
             </div>
           );
@@ -89,7 +89,7 @@ class Home extends React.Component {
           <Avatar {...avatarProps(event.user._id, event.user.username, 50)} style={{marginRight:'10px'}} />
           <Header.Content>
             {description}
-            <Header.Subheader>{event.time}</Header.Subheader>
+            <Header.Subheader>{toLocalTimeString(event.time)}</Header.Subheader>
           </Header.Content>
           <Divider/>
         </Header>

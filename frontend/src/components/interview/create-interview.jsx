@@ -4,6 +4,7 @@ import { getUsers } from '../../api/user-api';
 import { createInterview, updateInterview } from '../../api/interview-api';
 import { getPositions } from '../../api/position-api';
 import { getProblemSet } from '../../api/problem-set-api';
+import { toLocalTimeISOString } from '../../util/time';
 
 class CreateInterview extends React.Component {
   constructor(props){
@@ -22,7 +23,7 @@ class CreateInterview extends React.Component {
     }else{
       this.state.candidateName = '';
       this.state.candidateEmail = '';
-      this.state.scheduledTime = new Date();
+      this.state.scheduledTime = toLocalTimeISOString(new Date().toISOString());
       this.state.scheduledLength = 0;
       this.state.interviewerIds = [];
       this.state.problemIds = [];
@@ -33,7 +34,7 @@ class CreateInterview extends React.Component {
   setStateInterviewByProp(){
     this.state.candidateName = this.props.interview.candidate.name;
     this.state.candidateEmail = this.props.interview.candidate.email;
-    this.state.scheduledTime = new Date(this.props.interview.scheduledTime);
+    this.state.scheduledTime = toLocalTimeISOString(this.props.interview.scheduledTime);
     this.state.scheduledLength = this.props.interview.scheduledLength;
     this.state.interviewerIds = this.props.interview.interviewers.map(interviewer => {return interviewer._id});
     this.state.problemIds = this.props.interview.problems.map(problem => {return problem._id});
@@ -43,18 +44,18 @@ class CreateInterview extends React.Component {
 
   handleSubmit = () => {
     const { candidateName, candidateEmail, scheduledTime, interviewerIds, problemIds, scheduledLength } = this.state;
+    let scheduledTimeUTC = new Date(scheduledTime).toISOString();
     if(this.props.interview){
-      updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, 
+      updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
         req => {
           this.props.onSubmit();              
         },
         err => {
-          console.log(err.response);
         }
       );
     }else{
       let positionId = this.props.positionId === undefined ? this.state.positionId : this.props.positionId;
-      createInterview(positionId, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, 
+      createInterview(positionId, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
         req => {
           this.props.onSubmit();              
         }, 

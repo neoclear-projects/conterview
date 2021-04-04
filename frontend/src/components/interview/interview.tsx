@@ -6,6 +6,7 @@ import CreateInterview from './create-interview';
 import './interview.css';
 import { getInterviewsAllPosition } from '../../api/interview-api';
 import { PageHeader, Breadcrumb } from 'antd';
+import { toLocalTimeString } from '../../util/time';
 
 class Interview extends React.Component {
   constructor(){
@@ -38,7 +39,7 @@ class Interview extends React.Component {
         <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id)}}>
           <Table.Cell>{interview.position.name}</Table.Cell>
           <Table.Cell>{interview.candidate.name}</Table.Cell>
-          <Table.Cell>{interview.scheduledTime}</Table.Cell>
+          <Table.Cell>{toLocalTimeString(interview.scheduledTime)}</Table.Cell>
           <Table.Cell>{interview.status}</Table.Cell>
         </Table.Row>
       );

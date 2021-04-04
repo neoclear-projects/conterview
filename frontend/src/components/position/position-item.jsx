@@ -8,6 +8,7 @@ import { getInterviews } from '../../api/interview-api';
 import { getPosition, deletePosition } from '../../api/position-api';
 import { Link } from 'react-router-dom';
 import CreateEditPosition from './create-edit-position';
+import { toLocalTimeString } from '../../util/time';
 
 class PositionItem extends React.Component {
   constructor(props){
@@ -55,7 +56,7 @@ class PositionItem extends React.Component {
       return (
         <Table.Row>
           <Table.Cell>{interview.candidate.name}</Table.Cell>
-          <Table.Cell>{interview.scheduledTime}</Table.Cell>
+          <Table.Cell>{toLocalTimeString(interview.scheduledTime)}</Table.Cell>
           <Table.Cell>{interview.status}</Table.Cell>
         </Table.Row>
       );
