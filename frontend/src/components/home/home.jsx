@@ -2,8 +2,10 @@ import React from 'react';
 import { Button, Header, Image, Divider } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb } from 'antd';
+import { PageHeader, Breadcrumb, Avatar } from 'antd';
 import { getEvents } from '../../api/event-api';
+import { getUser } from '../../api/user-api';
+import { avatarProps } from '../../util/avatar-props';
 
 class Home extends React.Component {
   constructor(props){
@@ -11,14 +13,19 @@ class Home extends React.Component {
     this.state = {
       loading:true,
       events:{},
-    }
-    getEvents(
-      res => {
-        this.state.events = res.data;
-        this.setState({loading: false});
-      },
-      err => {}
-    );
+      user:{},
+    };
+
+    getUser(window.localStorage.getItem('userId'), res => {
+      this.state.user = res.data;
+      getEvents(
+        res => {
+          this.state.events = res.data;
+          this.setState({loading: false});
+        },
+        err => {}
+      );
+    });
   }  
 
   render(){
@@ -79,7 +86,7 @@ class Home extends React.Component {
 
       return (
         <Header>
-          <Image circular src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' />
+          <Avatar {...avatarProps(event.user._id, event.user.username, 50)} style={{marginRight:'10px'}} />
           <Header.Content>
             {description}
             <Header.Subheader>{event.time}</Header.Subheader>
@@ -92,7 +99,9 @@ class Home extends React.Component {
     return (
       <PageWrap selected='home'>
         <PageHeader
-          title="Home"
+          avatar={avatarProps(this.state.user._id, this.state.user.username, 50)}
+          title={`Welcome, ${this.state.user.username}`}
+          subTitle={this.state.user.title && this.state.user.department ? `${this.state.user.title} | ${this.state.user.department}` : 'Please complete your profile'}
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button basic color='blue' onClick={() => this.props.history.push('/editor')}>

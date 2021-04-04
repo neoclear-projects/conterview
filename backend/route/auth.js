@@ -17,34 +17,17 @@ router.route('/login').post((req, res) => {
     if (user.saltedHash !== saltedHash) return res.status(401).send("access denied");
     // start a session
     req.session.user = user;
-    res.cookie('username', user.username, {
-      path : '/', 
-      maxAge: 60 * 60 * 24 * 7 * 1000
-    });
-    res.cookie('organization-id', user.organizationId.toString(), {
-      path : '/', 
-      maxAge: 60 * 60 * 24 * 7 * 1000
-    });
-    return res.json("user " + username + " signed up");
+    return res.json(user);
   });
 });
 
 router.route('/logout').get((req, res) => {
   req.session.destroy();
-  res.cookie('username', '', {
-    path : '/', 
-    maxAge: 60 * 60 * 24 * 7 * 1000
-  });
-  res.cookie('organization-id', '', {
-    path : '/', 
-    maxAge: 60 * 60 * 24 * 7 * 1000
-  });
   return res.json("user " + req.username + " signed out");
 });
 
 router.route('/register').post((req, res) => {
   const { organization, username, password, email } = req.body;
-
   Organization.findOne({name:organization}, function(err, org){
     if (err) return res.status(500).send(err);
     if (!org) return res.status(404).send("organization " + organization + " does not exist");
@@ -61,15 +44,7 @@ router.route('/register').post((req, res) => {
         if(err) return res.status(500).send(err);
         // start a session
         req.session.user = user;
-        res.cookie('username', user.username, {
-          path : '/', 
-          maxAge: 60 * 60 * 24 * 7 * 1000
-        });
-        res.cookie('organization-id', user.organizationId.toString(), {
-          path : '/', 
-          maxAge: 60 * 60 * 24 * 7 * 1000
-        });
-        return res.json("user " + username + " signed up");
+        return res.json(user);
       });
     });
   });

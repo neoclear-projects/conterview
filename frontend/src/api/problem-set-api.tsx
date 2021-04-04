@@ -1,9 +1,8 @@
 import req from './req';
 import singleProblem from '../components/problem-set/single-problem'
 import { AxiosResponse } from 'axios';
-import { getCookie } from '../util/get-cookie';
 
-function prefix(){return `organization/${getCookie('organization-id')}`;}
+function prefix(){return `organization/${window.localStorage.getItem('organizationId')}`;}
 
 export function getProblemSet(onSuccess: ((value: AxiosResponse<any>) => AxiosResponse<any> | PromiseLike<AxiosResponse<any>>) | null | undefined, onError: ((reason: any) => PromiseLike<never>) | null | undefined){
 	req.get(`${prefix()}/problemSet`).then(onSuccess).catch(onError);

@@ -54,6 +54,10 @@ const problemSetSchema = new Schema({
   comment:{
     type:String,
     default:'',
+  },
+  allPassed:{
+    type:Boolean,
+    default:false,
   }
 });
 

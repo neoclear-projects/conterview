@@ -31,6 +31,7 @@ app.use(session({
   secret: secretKey,
   resave: false,
   saveUninitialized: true,
+  name: 'session-id'
 }));
 
 /**
@@ -40,7 +41,7 @@ app.use((req, res, next) => {
   console.log("HTTP request", req.method, req.url, req.body);
   // Allow CORS
   res.header("Access-Control-Allow-Methods",'GET, POST, DELETE, PATCH, PUT');
-  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Headers", "Content-Type, x-requested-with");
   res.header("Access-Control-Allow-Credentials", true);
   res.header('Access-Control-Allow-Origin', require('config').get('frontend.url'));
   // get required fields

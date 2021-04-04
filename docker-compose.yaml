@@ -29,6 +29,7 @@ services:
     volumes:
      - /usr/bin/docker:/usr/bin/docker
      - /var/run/docker.sock:/var/run/docker.sock
+     - uploads:/home/app/uploads
     user: root
 
   frontend:
@@ -47,4 +48,6 @@ services:
 
 volumes:
   mongodbdata:
+    driver: local
+  uploads:
     driver: local

@@ -3,8 +3,9 @@ import './page-wrap.css';
 import { Icon, Image, List } from 'semantic-ui-react';
 import logo from '../../static/images/logo-dashboard.png';
 import { logout } from '../../api/auth-api';
-import { Spin, Popover, Space } from 'antd';
+import { Spin, Popover, Space, Avatar } from 'antd';
 import { withRouter } from 'react-router-dom';
+import { avatarProps } from '../../util/avatar-props';
 
 class PageWrap extends React.Component {
   render(){
@@ -43,8 +44,8 @@ class PageWrap extends React.Component {
           <div className='c-page-header'>
             <Popover content={content}>
               <Space>
-                <Image src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' avatar />
-                <span>Username</span>
+                <Avatar {...avatarProps(window.localStorage.getItem('userId'), window.localStorage.getItem('username'), 30)} />
+                <span>{window.localStorage.getItem('username')}</span>
               </Space>
             </Popover>
           </div>
