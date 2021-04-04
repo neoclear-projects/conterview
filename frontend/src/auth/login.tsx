@@ -9,8 +9,6 @@ class Login extends React.Component {
   constructor(){
     super();
     this.state = { username:"", password:"", error:false};
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   } 
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });

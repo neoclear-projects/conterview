@@ -21,6 +21,10 @@ router.route('/login').post((req, res) => {
       path : '/', 
       maxAge: 60 * 60 * 24 * 7 * 1000
     });
+    res.cookie('user-id', user._id.toString(), {
+      path : '/', 
+      maxAge: 60 * 60 * 24 * 7 * 1000
+    });
     res.cookie('organization-id', user.organizationId.toString(), {
       path : '/', 
       maxAge: 60 * 60 * 24 * 7 * 1000
@@ -32,6 +36,10 @@ router.route('/login').post((req, res) => {
 router.route('/logout').get((req, res) => {
   req.session.destroy();
   res.cookie('username', '', {
+    path : '/', 
+    maxAge: 60 * 60 * 24 * 7 * 1000
+  });
+  res.cookie('user-id', '', {
     path : '/', 
     maxAge: 60 * 60 * 24 * 7 * 1000
   });
@@ -62,6 +70,10 @@ router.route('/register').post((req, res) => {
         // start a session
         req.session.user = user;
         res.cookie('username', user.username, {
+          path : '/', 
+          maxAge: 60 * 60 * 24 * 7 * 1000
+        });
+        res.cookie('user-id', user._id.toString(), {
           path : '/', 
           maxAge: 60 * 60 * 24 * 7 * 1000
         });

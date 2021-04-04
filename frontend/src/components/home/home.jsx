@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
 import { PageHeader, Breadcrumb } from 'antd';
 import { getEvents } from '../../api/event-api';
+import { avatarUrl } from '../../api/avatar-url';
+import { getUser } from '../../api/user-api';
+import { getCookie } from '../../util/get-cookie';
 
 class Home extends React.Component {
   constructor(props){
@@ -11,14 +14,19 @@ class Home extends React.Component {
     this.state = {
       loading:true,
       events:{},
-    }
-    getEvents(
-      res => {
-        this.state.events = res.data;
-        this.setState({loading: false});
-      },
-      err => {}
-    );
+      user:{},
+    };
+
+    getUser(getCookie('user-id'), res => {
+      this.state.user = res.data;
+      getEvents(
+        res => {
+          this.state.events = res.data;
+          this.setState({loading: false});
+        },
+        err => {}
+      );
+    });
   }  
 
   render(){
@@ -79,7 +87,7 @@ class Home extends React.Component {
 
       return (
         <Header>
-          <Image circular src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' />
+          <Image circular src={avatarUrl(event.user._id)} />
           <Header.Content>
             {description}
             <Header.Subheader>{event.time}</Header.Subheader>
@@ -92,7 +100,9 @@ class Home extends React.Component {
     return (
       <PageWrap selected='home'>
         <PageHeader
-          title="Home"
+          avatar={{src:avatarUrl(this.state.user._id)}}
+          title={`Welcome, ${this.state.user.username}`}
+          subTitle={this.state.user.title && this.state.user.department ? `${this.state.user.title} | ${this.state.user.department}` : 'Please complete your profile'}
           style={{backgroundColor:'white',marginTop:'5px'}}
           extra={[
             <Button basic color='blue' onClick={() => this.props.history.push('/editor')}>

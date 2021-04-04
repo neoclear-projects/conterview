@@ -5,6 +5,8 @@ import logo from '../../static/images/logo-dashboard.png';
 import { logout } from '../../api/auth-api';
 import { Spin, Popover, Space } from 'antd';
 import { withRouter } from 'react-router-dom';
+import { getCookie } from '../../util/get-cookie';
+import { avatarUrl } from '../../api/avatar-url';
 
 class PageWrap extends React.Component {
   render(){
@@ -43,8 +45,8 @@ class PageWrap extends React.Component {
           <div className='c-page-header'>
             <Popover content={content}>
               <Space>
-                <Image src='https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png' avatar />
-                <span>Username</span>
+                <Image src={avatarUrl(getCookie('user-id'))} avatar />
+                <span>{getCookie('username')}</span>
               </Space>
             </Popover>
           </div>

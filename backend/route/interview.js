@@ -184,20 +184,6 @@ router.patch('/:interviewId/current-problem-index', (req, res) => {
   });
 });
 
-// router.patch('/:interviewId/problem/:index/rating', (req, res) => {
-//   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
-//     if (err) return res.status(500).send(err);
-//     if(interview.problemsSnapshot[req.params.index].problemRubric.length !== req.body.rating.length) return res.status(400).send('incorrect number of ratings');
-//     for(let i=0;i<req.body.rating.length;i++){
-//       interview.problemsSnapshot[req.params.index].problemRubric[i].curRating = req.body.rating[i];
-//     }
-//     interview.save((err, interview) => {
-//       if (err) return res.status(500).send(err);
-//       return res.json(interview.problemsSnapshot[req.params.index].problemRubric);
-//     });
-//   });
-// });
-
 router.patch('/:interviewId/problem/:index/evaluation', (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
@@ -208,6 +194,9 @@ router.patch('/:interviewId/problem/:index/evaluation', (req, res) => {
     }
     if(req.body.comment){
       interview.problemsSnapshot[req.params.index].comment = req.body.comment;
+    }
+    if(req.body.allPassed){
+      interview.problemsSnapshot[req.params.index].allPassed = req.body.allPassed;
     }
     interview.save((err, interview) => {
       if (err) return res.status(500).send(err);
