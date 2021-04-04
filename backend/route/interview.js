@@ -50,15 +50,12 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  let page = req.query.page;
-  if(page === undefined) page = 1;
   let query = {'position':req.position._id};
   if(req.query.status !== undefined){
     query['status'] = req.query.status;
   }
   Interview
     .find(query)
-    .skip((page-1)*10).limit(10)
     .populate({path:'position'})
     .populate({path:'interviewers'})
     .populate({path:'problems'})

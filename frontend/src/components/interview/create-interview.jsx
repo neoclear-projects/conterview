@@ -88,7 +88,7 @@ class CreateInterview extends React.Component {
       });
     });
     if(this.props.positionId === undefined){
-      getPositions('name', 0, res => {
+      getPositions('name', 0, '', res => {
         this.setState({positionOptions:res.data.positions.map(position => {
             return {
               key: position.name,

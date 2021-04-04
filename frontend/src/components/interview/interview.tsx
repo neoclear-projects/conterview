@@ -1,11 +1,11 @@
 import React from 'react';
-import { Button, Table, Pagination } from 'semantic-ui-react';
+import { Button, Table, Pagination, Header, Input } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
 import CreateInterview from './create-interview';
 import './interview.css';
 import { getInterviewsAllPosition } from '../../api/interview-api';
-import { PageHeader, Breadcrumb } from 'antd';
+import { PageHeader, Breadcrumb, Space } from 'antd';
 import { toLocalTimeString } from '../../util/time';
 
 class Interview extends React.Component {
@@ -16,14 +16,23 @@ class Interview extends React.Component {
       interviews:[],
       totalPage:1,
       page:1,
+      positionContains:'',
+      candidateContains:'',
     };
     this.fetchData();
   }
   
+  handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
+
   fetchData = () => {
-    getInterviewsAllPosition('', this.state.page, res => {
+    getInterviewsAllPosition('', this.state.page, this.state.positionContains, this.state.candidateContains, res => {
       this.setState({totalPage: res.data.totalPage, interviews: res.data.interviews});
     });
+  };
+
+  onSearch = (e) => {
+    this.state.page = 1;
+    this.fetchData();
   };
 
   setCreateIntModal = (open) => this.setState({createIntModal: open});
@@ -67,6 +76,25 @@ class Interview extends React.Component {
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
+        <div style={{backgroundColor:'white', padding:'20px', margin:'25px', display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
+          <Space>
+            <Header>Position:</Header>
+            <Input 
+              name='positionContains'
+              onChange={this.handleInputChange}
+              placeholder='Search by position'
+            />
+          </Space>
+          <Space>
+            <Header>Candidate:</Header>
+            <Input 
+              name='candidateContains'
+              onChange={this.handleInputChange}
+              placeholder='Search by candidate'
+            />
+          </Space>
+          <Button color='blue' onClick={this.onSearch} >Search</Button>
+        </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
           <Table striped basic='very'>
             <Table.Header>

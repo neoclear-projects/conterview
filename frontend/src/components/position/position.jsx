@@ -1,10 +1,10 @@
 import React from 'react';
-import { Button, Table, Pagination } from 'semantic-ui-react';
+import { Button, Table, Pagination, Input, Header } from 'semantic-ui-react';
 import PageWrap from '../header/page-wrap';
 import './position.css';
 import { getPositions } from '../../api/position-api';
 import { Link } from 'react-router-dom';
-import { PageHeader, Breadcrumb } from 'antd';
+import { PageHeader, Breadcrumb, Space } from 'antd';
 import CreateEditPosition from './create-edit-position';
 
 class Position extends React.Component {
@@ -15,12 +15,13 @@ class Position extends React.Component {
       positions:[],
       totalPage:1,
       page:1,
+      nameContains:'',
     };
     this.fetchData();
   }
 
   fetchData = () => {
-    getPositions('', this.state.page, res => {
+    getPositions('', this.state.page, this.state.nameContains, res => {
       this.setState({positions: res.data.positions, totalPage: res.data.totalPage});
     });
   };
@@ -31,6 +32,13 @@ class Position extends React.Component {
     this.state.page = pageInfo.activePage;
   	this.fetchData();
   };
+
+  onSearch = (e) => {
+    this.state.page = 1;
+    this.fetchData();
+  };
+
+  handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   render() {   
     let tableBody = this.state.positions.map((position) => {
@@ -65,6 +73,17 @@ class Position extends React.Component {
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
+        <div style={{backgroundColor:'white', padding:'20px', margin:'25px', display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
+          <Space>
+            <Header>Name:</Header>
+            <Input 
+              name='nameContains'
+              onChange={this.handleInputChange}
+              placeholder='Search by name'
+            />
+          </Space>
+          <Button color='blue' onClick={this.onSearch} >Search</Button>
+        </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
           <Table striped basic='very'>
             <Table.Header>

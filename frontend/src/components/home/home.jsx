@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Header, Image, Divider } from 'semantic-ui-react';
+import { Button, Header, Image, Divider, Pagination } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
 import { PageHeader, Breadcrumb, Avatar } from 'antd';
@@ -16,19 +16,33 @@ class Home extends React.Component {
       loading:true,
       events:{},
       user:{},
+      totalPage:1,
+      page:1,
     };
 
     getUser(window.localStorage.getItem('userId'), res => {
       this.state.user = res.data;
-      getEvents(
+      getEvents(this.state.page,
         res => {
-          this.state.events = res.data;
+          this.state.events = res.data.events;
+          this.state.totalPage = res.data.totalPage;
           this.setState({loading: false});
         },
         err => {}
       );
     });
   }  
+
+  onPageChange = (e, pageInfo) => {
+    this.state.page = pageInfo.activePage;
+  	getEvents(this.state.page,
+      res => {
+        this.state.totalPage = res.data.totalPage;
+        this.setState({events: res.data.events});
+      },
+      err => {}
+    );
+  };
 
   render(){
     if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>)
@@ -119,8 +133,9 @@ class Home extends React.Component {
         >
         </PageHeader>
 
-        <div style={{backgroundColor:'white', padding:'50px', margin:'25px', }}>
+        <div style={{backgroundColor:'white', padding:'48px', margin:'25px'}}>
           { content }
+          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
         </div>
 
       </PageWrap>
