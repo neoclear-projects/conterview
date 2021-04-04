@@ -122,6 +122,7 @@ io.on('connection', (socket) => {
       socket.to(interviewId).emit('code', code);
 
       console.log(socket.id + ' updated code in ' + interviewId);
+      console.log('Currently has ' + roomSize(interviewId) + ' in room ' + interviewId);
     })
   
     socket.on('stream-open', (userId) => {
