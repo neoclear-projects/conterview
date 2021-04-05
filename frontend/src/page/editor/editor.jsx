@@ -119,78 +119,79 @@ function Editor({
 
     peer.on('open', id => {
       socket.emit('join', id, interviewId);
+
+      navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      }).then(stream => {
+        console.log('stream acquired');
+  
+        peer.on('call', call => {
+          call.answer(stream);
+          call.on('stream', (newStream) => {
+            streamsRef.current.set(call.peer, {
+              stream: newStream,
+              visibility: true
+            });
+            setStreams(new Map(streamsRef.current));
+          })
+        });
+  
+        peer.on('connection', conn => {
+          conn.on('open', () => {
+            conn.on('data', dat => {
+              console.log('Data: ' + dat);
+              if (initializing) {
+                monacoRef.current.editor.getModels()[0].setValue(dat);
+                initializing = false;
+              }
+            });
+          });
+        });
+  
+        socket.on('user-conn', userId => {
+          console.log('New user: ' + userId);
+  
+          const call = peer.call(userId, stream);
+          call.on('stream', newStream => {
+            streamsRef.current.set(call.peer, {
+              stream: newStream,
+              visibility: true
+            });
+            setStreams(new Map(streamsRef.current));
+          });
+          
+  
+          const conn = peer.connect(userId);
+          conn.on('open', () => {
+            const editorContent = monacoRef.current.editor.getModels()[0].getValue();
+  
+            conn.send(editorContent);
+            console.log('Sent: ' + editorContent);
+          })
+        });
+  
+        socket.on('stream-open', userId => {
+          streamsRef.current.get(userId).visibility = true;
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('stream-close', userId => {
+          streamsRef.current.get(userId).visibility = false;
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('user-disconn', userId => {
+          streamsRef.current.delete(userId);
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('refresh', refreshState);
+  
+        setMyStream(stream);
+      });
+
       setId(id);
-    });
-
-    navigator.mediaDevices.getUserMedia({
-      video: true,
-      audio: true
-    }).then(stream => {
-      console.log('stream acquired');
-
-      peer.on('call', call => {
-        call.answer(stream);
-        call.on('stream', (newStream) => {
-          streamsRef.current.set(call.peer, {
-            stream: newStream,
-            visibility: true
-          });
-          setStreams(new Map(streamsRef.current));
-        })
-      });
-
-      peer.on('connection', conn => {
-        conn.on('open', () => {
-          conn.on('data', dat => {
-            console.log('Data: ' + dat);
-            if (initializing) {
-              monacoRef.current.editor.getModels()[0].setValue(dat);
-              initializing = false;
-            }
-          });
-        });
-      });
-
-      socket.on('user-conn', userId => {
-        console.log('New user: ' + userId);
-
-        const call = peer.call(userId, stream);
-        call.on('stream', newStream => {
-          streamsRef.current.set(call.peer, {
-            stream: newStream,
-            visibility: true
-          });
-          setStreams(new Map(streamsRef.current));
-        });
-        
-
-        const conn = peer.connect(userId);
-        conn.on('open', () => {
-          const editorContent = monacoRef.current.editor.getModels()[0].getValue();
-
-          conn.send(editorContent);
-          console.log('Sent: ' + editorContent);
-        })
-      });
-
-      socket.on('stream-open', userId => {
-        streamsRef.current.get(userId).visibility = true;
-        setStreams(new Map(streamsRef.current));
-      });
-
-      socket.on('stream-close', userId => {
-        streamsRef.current.get(userId).visibility = false;
-        setStreams(new Map(streamsRef.current));
-      });
-
-      socket.on('user-disconn', userId => {
-        streamsRef.current.delete(userId);
-        setStreams(new Map(streamsRef.current));
-      });
-
-      socket.on('refresh', refreshState);
-
-      setMyStream(stream);
     });
   }, []);
 

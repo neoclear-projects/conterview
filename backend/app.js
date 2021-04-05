@@ -106,6 +106,8 @@ io.on('connection', (socket) => {
       socket.emit('first-joined');
     }
 
+    console.log('Currently has ' + roomSize(interviewId) + ' in room ' + interviewId);
+
     socket.on("disconnect", () => {
       socket.join(interviewId);
       socket.to(interviewId).emit('user-disconn', userId);
