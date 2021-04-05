@@ -121,6 +121,8 @@ function Editor({
       video: true,
       audio: true
     }).then(stream => {
+      console.log('stream acquired');
+
       peer.on('call', call => {
         call.answer(stream);
         call.on('stream', (newStream) => {
@@ -150,6 +152,8 @@ function Editor({
       });
 
       socket.on('user-conn', userId => {
+        console.log('New user: ' + userId);
+
         const call = peer.call(userId, stream);
         call.on('stream', newStream => {
           streamsRef.current.set(call.peer, {
@@ -453,7 +457,7 @@ function Editor({
           <ButtonGroup>
             <Button basic onClick={() => {
               setCompiling(true);
-              runCode(interviewId, code, language, out => {
+              runCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, out => {
                 setOutput(out);
                 setCompiling(false);
               }, err => {
@@ -468,7 +472,7 @@ function Editor({
             </Button>
             <Button onClick={() => {
               setTesting(true);
-              testCode(interviewId, code, language, questions[curQuestionIdx]._id, (result, msg) => {
+              testCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, questions[curQuestionIdx]._id, (result, msg) => {
                 if (result === 'pass') testPassed(questions[curQuestionIdx].problemName);
                 else if (result === 'fail') testFailed(questions[curQuestionIdx].problemName);
                 else if (result === 'cperror') testCompilerError(msg);
