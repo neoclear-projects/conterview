@@ -46,35 +46,35 @@ export default function InfoModal({
         <p>All C++ codes would be executed using g++ 9.3.0 with the following flag</p>
         <CodeBlock
           text='g++ -std=c++17; ./{binary}'
-          language='shell'
+          language='bash'
           showLineNumbers={true}
           wrapLines
         />
         <p>All Java codes would be executed using openjdk 11.0.10 with the following flag</p>
         <CodeBlock
           text='java ./{code}'
-          language='shell'
+          language='bash'
           showLineNumbers={true}
           wrapLines
         />
         <p>All Python codes would be executed using python 3.8.5 with the following flag</p>
         <CodeBlock
           text='python ./{code}'
-          language='shell'
+          language='bash'
           showLineNumbers={true}
           wrapLines
         />
         <p>All Javascript codes would be executed using nodejs v10.19.0 with the following flag</p>
         <CodeBlock
           text='node ./{code}'
-          language='shell'
+          language='bash'
           showLineNumbers={true}
           wrapLines
         />
         <p>All Typescript codes would be executed using ts-nodejs v9.1.1 with the following flag</p>
         <CodeBlock
           text='ts-node ./{code}'
-          language='shell'
+          language='bash'
           showLineNumbers={true}
           wrapLines
         />

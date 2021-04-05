@@ -70,6 +70,16 @@ export function updateComment(positionId: string, interviewId: string, questionI
     .catch(err => onError(err));
 }
 
+export function testsAllPassed(positionId: string, interviewId: string, questionIdx: number, onSuccess: () => void, onError: (err: string) => void) {
+  let data = JSON.stringify({
+    allPassed: true
+  });
+  req
+    .patch(`/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/evaluation`, data)
+    .then(res => onSuccess())
+    .catch(onError);
+}
+
 export function runCode(interviewId: string, code: string, language: languageType, onSuccess: (output: string) => void, onError: (err: any) => void) {
   req.post(
     `exec/run/${interviewId}`,

@@ -28,7 +28,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, testsAllPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -187,7 +187,15 @@ function Editor({
         });
   
         socket.on('refresh', refreshState);
-  
+
+        socket.on('pass', probName => testPassed(probName));
+
+        socket.on('fail', probName => testFailed(probName));
+
+        socket.on('cperror', msg => testCompilerError(msg));
+
+        socket.on('output', o => setOutput(o));
+
         setMyStream(stream);
       });
 
@@ -435,6 +443,19 @@ function Editor({
                           }, errorLog);
                         }}
                         checked={i === curQuestionIdx}
+                        grade={(function() {
+                          const rubric = questions[i].problemRubric;
+                          if (rubric.length === 0) return 0;
+                          
+                          const grades = rubric.reduce((acc, e) => {
+                            return { curRating: acc.curRating + e.curRating, rating: acc.rating + e.rating };
+                          });
+
+                          console.log(grades);
+
+                          return Math.floor(grades.curRating * 100 / grades.rating);
+                        })()}
+                        passed={questions[i].allPassed}
                       />
                     );
                   }
@@ -460,6 +481,7 @@ function Editor({
               setCompiling(true);
               runCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, out => {
                 setOutput(out);
+                socket.emit('output', out);
                 setCompiling(false);
               }, err => {
                 errorLog(err);
@@ -474,9 +496,17 @@ function Editor({
             <Button onClick={() => {
               setTesting(true);
               testCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, questions[curQuestionIdx]._id, (result, msg) => {
-                if (result === 'pass') testPassed(questions[curQuestionIdx].problemName);
-                else if (result === 'fail') testFailed(questions[curQuestionIdx].problemName);
-                else if (result === 'cperror') testCompilerError(msg);
+                if (result === 'pass') {
+                  testPassed(questions[curQuestionIdx].problemName);
+                  socket.emit('pass', questions[curQuestionIdx].problemName);
+                  testsAllPassed(positionId, interviewId, curQuestionIdx, refreshState, errorLog);
+                } else if (result === 'fail') {
+                  testFailed(questions[curQuestionIdx].problemName);
+                  socket.emit('fail', questions[curQuestionIdx].problemName);
+                } else if (result === 'cperror') {
+                  testCompilerError(msg);
+                  socket.emit('cperror', msg);
+                }
                 setTesting(false);
               }, err => {
                 errorLog(err);

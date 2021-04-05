@@ -1,10 +1,8 @@
 .question-select {
-  font-size: 24px;
   text-align: center;
   padding: 12px;
   border-radius: 6px;
   user-select: none;
-  font-family: "Ubuntu","Helvetica","Arial",sans-serif;
 }
 
 .question-select:hover {
@@ -16,11 +14,26 @@
 }
 
 .question-selected {
-  font-size: 24px;
   text-align: center;
   padding: 12px;
   border-radius: 6px;
   user-select: none;
   background-color: #DCD4EF;
+}
+
+.question-select-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.question-select-title {
+  font-size: 24px;
   font-family: "Ubuntu","Helvetica","Arial",sans-serif;
+  flex-grow: 2;
+}
+
+.question-select-label {
+  height: min-content;
+  flex-grow: 0;
 }

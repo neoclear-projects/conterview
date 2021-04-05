@@ -10,21 +10,25 @@ import { avatarProps } from '../../util/avatar-props';
 class PageWrap extends React.Component {
   render(){
     const content = (
-      <List divided relaxed style={{width: '100px'}}>
+      <List divided relaxed selection style={{width: '100px'}}>
         <List.Item 
-          icon='user' 
-          content='Profile'
-          onClick={()=>{
+          onClick={() => {
             this.props.history.push('/profile');
           }}
-        />
+        >
+          <List.Content>
+            <List.Header><Icon name='user' /> Profile</List.Header>
+          </List.Content>
+        </List.Item>
         <List.Item 
-          icon='sign-out' 
-          content='Logout' 
-          onClick={()=>{
+          onClick={() => {
             logout(res => this.props.history.push('/login'));
           }}
-        />
+        >
+          <List.Content>
+            <List.Header><Icon name='sign-out' /> Logout</List.Header>
+          </List.Content>
+        </List.Item>
       </List>
     );
     return (
@@ -45,7 +49,7 @@ class PageWrap extends React.Component {
             <Popover content={content}>
               <Space>
                 <Avatar {...avatarProps(window.localStorage.getItem('userId'), window.localStorage.getItem('username'), 30)} />
-                <span>{window.localStorage.getItem('username')}</span>
+                <span style={{ userSelect: 'none' }}>{window.localStorage.getItem('username')}</span>
               </Space>
             </Popover>
           </div>

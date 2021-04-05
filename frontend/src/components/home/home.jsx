@@ -121,14 +121,7 @@ class Home extends React.Component {
           title={`Welcome, ${this.state.user.username}`}
           subTitle={this.state.user.title && this.state.user.department ? `${this.state.user.title} | ${this.state.user.department}` : 'Please complete your profile'}
           style={{backgroundColor:'white',marginTop:'5px'}}
-          extra={[
-            <Button basic color='blue' onClick={() => this.props.history.push('/editor')}>
-              Try Editor!
-            </Button>,
-            <Button basic color='green' onClick={() => this.props.history.push('/note')}>
-              View Notes
-            </Button>,
-          ]}
+          extra={[]}
           breadcrumbRender = {() => routes}
         >
         </PageHeader>

@@ -4,7 +4,6 @@ import Login from './auth/login';
 import Register from './auth/register';
 import RegisterOrganization from './auth/register-organization';
 import NotFoundPage from './doc/not-found-page';
-import Note from './page/note/note';
 import Editor from './page/editor/editor';
 
 import Position from './components/position/position';
@@ -27,8 +26,6 @@ class Routes extends React.Component {
         <Route exact path='/login' component={Login} />
         <Route exact path='/register' component={Register} />
         <Route exact path='/register-organization' component={RegisterOrganization} />
-        <Route exact path='/editor' component={Editor} />
-        <Route exact path='/note' component={Note} />
         <Route exact path='/position/:positionId/interview/:interviewId/running' component={Editor} />
         <PrivateRoute exact path='/' component={Home} />
         <PrivateRoute exact path='/position' component={Position} />
