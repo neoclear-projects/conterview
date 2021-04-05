@@ -118,12 +118,12 @@ function Editor({
     refreshState();
 
     peer.on('open', id => {
-      socket.emit('join', id, interviewId);
-
       navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
       }).then(stream => {
+        socket.emit('join', id, interviewId);
+
         console.log('stream acquired');
   
         peer.on('call', call => {
@@ -518,7 +518,6 @@ function Editor({
                 import('monaco-themes/themes/Monokai.json').then(data => {
                   m.editor.defineTheme('monokai', data);
                 });
-          
                 e.onDidChangeModelContent(change => {
                   console.log(`ignoreRemoteEvent: ${ignoreRemoteEvent}, initializing: ${initializing}`);
                   if (ignoreRemoteEvent || initializing)
