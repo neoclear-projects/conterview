@@ -99,7 +99,10 @@ io.on('connection', (socket) => {
     socket.join(interviewId);
     socket.to(interviewId).emit('user-conn', userId);
 
-    if (roomSize(interviewId) === 1) {
+    if (roomSize(interviewId) === 1 || roomSize(interviewId) === 0) {
+      if (roomSize(interviewId) === 0) {
+        console.log('What the fuck is that');
+      }
       socket.emit('first-joined');
     }
 

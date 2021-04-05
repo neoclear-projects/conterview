@@ -45,6 +45,11 @@ const socket = socketIOClient(ENDPOINT);
 let ignoreRemoteEvent = false;
 let initializing = true;
 
+socket.on('first-joined', () => {
+  initializing = false;
+  console.log('First joined!');
+});
+
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
 function Editor({
@@ -144,11 +149,6 @@ function Editor({
             }
           });
         });
-      });
-
-      socket.on('first-joined', () => {
-        initializing = false;
-        console.log('First joined!');
       });
 
       socket.on('user-conn', userId => {
