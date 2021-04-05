@@ -4,11 +4,10 @@ const Position = require('../model/position.model');
 const async = require('async');
 
 router.get('/', async (req, res) => {
-  let page = req.query.page;
+  let { page, candidateContains, positionContains, status } = req.query;
   if(!page) page = 1;
-  let candidateContains = req.query.candidateContains;
-  let positionContains = req.query.positionContains;
   let query = {organizationId:req.organization._id};
+  if(status) query['status'] = status;
   if(candidateContains) query['candidate.name'] = { "$regex": candidateContains, "$options": "i" };
   if(positionContains){
     positionIds = [];

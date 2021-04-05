@@ -35,16 +35,19 @@ router.post('/', (req, res) => {
 });
 
 router.get('/', (req, res) => {
-  let page = req.query.page;
+  let { page, nameContains, allFinished } = req.query;
+  let query = {organizationId:req.organization._id};
+  if(nameContains) query['name'] = { "$regex": nameContains, "$options": "i" };
+  if(allFinished){
+    query['pendingInterviewNum'] = 0;
+    query['finishedInterviewNum'] = { "$gt": 0 }
+  }
   if(!page){
-    Position.find({organizationId:req.organization._id}, req.fields).exec((err, positions) => {
+    Position.find(query, req.fields).exec((err, positions) => {
       if (err) return res.status(500).send(err);
       return res.json({positions});
     });
   }else{
-    let nameContains = req.query.nameContains;
-    let query = {organizationId:req.organization._id};
-    if(nameContains) query.name = { "$regex": nameContains, "$options": "i" };
     Position.find(query, req.fields).skip((page-1)*10).limit(10).exec((err, positions) => {
       if (err) return res.status(500).send(err);
       Position.countDocuments(query, (err, count) => {

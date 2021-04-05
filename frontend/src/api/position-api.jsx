@@ -10,11 +10,12 @@ export function updatePosition(positionId, name, description, onSuccess, onError
 	req.patch('organization/'+window.localStorage.getItem('organizationId')+'/position/'+positionId, data).then(onSuccess).catch(onError);
 }
 
-export function getPositions(fields, page, nameContains, onSuccess){
+export function getPositions(inParams, onSuccess){
 	let params = {};
-	if(fields) params.fields = fields;
-	if(page !== 0) params.page = page;
-	if(nameContains) params.nameContains = nameContains;
+	if(inParams.fields) params.fields = inParams.fields;
+	if(inParams.page) params.page = inParams.page;
+	if(inParams.nameContains) params.nameContains = inParams.nameContains;
+	if(inParams.allFinished) params.allFinished = inParams.allFinished;
 	req.get('organization/'+window.localStorage.getItem('organizationId')+'/position', { params }).then(onSuccess);
 }
 

@@ -25,7 +25,8 @@ class Interview extends React.Component {
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   fetchData = () => {
-    getInterviewsAllPosition('', this.state.page, this.state.positionContains, this.state.candidateContains, res => {
+    const { page, positionContains, candidateContains } = this.state;
+    getInterviewsAllPosition({ page, positionContains, candidateContains }, res => {
       this.setState({totalPage: res.data.totalPage, interviews: res.data.interviews});
     });
   };

@@ -21,7 +21,8 @@ class Position extends React.Component {
   }
 
   fetchData = () => {
-    getPositions('', this.state.page, this.state.nameContains, res => {
+    const { page, nameContains } = this.state;
+    getPositions({ page, nameContains }, res => {
       this.setState({positions: res.data.positions, totalPage: res.data.totalPage});
     });
   };
