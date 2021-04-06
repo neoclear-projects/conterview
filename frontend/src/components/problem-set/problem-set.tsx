@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import _ from 'lodash';
 import React from 'react';
 import * as semanticUiReact from 'semantic-ui-react';
-import { getProblemSet, updateBatchProblemSet } from '../../api/problem-set-api';
+import { getProblemSet, getProblemSetPageCount, updateBatchProblemSet } from '../../api/problem-set-api';
 import PageWrap from '../header/page-wrap';
 import ProblemOperation from './problem-operation';
 import singleProblem, { Languages } from './single-problem';
@@ -30,8 +30,8 @@ class ProblemSet extends React.Component {
     return new singleProblem({ NewName: "New Problem Name", NewDescription: "# Description \r\n - Markdown is supported for description!", newCorrectRate: 100, newPreferredLanguage: Languages['Python'], newID: "N/A" }, this, ["0\n",], ["1\n",], []);
   }
 
-  state = { queryString: '', loading: false, results: [], value: '', needAnUpdate: false, ReallyNeedFetching: true, NewProblemTemplate: this.MakeNewProblemTemplate() };
-
+  state = { queryString: '', loading: false, results: [], value: '', needAnUpdate: false, ReallyNeedFetching: true, NewProblemTemplate: this.MakeNewProblemTemplate(), PageNum: 1, };
+  TotalPages = 1;
   userProblemSet: Array<singleProblem> = [];
   // userProblemSetPlaceholder = [
   //   new singleProblem({ NewName: "Break Bedrock in Vanilla Survival", NewDescription: "In Minecraft Java Edition, break any bedrock in surivial mode", newCorrectRate: 82.3, newPreferredLanguage:Languages['Java'], newID: "0" }, this),
@@ -43,12 +43,27 @@ class ProblemSet extends React.Component {
   //   new singleProblem({ NewName: "Interrupt Light Update", NewDescription: "In Minecraft Java Edition, Build a Nether Portal without its surrounding lightened.", newCorrectRate: 8.3, newPreferredLanguage:Languages['Java'], newID: "6" }, this)
   // ];
 
+  constructor(props: any) {
+    super(props);
+    this.GetPageCount();
+  }
 
-  StartGetFromBackend() {
+  GetPageCount(){
+    getProblemSetPageCount((value) => {
+      this.TotalPages = Number(value.data.count);
+      return value;
+    },
+      (err) => {
+        this.TotalPages = 1;
+        return err;
+      });
+  }
+
+  GetFromBackend(Query: string, PageNum: number) {
     if (!this.state.ReallyNeedFetching) {
       return;
     }
-    getProblemSet(
+    getProblemSet(Query, PageNum,
       (value) => {
         // console.log(value);
         this.GenerateProblemsFromJSON(value.data);
@@ -105,7 +120,8 @@ class ProblemSet extends React.Component {
   render() {
     this.state.needAnUpdate = false;
 
-    this.StartGetFromBackend();
+    this.GetPageCount();
+    this.GetFromBackend(this.state.queryString, this.state.PageNum);
 
     var userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
 
@@ -127,63 +143,72 @@ class ProblemSet extends React.Component {
           style={{ backgroundColor: 'white', marginTop: '5px' }}
           extra={[
             <semanticUiReact.Grid>
-            <semanticUiReact.Search
-              loading={this.state.loading}
-              noResultsMessage={"Please type in any content you want to find..."}
-              onSearchChange={(e, data) => {
-                this.setState({
-                  queryString: data.value,
-                  loading: true
-                });
-                userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
-                this.setState({
-                  loading: false
-                });
-              }}
-              value={this.state.queryString}
-            />
-            <ProblemOperation BelongingProblem={this.state.NewProblemTemplate} />
+              <semanticUiReact.Search
+                loading={this.state.loading}
+                noResultsMessage={"Please type in any content you want to find..."}
+                onSearchChange={(e, data) => {
+                  this.setState({
+                    queryString: data.value,
+                    loading: true
+                  });
+                  userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
+                  this.setState({
+                    loading: false
+                  });
+                }}
+                value={this.state.queryString}
+              />
+              <ProblemOperation BelongingProblem={this.state.NewProblemTemplate} />
             </semanticUiReact.Grid>
           ]}
           breadcrumbRender={() => routes}
         >
         </PageHeader>
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            flexWrap: 'wrap',
-            justifyContent: 'space-around',
-            alignContent: "stretch",
-            padding: '30px 60px',
-            backgroundColor: 'white',
-            margin:'2%',
-            marginBottom:'10%'
-          }}>
-            <semanticUiReact.Divider horizontal section color='blue' >
-              {/* <Label color='blue'> */}
-              {/* <div style={{ fontSize: 24 }}>Your problem set</div> */}
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'wrap',
+          justifyContent: 'space-around',
+          alignContent: "stretch",
+          padding: '30px 60px',
+          backgroundColor: 'white',
+          margin: '2%',
+          marginBottom: '10%'
+        }}>
+          <semanticUiReact.Divider horizontal section color='blue' >
+            {/* <Label color='blue'> */}
+            {/* <div style={{ fontSize: 24 }}>Your problem set</div> */}
 
-              {/* </Label> */}
-            </semanticUiReact.Divider>
-            {/* <SearchExampleStandard setQueryCallback={this.setState}/> */}
+            {/* </Label> */}
+          </semanticUiReact.Divider>
+          {/* <SearchExampleStandard setQueryCallback={this.setState}/> */}
 
-            {/* <semanticUiReact.Button inverted color='blue' onClick={() => window.location.href = '/editProblem/New'}>
+          {/* <semanticUiReact.Button inverted color='blue' onClick={() => window.location.href = '/editProblem/New'}>
               Make a new problem?
             </semanticUiReact.Button> */}
-            <semanticUiReact.Table celled padded striped basic='very'>
-              <semanticUiReact.Table.Body>
-                <semanticUiReact.Table.Row>
-                  <semanticUiReact.Table.HeaderCell singleLine>Problem Name</semanticUiReact.Table.HeaderCell>
-                  {/* <semanticUiReact.Table.HeaderCell>Languages</semanticUiReact.Table.HeaderCell> */}
-                  {/* <semanticUiReact.Table.HeaderCell singleLine>Pass Rate</semanticUiReact.Table.HeaderCell> */}
-                  <semanticUiReact.Table.HeaderCell>Description</semanticUiReact.Table.HeaderCell>
-                  <semanticUiReact.Table.HeaderCell>OPEN</semanticUiReact.Table.HeaderCell>
-                </semanticUiReact.Table.Row>
-                {userProblemDisplay}
-                {/* {this.userProblemSet} */}
-              </semanticUiReact.Table.Body>
-            </semanticUiReact.Table>
-          </div>
+          <semanticUiReact.Table celled padded striped basic='very'>
+            <semanticUiReact.Table.Body>
+              <semanticUiReact.Table.Row>
+                <semanticUiReact.Table.HeaderCell singleLine>Problem Name</semanticUiReact.Table.HeaderCell>
+                {/* <semanticUiReact.Table.HeaderCell>Languages</semanticUiReact.Table.HeaderCell> */}
+                {/* <semanticUiReact.Table.HeaderCell singleLine>Pass Rate</semanticUiReact.Table.HeaderCell> */}
+                <semanticUiReact.Table.HeaderCell>Description</semanticUiReact.Table.HeaderCell>
+                <semanticUiReact.Table.HeaderCell>OPEN</semanticUiReact.Table.HeaderCell>
+              </semanticUiReact.Table.Row>
+              {userProblemDisplay}
+              {/* {this.userProblemSet} */}
+            </semanticUiReact.Table.Body>
+          </semanticUiReact.Table>
+          <semanticUiReact.Pagination
+            activePage={this.state.PageNum}
+            totalPages={this.TotalPages}
+            onPageChange={(e, NewPage) => {
+              this.setState({ pageNum: NewPage });
+              this.GetPageCount();
+              this.GetFromBackend(this.state.queryString, Number(NewPage.activePage));
+            }}
+          />
+        </div>
       </PageWrap>
     );
     return HTML;

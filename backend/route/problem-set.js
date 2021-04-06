@@ -15,6 +15,8 @@ const Languages = [
   "TypeScript"
 ]
 
+const Limiter = 10;
+
 // var SingleProblemStorage = (function () {
 //   return function item(NewName, NewDescription, newCorrectRate, newPreferredLanguage, newID, newStarterCodes, newInputSet, newOutputSet) {
 //     this.problemName = (NewName);
@@ -205,11 +207,11 @@ router.route('/').get((req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   var PageNum = req.query.pageNum;
-  const Limiter = 10;
+  var ContextQuery = req.query.Q;
   if (PageNum == undefined) {
     // If page was not designated
     problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
-      if (err) return res.status(500).send(err);
+      if (err) {console.log(err); return res.status(500).send(err);}
       if (!doc) {
         return res.status(404).send("User's problem set does not exist!")
       }
@@ -220,8 +222,8 @@ router.route('/').get((req, res) => {
   }
   else {
     // If page was designated
-    problemSet.find({ belongingOrgId: req.organization._id }).skip(PageNum * Limiter).find(Limiter).exec((err, doc) => {
-      if (err) return res.status(500).send(err);
+    problemSet.find({ belongingOrgId: req.organization._id }).skip((PageNum-1) * Limiter).limit(Limiter).exec((err, doc) => {
+      if (err) {console.log(err); return res.status(500).send(err);}
       if (!doc) {
         return res.status(404).send("User's problem set does not exist!")
       }
@@ -233,10 +235,10 @@ router.route('/').get((req, res) => {
 });
 
 router.route('/pageCount').get((req, res) => {
-  problemSet.count({ belongingOrgId: req.organization._id }, (err, Kount) => {
+  problemSet.countDocuments({ belongingOrgId: req.organization._id }, (err, Kount) => {
     if (err) return res.status(500).send(err);
-    if (doc == null) return res.status(404).send("User's problem set does not exist!");
-    else return res.json({count:Kount});
+    if (Kount == null) return res.status(404).send("User's problem set does not exist!");
+    else return res.json({count:Kount/Limiter});
   });
 });
 
