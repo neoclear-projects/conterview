@@ -2,6 +2,9 @@ const router = require('express').Router();
 const User = require('../model/user.model');
 const multer  = require('multer');
 const path  = require('path');
+const isOrgUser = require('../access/isOrgUser');
+
+router.use(isOrgUser);
 
 router.get('/', (req, res) => {
   User.find({organizationId:req.organization._id}, req.fields).exec((err, users) => {

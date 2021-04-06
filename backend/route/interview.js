@@ -6,6 +6,7 @@ const Problem = require('../model/problem-set.model').ProblemSet;
 const Position = require('../model/position.model');
 const User = require('../model/user.model');
 const Event = require('../model/event.model');
+const isOrgUser = require('../access/isOrgUser');
 
 function event(action, req, interview, position){
   return {
@@ -19,7 +20,7 @@ function event(action, req, interview, position){
   }
 }
 
-router.post('/', (req, res) => {
+router.post('/', isOrgUser, (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
 
   new Interview({
@@ -49,7 +50,7 @@ router.post('/', (req, res) => {
   });
 });
 
-router.get('/', (req, res) => {
+router.get('/', isOrgUser, (req, res) => {
   let query = {'position':req.position._id};
   if(req.query.status !== undefined){
     query['status'] = req.query.status;
@@ -88,7 +89,7 @@ router.get('/:interviewId', (req, res) => {
   });
 });
 
-router.patch('/:interviewId', (req, res) => {
+router.patch('/:interviewId', isOrgUser, (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
 
   let interview = {
@@ -107,7 +108,7 @@ router.patch('/:interviewId', (req, res) => {
   });
 });
 
-router.delete('/:interviewId', (req, res) => {
+router.delete('/:interviewId', isOrgUser, (req, res) => {
   if(req.interview.status === 'finished') return res.status(403).send('cannot delete a finished interview');
   Position.update({_id:req.position._id}, { $inc: {pendingInterviewNum:-1} }, (err) => {
     if (err) return res.status(500).send(err);
@@ -121,7 +122,7 @@ router.delete('/:interviewId', (req, res) => {
   });
 });
 
-router.patch('/:interviewId/status', (req, res) => {
+router.patch('/:interviewId/status', isOrgUser, (req, res) => {
   let status = req.body.status;
   if(status === undefined) return res.status(400).send('status not provided');
   switch(status){
@@ -163,7 +164,7 @@ router.patch('/:interviewId/status', (req, res) => {
   }
 });
 
-router.patch('/:interviewId/current-problem-index', (req, res) => {
+router.patch('/:interviewId/current-problem-index', isOrgUser, (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
     let target;

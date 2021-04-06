@@ -2,6 +2,7 @@ const router = require('express').Router();
 const Position = require('../model/position.model');
 const Interview = require('../model/interview.model');
 const Event = require('../model/event.model');
+const isOrgUser = require('../access/isOrgUser');
 
 function event(action, req, position){
   return {
@@ -13,6 +14,8 @@ function event(action, req, position){
     organizationId: req.organization._id,
   }
 }
+
+router.use(isOrgUser);
 
 router.post('/', (req, res) => {
   const { name, description } = req.body;

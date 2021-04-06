@@ -5,6 +5,7 @@ const crypto = require('crypto');
 const cookie = require('cookie');
 const session = require('express-session');
 const Event = require('../model/event.model');
+const isOrgUser = require('../access/isOrgUser');
 
 const Languages = [
   "C++",
@@ -39,6 +40,8 @@ const Languages = [
 //   problemOutputSet:{ Array },
 //   problemRubric:{ Array }
 // });
+
+router.use(isOrgUser);
 
 // Creation of a new problem
 router.route('/').post((req, res) => {

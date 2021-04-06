@@ -1,5 +1,8 @@
 const router = require('express').Router();
 const Event = require('../model/event.model');
+const isOrgUser = require('../access/isOrgUser');
+
+router.use(isOrgUser);
 
 router.get('/', (req, res) => {
   let page = req.query.page;

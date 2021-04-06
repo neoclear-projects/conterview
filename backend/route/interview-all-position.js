@@ -1,7 +1,9 @@
 const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const Position = require('../model/position.model');
-const async = require('async');
+const isOrgUser = require('../access/isOrgUser');
+
+router.use(isOrgUser);
 
 router.get('/', async (req, res) => {
   let { page, candidateContains, positionContains, status } = req.query;
