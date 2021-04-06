@@ -159,6 +159,8 @@ class ProblemSet extends React.Component {
                     ReallyNeedFetching: true
                   }, () => {
                     if (data.value == undefined || data.value.length < 3 ){
+                      this.setState({
+                        loading: false,});
                       return;
                     }
                     this.GetFromBackend(String(data.value), -1, () => {
