@@ -7,6 +7,7 @@ import { getProblemSet, getProblemSetPageCount, updateBatchProblemSet } from '..
 import PageWrap from '../header/page-wrap';
 import ProblemOperation from './problem-operation';
 import singleProblem, { Languages } from './single-problem';
+import { string } from 'prop-types';
 
 
 
@@ -48,7 +49,7 @@ class ProblemSet extends React.Component {
     this.GetPageCount();
   }
 
-  GetPageCount(){
+  GetPageCount() {
     getProblemSetPageCount((value) => {
       this.TotalPages = Number(value.data.count);
       return value;
@@ -59,15 +60,16 @@ class ProblemSet extends React.Component {
       });
   }
 
-  GetFromBackend(Query: string, PageNum: number) {
+  GetFromBackend(Query: string, PageNum: number, OnSuccess: () => void = (() => { })) {
     if (!this.state.ReallyNeedFetching) {
       return;
     }
-    getProblemSet(Query, PageNum,
+    getProblemSet(Query.length < 3?"":Query, PageNum,
       (value) => {
         // console.log(value);
         this.GenerateProblemsFromJSON(value.data);
         this.setState({ needAnUpdate: true, ReallyNeedFetching: false });
+        OnSuccess();
         return value;
       },
       (err) => {
@@ -104,26 +106,29 @@ class ProblemSet extends React.Component {
   }
 
   GenerateStringBunk(ProblemSet: Array<singleProblem>): Array<JSX.Element> {
-    var re = new RegExp(_.escapeRegExp(this.state.queryString), 'i');
+    // var re = new RegExp(_.escapeRegExp(this.state.queryString), 'i');
 
     let a: Array<JSX.Element> = [];
     ProblemSet.forEach(element => {
-      var isMatch = (oneSingleProblem: singleProblem) => re.test(oneSingleProblem.problemName) || re.test(oneSingleProblem.description) || re.test(oneSingleProblem.ID)
-      if (isMatch(element)) {
+      // var isMatch = (oneSingleProblem: singleProblem) => re.test(oneSingleProblem.problemName) || re.test(oneSingleProblem.description) || re.test(oneSingleProblem.ID)
+      // if (isMatch(element)) {
         a.push(element.renderWithState(this));
-      }
+      // }
     });
     return a;
   }
 
+  PrestoredStringBunk = this.GenerateStringBunk(this.userProblemSet);
 
   render() {
-    this.state.needAnUpdate = false;
 
     this.GetPageCount();
     this.GetFromBackend(this.state.queryString, this.state.PageNum);
 
-    var userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
+    if(this.state.queryString.length < 3){
+      this.PrestoredStringBunk = this.GenerateStringBunk(this.userProblemSet);
+    }
+    var userProblemDisplay = this.PrestoredStringBunk;
 
     const routes = (
       <Breadcrumb>
@@ -145,16 +150,30 @@ class ProblemSet extends React.Component {
             <semanticUiReact.Grid>
               <semanticUiReact.Search
                 loading={this.state.loading}
-                noResultsMessage={"Please type in any content you want to find..."}
+                noResultsMessage={"Please type in at least 3 character..."}
                 onSearchChange={(e, data) => {
+                  
                   this.setState({
                     queryString: data.value,
-                    loading: true
+                    loading: true,
+                    ReallyNeedFetching: true
+                  }, () => {
+                    if (data.value == undefined || data.value.length < 3 ){
+                      return;
+                    }
+                    this.GetFromBackend(String(data.value), -1, () => {
+                      this.PrestoredStringBunk = this.GenerateStringBunk(this.userProblemSet);
+                      userProblemDisplay = this.PrestoredStringBunk;
+                      this.setState({
+                        loading: false,
+                        ReallyNeedFetching: true,
+                        needAnUpdate: true
+                      });
+                      this.quickUpdateState();
+                    });
                   });
-                  userProblemDisplay = this.GenerateStringBunk(this.userProblemSet);
-                  this.setState({
-                    loading: false
-                  });
+
+
                 }}
                 value={this.state.queryString}
               />
@@ -199,15 +218,16 @@ class ProblemSet extends React.Component {
               {/* {this.userProblemSet} */}
             </semanticUiReact.Table.Body>
           </semanticUiReact.Table>
-          <semanticUiReact.Pagination
+          {this.state.queryString.length<3?(<semanticUiReact.Pagination
             activePage={this.state.PageNum}
             totalPages={this.TotalPages}
             onPageChange={(e, NewPage) => {
-              this.setState({ pageNum: NewPage });
-              this.GetPageCount();
-              this.GetFromBackend(this.state.queryString, Number(NewPage.activePage));
+              var NewPageNum = Math.ceil(Number(NewPage.activePage));
+              this.setState({ PageNum: NewPageNum });
+              this.GetFromBackend(this.state.queryString, NewPageNum);
+              this.quickUpdateState();
             }}
-          />
+          />):<div/>}
         </div>
       </PageWrap>
     );

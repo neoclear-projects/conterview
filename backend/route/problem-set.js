@@ -206,7 +206,7 @@ router.route('/').get(isOrgUser, (req, res) => {
 
   var PageNum = req.query.pageNum;
   var ContextQuery = req.query.Q;
-  if (PageNum == undefined) {
+  if (PageNum == undefined || PageNum == -1) {
     // If page was not designated
     problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
       if (err) {console.log(err); return res.status(500).send(err);}
@@ -214,7 +214,15 @@ router.route('/').get(isOrgUser, (req, res) => {
         return res.status(404).send("User's problem set does not exist!")
       }
       else {
-        return res.json(doc);
+        var DocNew = [];
+        var re = new RegExp(ContextQuery);
+        doc.forEach(element => {
+          if(re.test(element._id) || re.test(element.problemName) || re.test(element.description)){
+            DocNew.push(element)
+          }
+        });
+        return res.json(DocNew);
+        // return res.json(doc);
       }
     });
   }
@@ -226,7 +234,15 @@ router.route('/').get(isOrgUser, (req, res) => {
         return res.status(404).send("User's problem set does not exist!")
       }
       else {
-        return res.json(doc);
+        var DocNew = [];
+        var re = new RegExp(ContextQuery);
+        doc.forEach(element => {
+          if(re.test(element._id) || re.test(element.problemName) || re.test(element.description)){
+            DocNew.push(element)
+          }
+        });
+        return res.json(DocNew);
+        // return res.json(doc);
       }
     });
   }

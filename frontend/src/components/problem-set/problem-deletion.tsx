@@ -46,7 +46,6 @@ class ProblemDeletion extends React.Component {
                             this.props.Source.setState({ open: false });
                             deleteProblemSet(this.props.BelongingProblem,
                                 (value) => {
-                                    console.log(value);
                                     this.props.BelongingProblem.parentProblemSet.quickUpdateState("DEL");
                                     return value;
                                 },

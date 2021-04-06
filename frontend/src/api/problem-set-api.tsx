@@ -12,7 +12,7 @@ function prefix() {
 }
 
 export function getProblemSet(Q: string, P: number, onSuccess: ((value: AxiosResponse<any>) => AxiosResponse<any> | PromiseLike<AxiosResponse<any>>) | null | undefined, onError: ((reason: any) => PromiseLike<never>) | null | undefined) {
-	req.get(`${prefix()}/problemSet/?pageNum=${P}&Q="${Q}"`).then(onSuccess).catch(onError);
+	req.get(`${prefix()}/problemSet/?pageNum=${P}&Q=${Q}`).then(onSuccess).catch(onError);
 }
 
 export function getProblemSetPageCount(onSuccess: ((value: AxiosResponse<any>) => AxiosResponse<any> | PromiseLike<AxiosResponse<any>>) | null | undefined, onError: ((reason: any) => PromiseLike<never>) | null | undefined) {

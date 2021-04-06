@@ -156,7 +156,6 @@ class ProblemOperation extends React.Component {
                                         var fileReader = new FileReader();
                                         fileReader.onload = event => {
                                             var Kontent = event.target?.result;
-                                            console.log(event);
                                             this.state.currentDisplayLanguage === Languages.CPP ? this.setState({ CPP: Kontent }) :
                                                 this.state.currentDisplayLanguage === Languages.Java ? this.setState({ Java: Kontent }) :
                                                     this.state.currentDisplayLanguage === Languages.Python ? this.setState({ Python: Kontent }) :
