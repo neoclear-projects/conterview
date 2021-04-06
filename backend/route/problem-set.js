@@ -41,10 +41,8 @@ const Languages = [
 //   problemRubric:{ Array }
 // });
 
-router.use(isOrgUser);
-
 // Creation of a new problem
-router.route('/').post((req, res) => {
+router.route('/').post(isOrgUser, (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   // ID will be created at backend
@@ -85,7 +83,7 @@ router.route('/').post((req, res) => {
 });
 
 // Update of an existing problem
-router.route('/').put((req, res) => {
+router.route('/').put(isOrgUser, (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet, problemRubric } = req.body;
@@ -156,7 +154,7 @@ function BatchRecursive(subset, req, res) {
 }
 
 // Update of multiple existing problem
-router.route('/').patch((req, res) => {
+router.route('/').patch(isOrgUser, (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { toBeUpdated } = req.body;
@@ -173,7 +171,7 @@ router.route('/').patch((req, res) => {
 });
 
 // Delete of an existing problem
-router.route('/:problemID').delete((req, res) => {
+router.route('/:problemID').delete(isOrgUser, (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
   const ID = req.params.problemID;
 
@@ -201,7 +199,7 @@ router.route('/:problemID').delete((req, res) => {
 });
 
 // Get problems
-router.route('/').get((req, res) => {
+router.route('/').get(isOrgUser, (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   var PageNum = req.query.pageNum;
@@ -232,7 +230,7 @@ router.route('/').get((req, res) => {
   }
 });
 
-router.route('/pageCount').get((req, res) => {
+router.route('/pageCount').get(isOrgUser, (req, res) => {
   problemSet.count({ belongingOrgId: req.organization._id }, (err, Kount) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("User's problem set does not exist!");
@@ -241,7 +239,7 @@ router.route('/pageCount').get((req, res) => {
 });
 
 
-router.route('/:pid').get((req, res) => {
+router.route('/:pid').get(isOrgUser, (req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("User's problem set does not exist!");
@@ -249,7 +247,7 @@ router.route('/:pid').get((req, res) => {
   });
 });
 
-router.route('/:pid/dataset').get((req, res) => {
+router.route('/:pid/dataset').get(isOrgUser, (req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("User's problem set does not exist!");

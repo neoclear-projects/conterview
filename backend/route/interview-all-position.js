@@ -3,9 +3,7 @@ const Interview = require('../model/interview.model');
 const Position = require('../model/position.model');
 const isOrgUser = require('../access/isOrgUser');
 
-router.use(isOrgUser);
-
-router.get('/', async (req, res) => {
+router.get('/', isOrgUser, async (req, res) => {
   let { page, candidateContains, positionContains, status } = req.query;
   if(!page) page = 1;
   let query = {organizationId:req.organization._id};

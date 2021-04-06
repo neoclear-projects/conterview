@@ -15,7 +15,6 @@ router.route('/login').post((req, res) => {
 
     if (user.saltedHash !== saltedHash) return res.status(401).send("access denied");
     // start a session
-    console.log(user);
     req.session.user = user;
     return res.json(user);
   });
