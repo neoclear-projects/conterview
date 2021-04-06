@@ -5,13 +5,14 @@ import PageWrap from '../header/page-wrap';
 import CreateInterview from './create-interview';
 import './interview.css';
 import { getInterviewsAllPosition } from '../../api/interview-api';
-import { PageHeader, Breadcrumb, Space } from 'antd';
+import { PageHeader, Breadcrumb, Space, Empty } from 'antd';
 import { toLocalTimeString } from '../../util/time';
 
 class Interview extends React.Component {
   constructor(){
     super();
     this.state = {
+      loading:true,
       createIntModal:false, 
       interviews:[],
       totalPage:1,
@@ -19,7 +20,9 @@ class Interview extends React.Component {
       positionContains:'',
       candidateContains:'',
     };
-    this.fetchData();
+    getInterviewsAllPosition({ page:1 }, res => {
+      this.setState({totalPage: res.data.totalPage, interviews: res.data.interviews, loading:false});
+    });
   }
   
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
@@ -51,6 +54,8 @@ class Interview extends React.Component {
   };
 
   render() {
+    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>);
+    
     let tableBody = this.state.interviews.map((interview) => {
       return (
         <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id)}}>
@@ -109,20 +114,29 @@ class Interview extends React.Component {
           </Space>
         </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
-          <Table striped basic='very'>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell width='1'>Position</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Time</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Status</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {tableBody}
-            </Table.Body>
-          </Table>
-          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
+          {
+            this.state.interviews.length === 0 ?
+            <Empty
+              description='No interviews found'
+            />
+            :
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+              <Table selectable basic='very'>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell width='1'>Position</Table.HeaderCell>
+                    <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
+                    <Table.HeaderCell width='1'>Time</Table.HeaderCell>
+                    <Table.HeaderCell width='1'>Status</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {tableBody}
+                </Table.Body>
+              </Table>
+              <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
+            </div>
+          }
         </div>
         <CreateInterview
           open={this.state.createIntModal}

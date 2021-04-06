@@ -4,20 +4,23 @@ import PageWrap from '../header/page-wrap';
 import './position.css';
 import { getPositions } from '../../api/position-api';
 import { Link } from 'react-router-dom';
-import { PageHeader, Breadcrumb, Space } from 'antd';
+import { PageHeader, Breadcrumb, Space, Empty } from 'antd';
 import CreateEditPosition from './create-edit-position';
 
 class Position extends React.Component {
   constructor(){
     super();
     this.state = {
+      loading:true,
       createPosModal:false, 
       positions:[],
       totalPage:1,
       page:1,
       nameContains:'',
     };
-    this.fetchData();
+    getPositions({ page:1 }, res => {
+      this.setState({positions: res.data.positions, totalPage: res.data.totalPage, loading: false});
+    });
   }
 
   fetchData = () => {
@@ -48,6 +51,8 @@ class Position extends React.Component {
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   render() {   
+    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>);
+    
     let tableBody = this.state.positions.map((position) => {
       return (
         <Table.Row onClick={()=>{this.props.history.push('/position/'+position._id)}}>
@@ -96,19 +101,29 @@ class Position extends React.Component {
           </Space>
         </div>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px'}}>
-          <Table striped basic='very'>
-            <Table.Header>
-              <Table.Row>
-                <Table.HeaderCell width='8'>Name</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Pending</Table.HeaderCell>
-                <Table.HeaderCell width='1'>Finished</Table.HeaderCell>
-              </Table.Row>
-            </Table.Header>
-            <Table.Body>
-              {tableBody}
-            </Table.Body>
-          </Table>
-          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
+          {
+            this.state.positions.length === 0 ?
+            <Empty
+              description='No positions found'
+            />
+            :
+            <div style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+              <Table selectable basic='very'>
+                <Table.Header>
+                  <Table.Row>
+                    <Table.HeaderCell width='8'>Name</Table.HeaderCell>
+                    <Table.HeaderCell width='1'>Pending</Table.HeaderCell>
+                    <Table.HeaderCell width='1'>Finished</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {tableBody}
+                </Table.Body>
+              </Table>
+              <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
+            </div>
+          }
+          
         </div>
         <CreateEditPosition
           open={this.state.createPosModal}

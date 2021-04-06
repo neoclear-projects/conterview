@@ -1,8 +1,8 @@
 import React from 'react';
-import { Button, Header, Image, Divider, Pagination } from 'semantic-ui-react';
+import { Header, Divider, Pagination } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb, Avatar } from 'antd';
+import { PageHeader, Breadcrumb, Avatar, Empty } from 'antd';
 import { getEvents } from '../../api/event-api';
 import { getUser } from '../../api/user-api';
 import { avatarProps } from '../../util/avatar-props';
@@ -103,7 +103,7 @@ class Home extends React.Component {
       }
 
       return (
-        <Header>
+        <Header style={{margin:0}}>
           <Avatar {...avatarProps(event.user._id, event.user.username, 40)} style={{marginRight:'10px'}} />
           <Header.Content>
             {description}
@@ -125,12 +125,20 @@ class Home extends React.Component {
           breadcrumbRender = {() => routes}
         >
         </PageHeader>
-
         <div style={{backgroundColor:'white', padding:'48px', margin:'25px'}}>
-          { content }
-          <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} />
+          {
+            this.state.events.length === 0 ?
+            <Empty
+              description='No activities yet'
+            />
+            :
+            <div style={{display:'flex', flexDirection:'column', alignItems:'stretch'}}>
+              { content }
+              <Pagination activePage={this.state.page} onPageChange={this.onPageChange} totalPages={this.state.totalPage} style={{margin:'auto'}}/>
+            </div>
+          }
         </div>
-
+        
       </PageWrap>
     );
   };

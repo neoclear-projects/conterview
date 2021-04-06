@@ -54,7 +54,7 @@ class Statistics extends React.Component {
                 description='No positions ready yet'
               />
               :
-              <List divided style={{marginLeft:'20px'}}>
+              <List divided selection style={{marginLeft:'20px'}}>
                 {
                   this.state.positions.map(position => {
                     return (
@@ -75,7 +75,7 @@ class Statistics extends React.Component {
                 description='No interviews ready yet'
               />
               :
-              <List divided style={{marginLeft:'20px'}}>
+              <List divided selection style={{marginLeft:'20px'}}>
                 {
                   this.state.interviews.map(interview => {
                     return (

@@ -1,7 +1,7 @@
 import req from './req';
 
-export function register(organization, username, password, email, onSuccess, onError){
-	const data = JSON.stringify({ organization, username, password, email });
+export function register(organization, passcode, username, password, email, onSuccess, onError){
+	const data = JSON.stringify({ organization, passcode, username, password, email });
 	req.post('/auth/register', data).then(res => {
 		window.localStorage.setItem('organizationId', res.data.organizationId);
 		window.localStorage.setItem('username', res.data.username);

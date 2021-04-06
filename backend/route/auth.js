@@ -2,7 +2,6 @@ const router = require('express').Router();
 const User = require('../model/user.model');
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
-const cookie = require('cookie');
 
 router.route('/login').post((req, res) => {
   const { username, password } = req.body;
@@ -27,10 +26,16 @@ router.route('/logout').get((req, res) => {
 });
 
 router.route('/register').post((req, res) => {
-  const { organization, username, password, email } = req.body;
+  const { organization, passcode, username, password, email } = req.body;
   Organization.findOne({name:organization}, function(err, org){
     if (err) return res.status(500).send(err);
     if (!org) return res.status(404).send("organization " + organization + " does not exist");
+
+    let passcodeHash = crypto.createHmac('sha512', org.salt);
+    passcodeHash.update(passcode);
+    let passcodeSaltedHash = passcodeHash.digest('base64');
+    if(org.saltedHash !== passcodeSaltedHash) return res.status(401).send("wrong passcode");
+
     User.findOne({username}, function(err, user){
       if (err) return res.status(500).send(err);
       if (user) return res.status(409).send("username " + username + " already exists");

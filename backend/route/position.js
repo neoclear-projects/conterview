@@ -16,7 +16,7 @@ function event(action, req, position){
 
 router.post('/', (req, res) => {
   const { name, description } = req.body;
-  Position.findOne({name}, (err, position) => {
+  Position.findOne({name, organizationId:req.organization._id}, (err, position) => {
     if (err) return res.status(500).send(err);
     if (position) return res.status(409).send("Position with this name already exists");
     new Position({

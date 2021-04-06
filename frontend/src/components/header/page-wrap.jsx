@@ -6,6 +6,7 @@ import { logout } from '../../api/auth-api';
 import { Spin, Popover, Space, Avatar } from 'antd';
 import { withRouter } from 'react-router-dom';
 import { avatarProps } from '../../util/avatar-props';
+import '../../util/clickable.css';
 
 class PageWrap extends React.Component {
   render(){
@@ -47,10 +48,12 @@ class PageWrap extends React.Component {
         <div className='c-page-body'>
           <div className='c-page-header'>
             <Popover content={content}>
-              <Space>
-                <Avatar {...avatarProps(window.localStorage.getItem('userId'), window.localStorage.getItem('username'), 30)} />
-                <span style={{ userSelect: 'none' }}>{window.localStorage.getItem('username')}</span>
-              </Space>
+              <div className='clickable'>
+                <Space>
+                  <Avatar {...avatarProps(window.localStorage.getItem('userId'), window.localStorage.getItem('username'), 30)} />
+                  <span style={{ userSelect: 'none' }}>{window.localStorage.getItem('username')}</span>
+                </Space>
+              </div>
             </Popover>
           </div>
           <div className='c-page-content'>

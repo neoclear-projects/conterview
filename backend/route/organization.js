@@ -1,14 +1,20 @@
 const router = require('express').Router();
 const Organization = require('../model/organization.model');
+const crypto = require('crypto');
 
 router.post('/', (req, res) => {
-  const { name } = req.body;
+  const { name, passcode } = req.body;
 
   Organization.findOne({name}, function(err, organization){
     if (err) return res.status(500).send(err);
     if (organization) return res.status(409).send("organization " + name + " already exists");
 
-    new Organization({name}).save((err, organization) => {
+    let salt = crypto.randomBytes(16).toString('base64');
+    let hash = crypto.createHmac('sha512', salt);
+    hash.update(passcode);
+    let saltedHash = hash.digest('base64');
+
+    new Organization({name, salt, saltedHash}).save((err, organization) => {
       if(err) return res.status(500).send(err);
       return res.json(organization);
     });

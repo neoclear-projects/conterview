@@ -11,12 +11,14 @@ class Register extends React.Component {
     super();
     this.state = { 
       organization:"",
+      passcode:"",
       username:"", 
       password:"", 
       passwordConfirm:"", 
       email:"", 
       terms:false, 
       organizationNotExistErr:undefined,
+      passcodeIncorrectErr:undefined,
       passwordMatchErr:undefined, 
       usernameExistErr:undefined, 
       termsNotAgreedErr:undefined,
@@ -31,17 +33,15 @@ class Register extends React.Component {
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   organizationNotExistErr = 'Organization does not exist';
+  passcodeIncorrectErr = 'Incorrect passcode';
   passwordMatchErr = 'Please enter the same password';
   usernameExistErr = 'Username already exists';
   termsNotAgreedErr ='Please agree the terms and conditions';
 
   handleSubmit = () => {
-    const { organization, username, password, passwordConfirm, email, terms } = this.state;
+    const { organization, passcode, username, password, passwordConfirm, email, terms } = this.state;
     let valid = true;
-    this.setState({passwordMatchErr: undefined});
-    this.setState({termsNotAgreedErr: undefined});
-    this.setState({usernameExistErr: undefined});
-    this.setState({organizationNotExistErr: undefined});
+    this.setState({passwordMatchErr: undefined, passcodeIncorrectErr: undefined, termsNotAgreedErr: undefined, usernameExistErr: undefined, organizationNotExistErr: undefined});
     if(password !== passwordConfirm){
       this.setState({passwordMatchErr: this.passwordMatchErr});
       valid = false;
@@ -51,10 +51,11 @@ class Register extends React.Component {
       valid = false;
     }
     if(valid){
-      register(organization, username, password, email, req => this.props.history.push("/"), err =>{
+      register(organization, passcode, username, password, email, req => this.props.history.push("/"), err =>{
         console.log(err.response);
         if(err.response.status === 409) this.setState({usernameExistErr: this.usernameExistErr});
         if(err.response.status === 404) this.setState({organizationNotExistErr: this.organizationNotExistErr});
+        if(err.response.status === 401) this.setState({passcodeIncorrectErr: this.passcodeIncorrectErr});
       });
     }
   };
@@ -72,6 +73,16 @@ class Register extends React.Component {
             name='organization'
             onChange = {this.handleInputChange}
             error={this.state.organizationNotExistErr}
+            required
+          />
+          <Form.Input
+            icon='lock'
+            iconPosition='left'
+            label='Organization Passcode'
+            type='password'
+            name='passcode'
+            onChange = {this.handleInputChange}
+            error={this.state.passcodeIncorrectErr}
             required
           />
           <Form.Input
