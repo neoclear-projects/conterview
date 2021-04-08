@@ -1,12 +1,11 @@
 const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const sendMail = require('../util/mail');
-const toObjectId = require('../util/object-id');
-const Problem = require('../model/problem-set.model').ProblemSet;
 const Position = require('../model/position.model');
-const User = require('../model/user.model');
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
+const crypto = require('crypto');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 function event(action, req, interview, position){
   return {
@@ -23,6 +22,13 @@ function event(action, req, interview, position){
 router.post('/', isOrgUser, (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
 
+  let passcode = crypto.randomBytes(16).toString('base64');
+  let salt = crypto.randomBytes(16).toString('base64');
+  let hash = crypto.createHmac('sha512', salt);
+  hash.update(passcode);
+  let saltedHash = hash.digest('base64');
+  console.log(passcode);
+
   new Interview({
     candidate,
     interviewers: interviewerIds,
@@ -31,7 +37,9 @@ router.post('/', isOrgUser, (req, res) => {
     organizationId:req.organization._id,
     scheduledTime:new Date(scheduledTime),
     scheduledLength,
-    status:'pending'
+    status:'pending',
+    salt,
+    saltedHash,
   }).save((err, interview) => {
     if(err) return res.status(500).send(err);
     Position.updateOne({_id:req.position._id}, { $inc: {pendingInterviewNum:1} }, (err, position) => {
@@ -42,7 +50,7 @@ router.post('/', isOrgUser, (req, res) => {
       `
         <p>Congratulations! You received an interview for ${req.position.name} position at ${req.organization.name}</p>
         <p>The interview is scheduled at ${interview.scheduledTime.toUTCString()} on Conterview:</p>
-        <p>https://www.conterview.com/position/${req.position._id}/interview/${interview._id}/running</p>
+        <p>https://www.conterview.com/position/${req.position._id}/interview/${interview._id}/running?passcode=${passcode}</p>
       `
     );
     new Event(event('create', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
@@ -67,6 +75,7 @@ router.get('/', isOrgUser, (req, res) => {
 });
 
 router.use('/:interviewId', (req, res, next) => {
+  if(!ObjectId.isValid(req.params.interviewId)) return res.status(400).send('id invalid: interview');
   Interview
     .findOne({_id:req.params.interviewId})
     .exec((err, interview) => {

@@ -1,10 +1,20 @@
 import axios from 'axios';
+import { browserRouterRef } from '../App';
 
-axios.defaults.withCredentials = true;
+let req = axios.create({
+  baseURL: `${process.env.REACT_APP_SERVER}/api/`,
+  headers: {'Content-Type': 'application/json'},
+  withCredentials: true,
+});
 
-const req = axios.create({
-	baseURL: `${process.env.REACT_APP_SERVER}/api/`,
-	headers: {'Content-Type': 'application/json'}
+req.interceptors.response.use(function (response) {
+  return response;
+}, function (error) {
+  let message = error.response.data;
+  if(message.startsWith('id invalid') || message === 'need to login as organization user'){
+    browserRouterRef.current.history.push('/login');
+  }
+  return Promise.reject(error);
 });
 
 export default req;

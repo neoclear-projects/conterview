@@ -1,12 +1,12 @@
 import { BrowserRouter } from 'react-router-dom';
 import Routes from './routes';
+import React from 'react';
 
-function App() {
+export const browserRouterRef = React.createRef();
+export function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter ref={browserRouterRef}>
       <Routes />
     </BrowserRouter>
   );
 }
-
-export default App;

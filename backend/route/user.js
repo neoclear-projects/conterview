@@ -3,6 +3,7 @@ const User = require('../model/user.model');
 const multer  = require('multer');
 const path  = require('path');
 const isOrgUser = require('../access/isOrgUser');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 router.use(isOrgUser);
 
@@ -14,6 +15,7 @@ router.get('/', (req, res) => {
 });
 
 router.use('/:userId', (req, res, next) => {
+  if(!ObjectId.isValid(req.params.userId)) return res.status(400).send('id invalid: user');
   User.findOne({_id:req.params.userId}).exec((err, user) => {
     if (err) return res.status(500).send(err);
     if (!user || !req.organization._id.equals(user.organizationId)) return res.status(404).send("user #" + req.params.userId + " not found for organization #" + req.organization._id);

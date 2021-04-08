@@ -4,7 +4,7 @@ import MonacoEditor from '@monaco-editor/react';
 import './editor.css';
 import { Button, ButtonGroup, Divider, Input, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
-import { Statistic } from 'antd';
+import { Statistic, Result } from 'antd';
 import Padding from '../../util/padding';
 import './info.css';
 // import Canvas from './canvas';
@@ -34,6 +34,9 @@ import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
 import InfoModal from './info-modal';
 
+import queryString from 'query-string';
+import { candidateLogin } from '../../api/auth-api';
+
 const { Countdown } = Statistic;
 
 const ENDPOINT = process.env.REACT_APP_SERVER;
@@ -53,7 +56,7 @@ socket.on('first-joined', () => {
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
 function Editor({
-  match
+  match, location
 }) {
   // const [monaco, setMonaco] = useState(null);
   const monacoRef = useRef(null);
@@ -98,6 +101,7 @@ function Editor({
   const [endTime, setEndTime] = useState(Date.now());
   const [questions, setQuestions] = useState([]);
   const [curQuestionIdx, setCurQuestionIdx] = useState(-1);
+  const [unauthorizedCandidate, setUnauthorizedCandidate] = useState(false);
 
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
@@ -202,6 +206,25 @@ function Editor({
       setId(id);
     });
   }, []);
+
+  let query = queryString.parse(location.search);
+  if(query.passcode){
+    candidateLogin(interviewId, query.passcode, ()=>{}, err=>{
+      if(err.response.status === 401){
+        setUnauthorizedCandidate(true);
+      }
+    })
+  }
+
+  if(unauthorizedCandidate){
+    return (
+      <Result
+        status='error'
+        title='Access denied'
+        subTitle='Invalid interviewId or passcode'
+      />
+    );
+  }
 
   return (
     <div id='editor' style={{ backgroundColor: inverted ? '#222' : 'white' }}>

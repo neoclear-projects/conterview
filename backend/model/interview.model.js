@@ -35,6 +35,8 @@ const InterviewSchema = new Schema({
   currentProblemIndex: Number,
   totalGrade: Number,
   maxTotalGrade: Number,
+  salt: String,
+  saltedHash: String,
 });
 
 const Interview = mongoose.model('Interview', InterviewSchema);

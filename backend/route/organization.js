@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 router.post('/', (req, res) => {
   const { name, passcode } = req.body;
@@ -22,6 +23,7 @@ router.post('/', (req, res) => {
 });
 
 router.use('/:organizationId', (req, res, next) => {
+  if(!ObjectId.isValid(req.params.organizationId)) return res.status(400).send('id invalid: organization');
   Organization.findOne({_id:req.params.organizationId}, function(err, organization){
     if (err) return res.status(500).send(err);
     if (!organization) return res.status(404).send("organization #" + req.params.organizationId + " does not exist");

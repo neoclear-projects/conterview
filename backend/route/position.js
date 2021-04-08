@@ -3,6 +3,7 @@ const Position = require('../model/position.model');
 const Interview = require('../model/interview.model');
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 function event(action, req, position){
   return {
@@ -62,7 +63,8 @@ router.get('/', isOrgUser, (req, res) => {
   }
 });
 
-router.use('/:positionId', isOrgUser, (req, res, next) => {
+router.use('/:positionId', (req, res, next) => {
+  if(!ObjectId.isValid(req.params.positionId)) return res.status(400).send('id invalid: position');
   Position.findOne({_id:req.params.positionId}, function(err, position){
     if (err) return res.status(500).send(err);
     if (!position || !req.organization._id.equals(position.organizationId)) return res.status(404).send("position #" + req.params.positionId + " not found for organization #" + req.organization._id);

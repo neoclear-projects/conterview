@@ -5,9 +5,11 @@ function getInitials(username){
 }
 
 export function avatarProps(userId, username, size){
-	return {
-		src:`${process.env.REACT_APP_SERVER}/api/organization/${window.localStorage.getItem('organizationId')}/user/${userId}/avatar`,
-		size,
-		children:getInitials(username)
+	if(username){
+		return {
+      src:`${process.env.REACT_APP_SERVER}/api/organization/${window.localStorage.getItem('organizationId')}/user/${userId}/avatar`,
+      size,
+      children:getInitials(username)
+    };
 	}
 }

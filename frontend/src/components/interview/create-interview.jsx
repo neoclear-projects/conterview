@@ -77,7 +77,7 @@ class CreateInterview extends React.Component {
         })
       });
     });
-    getProblemSet(res => {
+    getProblemSet('', -1, res => {
       this.setState({problemOptions:res.data.map(problem => {
           return {
             key: problem.problemName,

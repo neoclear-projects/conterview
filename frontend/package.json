@@ -38,6 +38,7 @@
     "postcss": "^7.0.35",
     "postcss-cli": "^8.0.0",
     "prop-types": "^15.7.2",
+    "query-string": "^7.0.0",
     "react": "^17.0.1",
     "react-canvas-draw": "^1.1.1",
     "react-chartjs-2": "^2.11.1",

@@ -1,5 +1,14 @@
 import req from './req';
 
+export function getStatus(onSuccess, onError){
+	req.get('/auth/status').then(res => {
+		window.localStorage.setItem('organizationId', res.data.organizationId);
+		window.localStorage.setItem('username', res.data.username);
+		window.localStorage.setItem('userId', res.data._id);
+		onSuccess(res);
+	}).catch(onError);
+}
+
 export function register(organization, passcode, username, password, email, onSuccess, onError){
 	const data = JSON.stringify({ organization, passcode, username, password, email });
 	req.post('/auth/register', data).then(res => {
@@ -27,5 +36,15 @@ export function logout(onSuccess){
 		window.localStorage.removeItem('userId');
 		onSuccess(res);
 	});
+}
+
+export async function candidateLogin(interviewId, passcode, onSuccess, onError){
+	const data = JSON.stringify({ interviewId, passcode });
+	req.post('/auth/candidate-login', data).then(res => {
+		window.localStorage.setItem('interviewId', interviewId);
+		onSuccess(res);
+	}, err => {
+		onError(err);
+	})
 }
 

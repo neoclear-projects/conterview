@@ -1,7 +1,14 @@
 const router = require('express').Router();
 const User = require('../model/user.model');
+const Interview = require('../model/interview.model');
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
+
+router.route('/status').get((req, res) => {
+  if(req.session.user) return res.send(req.session.user);
+  if(req.session.candidate) return res.send(req.session.candidate);
+  return res.status(401).send('unauthorized');
+});
 
 router.route('/login').post((req, res) => {
   const { username, password } = req.body;
@@ -52,6 +59,23 @@ router.route('/register').post((req, res) => {
         return res.json(user);
       });
     });
+  });
+});
+
+router.route('/candidate-login').post((req, res) => {
+  const { interviewId, passcode } = req.body;
+  Interview.findOne({_id:interviewId}, function(err, interview){
+    if (err) return res.status(500).send(err);
+    if (!interview) return res.status(401).send("access denied");
+
+    let hash = crypto.createHmac('sha512', interview.salt);
+    hash.update(passcode);
+    let saltedHash = hash.digest('base64');
+
+    if (interview.saltedHash !== saltedHash) return res.status(401).send("access denied");
+    // start a session
+    req.session.candidate = {interviewId};
+    return res.json({interviewId});
   });
 });
 
