@@ -6,7 +6,7 @@ const crypto = require('crypto');
 
 router.route('/login').post((req, res) => {
   const { username, password } = req.body;
-  User.findOne({username}, function(err, user){
+  User.findOne({username}).lean().exec(function(err, user){
     if (err) return res.status(500).send(err);
     if (!user) return res.status(401).send("access denied");
 
@@ -16,6 +16,7 @@ router.route('/login').post((req, res) => {
 
     if (user.saltedHash !== saltedHash) return res.status(401).send("access denied");
     // start a session
+    user.type = 'orgUser';
     req.session.user = user;
     return res.json(user);
   });
@@ -68,8 +69,7 @@ router.route('/candidate-login').post((req, res) => {
 
     if (interview.saltedHash !== saltedHash) return res.status(401).send("access denied");
     // start a session
-    req.session.candidate = {interviewId};
-    console.log(interview.organizationId);
+    req.session.user = {interviewId, type:'candidate'};
     return res.json({interviewId, organizationId: interview.organizationId});
   });
 });

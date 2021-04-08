@@ -1,20 +1,14 @@
 import React from 'react';
-import { Container, Header, Message } from 'semantic-ui-react';
-import Padding from '../util/padding';
+import { Result } from 'antd';
 
 class NotFoundPage extends React.Component {
   render() {
     return (
-      <Container text>
-        <Padding height={120} />
-        <Message>
-          <Header as='h1'>Page Not Found</Header>
-          <p>
-            Please check your url
-          </p>
-        </Message>
-      </Container>
-      
+      <Result 
+        status="404"
+        title="404"
+        subTitle="Sorry, the page you visited does not exist."
+      />
     );
   }
 }
