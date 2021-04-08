@@ -41,7 +41,7 @@ export function logout(onSuccess){
 export async function candidateLogin(interviewId, passcode, onSuccess, onError){
 	const data = JSON.stringify({ interviewId, passcode });
 	req.post('/auth/candidate-login', data).then(res => {
-		window.localStorage.setItem('interviewId', interviewId);
+		window.localStorage.setItem('organizationId', res.data.organizationId);
 		onSuccess(res);
 	}, err => {
 		onError(err);

@@ -119,6 +119,18 @@ function Editor({
   };
 
   useEffect(() => {
+    let passcode = queryString.parse(location.search).passcode;
+    if(passcode && candidateAuthorization === ''){
+      candidateLogin(interviewId, passcode, ()=>{
+        setCandidateAuthorization('success');
+      }, err=>{
+        if(err.response.status === 401){
+          setCandidateAuthorization('failed');
+        }
+      })
+      return;
+    }
+
     refreshState();
 
     peer.on('open', id => {
@@ -207,22 +219,11 @@ function Editor({
     });
   }, []);
 
+  let passcode = queryString.parse(location.search).passcode;
   switch(candidateAuthorization){
     case '':
-      let query = queryString.parse(location.search);
-      if(query.passcode){
-        candidateLogin(interviewId, query.passcode, ()=>{
-          setCandidateAuthorization('success');
-        }, err=>{
-          if(err.response.status === 401){
-            setCandidateAuthorization('failed');
-          }
-        })
-        setCandidateAuthorization('authorizing');
-      }
+      if(passcode) return <Spin/>;
       break;
-    case 'authorizing':
-      return <Spin/>;
     case 'failed':
       return (
         <Result

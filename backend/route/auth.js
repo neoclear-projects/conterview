@@ -75,7 +75,8 @@ router.route('/candidate-login').post((req, res) => {
     if (interview.saltedHash !== saltedHash) return res.status(401).send("access denied");
     // start a session
     req.session.candidate = {interviewId};
-    return res.json({interviewId});
+    console.log(interview.organizationId);
+    return res.json({interviewId, organizationId: interview.organizationId});
   });
 });
 
