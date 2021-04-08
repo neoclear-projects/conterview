@@ -1,5 +1,5 @@
 import React from 'react';
-import { Switch, Route, Redirect } from "react-router-dom";
+import { Switch, Route } from "react-router-dom";
 import Login from './auth/login';
 import Register from './auth/register';
 import RegisterOrganization from './auth/register-organization';
@@ -17,43 +17,8 @@ import PositionStat from './components/statistics/position-stat';
 import InterviewStat from './components/statistics/interview-stat';
 import Profile from './components/profile/profile';
 
-import { getStatus } from './api/auth-api';
-import { Spin } from 'antd';
-import req from './api/req';
-
-//import PrivateRoute from './auth/private-route';
-
 class Routes extends React.Component {
-  // constructor(props){
-  //   super(props);
-  //   this.state = {
-  //     loading:true,
-  //     unauthorized:false,
-  //   };
-
-  //   getStatus(res => {this.setState({loading:false});},
-  //     err => {
-  //       console.log(err.response);
-  //       if(err.response.status === 401) {
-  //         this.setState({unauthorized:true, loading:false});
-  //       }
-  //     }
-  //   );
-  // }  
-
-  // privateRoute = () => {
-  //   getStatus(res => {this.setState({loading:false});},
-  //     err => {
-  //       console.log(err.response);
-  //       if(err.response.status === 401) {
-  //         this.setState({unauthorized:true, loading:false});
-  //       }
-  //     }
-  //   );
-  // }
-
   render() {
-    // if(this.state.loading) return <Spin/>;
     return (
       <Switch>
         <Route exact path='/login' component={Login} />

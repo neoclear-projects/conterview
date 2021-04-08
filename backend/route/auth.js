@@ -4,12 +4,6 @@ const Interview = require('../model/interview.model');
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
 
-router.route('/status').get((req, res) => {
-  if(req.session.user) return res.send(req.session.user);
-  if(req.session.candidate) return res.send(req.session.candidate);
-  return res.status(401).send('unauthorized');
-});
-
 router.route('/login').post((req, res) => {
   const { username, password } = req.body;
   User.findOne({username}, function(err, user){
