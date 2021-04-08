@@ -4,7 +4,7 @@ import MonacoEditor from '@monaco-editor/react';
 import './editor.css';
 import { Button, ButtonGroup, Divider, Input, List, Radio, Select } from 'semantic-ui-react';
 import { Modal, Header, Icon } from 'semantic-ui-react';
-import { Statistic, Result } from 'antd';
+import { Statistic, Result, Spin } from 'antd';
 import Padding from '../../util/padding';
 import './info.css';
 // import Canvas from './canvas';
@@ -101,7 +101,7 @@ function Editor({
   const [endTime, setEndTime] = useState(Date.now());
   const [questions, setQuestions] = useState([]);
   const [curQuestionIdx, setCurQuestionIdx] = useState(-1);
-  const [unauthorizedCandidate, setUnauthorizedCandidate] = useState(false);
+  const [candidateAuthorization, setCandidateAuthorization] = useState('');
 
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
@@ -207,23 +207,30 @@ function Editor({
     });
   }, []);
 
-  let query = queryString.parse(location.search);
-  if(query.passcode){
-    candidateLogin(interviewId, query.passcode, ()=>{}, err=>{
-      if(err.response.status === 401){
-        setUnauthorizedCandidate(true);
+  switch(candidateAuthorization){
+    case '':
+      let query = queryString.parse(location.search);
+      if(query.passcode){
+        candidateLogin(interviewId, query.passcode, ()=>{
+          setCandidateAuthorization('success');
+        }, err=>{
+          if(err.response.status === 401){
+            setCandidateAuthorization('failed');
+          }
+        })
+        setCandidateAuthorization('authorizing');
       }
-    })
-  }
-
-  if(unauthorizedCandidate){
-    return (
-      <Result
-        status='error'
-        title='Access denied'
-        subTitle='Invalid interviewId or passcode'
-      />
-    );
+      break;
+    case 'authorizing':
+      return <Spin/>;
+    case 'failed':
+      return (
+        <Result
+          status='error'
+          title='Access denied'
+          subTitle='Invalid interviewId or passcode'
+        />
+      );
   }
 
   return (
