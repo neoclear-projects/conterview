@@ -17,18 +17,6 @@ const Languages = [
 
 const Limiter = 10;
 
-// var SingleProblemStorage = (function () {
-//   return function item(NewName, NewDescription, newCorrectRate, newPreferredLanguage, newID, newStarterCodes, newInputSet, newOutputSet) {
-//     this.problemName = (NewName);
-//     this.description = (NewDescription);
-//     this.correctRate = newCorrectRate;
-//     this.preferredLanguage = newPreferredLanguage;
-//     this.ID = newID;
-//     this.starterCodes = newStarterCodes;
-//     this.InputSet = newInputSet;
-//     this.newOutputSet = newOutputSet;
-//   };
-// }());
 
 // const problemSetSchema = new Schema({
 //   belongingUserId: { String },
@@ -165,7 +153,6 @@ router.route('/').patch(isOrgUser, (req, res) => {
     toBeUpdatedList = JSON.parse(toBeUpdated);
   }
   catch (e) {
-    console.log(`${e}`);
     return res.status(400).send(e);
   }
 
@@ -202,10 +189,10 @@ router.route('/:problemID').delete(isOrgUser, (req, res) => {
 
 // Get problems
 router.route('/').get(isOrgUser, (req, res) => {
-  if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
+  // if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   var PageNum = req.query.pageNum;
-  var ContextQuery = req.query.Q;
+  var ContextQuery = req.query.Q == undefined?"":req.query.Q;
   if (PageNum == undefined || PageNum == -1) {
     // If page was not designated
     problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
@@ -247,7 +234,7 @@ router.route('/').get(isOrgUser, (req, res) => {
     });
   }
 });
-
+// Get Page count
 router.route('/pageCount').get(isOrgUser, (req, res) => {
   problemSet.count({ belongingOrgId: req.organization._id }, (err, Kount) => {
     if (err) return res.status(500).send(err);
@@ -260,7 +247,7 @@ router.route('/pageCount').get(isOrgUser, (req, res) => {
 router.route('/:pid').get(isOrgUser, (req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
-    if (doc == null) return res.status(404).send("User's problem set does not exist!");
+    if (doc == null) return res.status(404).send("Problem set does not exist!");
     else return res.json(doc);
   });
 });
