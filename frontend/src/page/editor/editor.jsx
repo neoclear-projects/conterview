@@ -120,7 +120,7 @@ function Editor({
 
   useEffect(() => {
     let passcode = queryString.parse(location.search).passcode;
-    if(passcode && candidateAuthorization === ''){
+    if(passcode && candidateAuthorization !== 'success'){
       candidateLogin(interviewId, passcode, ()=>{
         setCandidateAuthorization('success');
       }, err=>{
