@@ -27,7 +27,7 @@ class PositionStat extends React.Component {
   };
 
   render() {
-    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>);
+    if(this.state.loading) return (<PageWrap selected='statistics' loading></PageWrap>);
 
     const routes = (
       <Breadcrumb>

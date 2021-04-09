@@ -45,7 +45,7 @@ class Home extends React.Component {
   };
 
   render(){
-    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>)
+    if(this.state.loading) return (<PageWrap selected='home' loading></PageWrap>)
 
     const routes = (
       <Breadcrumb>
