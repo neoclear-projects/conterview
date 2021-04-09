@@ -51,7 +51,7 @@ class Position extends React.Component {
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
   render() {   
-    if(this.state.loading) return (<PageWrap selected='interview' loading></PageWrap>);
+    if(this.state.loading) return (<PageWrap selected='position' loading></PageWrap>);
     
     let tableBody = this.state.positions.map((position) => {
       return (
