@@ -165,6 +165,16 @@ export class singleProblem {
     //   problemOutputSet: this.OutputResult,
     //   problemRubric: this.Rubric
     // }))
+    var NewIn:Array<string> = [];
+    var NewOut:Array<string> = [];
+    this.InputData.forEach(element => {
+      var PreAddLineSeperator = element + ((element === "" || element.endsWith("\n"))?"":"\n");
+      NewIn.push(PreAddLineSeperator);
+    });
+    this.OutputResult.forEach(element => {
+      var PreAddLineSeperator = element + ((element === "" || element.endsWith("\n"))?"":"\n");
+      NewOut.push(PreAddLineSeperator);
+    });
     return JSON.stringify({
       ID: this.ID,
       problemName: this.problemName,
@@ -172,8 +182,8 @@ export class singleProblem {
       correctRate: this.correctRate,
       preferredLanguage: this.preferredLanguage,
       StarterCodes: this.StarterCodes,
-      problemInputSet: this.InputData,
-      problemOutputSet: this.OutputResult,
+      problemInputSet: NewIn,
+      problemOutputSet: NewOut,
       problemRubric: this.Rubric
     })
   }
