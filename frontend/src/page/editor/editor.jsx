@@ -113,6 +113,8 @@ function Editor({
       if (res.status === 'running') {
         setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
         setCurQuestionIdx(res.currentProblemIndex);
+      } else {
+        setEndTime(new Date());
       }
 
       setInterviewState(res.status);
@@ -446,8 +448,8 @@ function Editor({
                             <Button color='red' onClick={() => {
                               interviewStop(positionId, interviewId, () => {
                                 // Stop interview
-                                refreshState();
                                 socket.emit('refresh');
+                                refreshState();
                               }, errorLog)
                             }}>
                               <Icon name='stop' /> End Interview
