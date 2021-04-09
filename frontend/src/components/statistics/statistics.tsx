@@ -47,7 +47,7 @@ class Statistics extends React.Component {
         </PageHeader>
         <div style={{margin:'25px', display:'flex', flexDirection:'row', justifyContent:'space-between'}}>
           <div style={{backgroundColor:'white', width:'calc(50% - 10px)', padding:'20px'}}>
-            <Header>Positions Ready</Header>
+            <Header>Recent Positions Ready</Header>
             { 
               this.state.positions.length === 0 ?
               <Empty
@@ -68,7 +68,7 @@ class Statistics extends React.Component {
             }
           </div>
           <div style={{backgroundColor:'white', width:'calc(50% - 10px)', padding:'20px'}}>
-            <Header>Interviews Ready</Header>
+            <Header>Recent Interviews Ready</Header>
             {
               this.state.interviews.length === 0 ?
               <Empty

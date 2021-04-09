@@ -59,7 +59,7 @@ class Interview extends React.Component {
     let tableBody = this.state.interviews.map((interview) => {
       return (
         <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id)}}>
-          <Table.Cell>{interview.position.name}</Table.Cell>
+          <Table.Cell><span style={{marginLeft:'10px'}}>{interview.position.name}</span></Table.Cell>
           <Table.Cell>{interview.candidate.name}</Table.Cell>
           <Table.Cell>{toLocalTimeString(interview.scheduledTime)}</Table.Cell>
           <Table.Cell>{interview.status}</Table.Cell>
@@ -124,7 +124,7 @@ class Interview extends React.Component {
               <Table selectable basic='very'>
                 <Table.Header>
                   <Table.Row>
-                    <Table.HeaderCell width='1'>Position</Table.HeaderCell>
+                    <Table.HeaderCell width='1'><span style={{marginLeft:'10px'}}>Position</span></Table.HeaderCell>
                     <Table.HeaderCell width='1'>Candidate</Table.HeaderCell>
                     <Table.HeaderCell width='1'>Time</Table.HeaderCell>
                     <Table.HeaderCell width='1'>Status</Table.HeaderCell>

@@ -56,7 +56,7 @@ class Position extends React.Component {
     let tableBody = this.state.positions.map((position) => {
       return (
         <Table.Row onClick={()=>{this.props.history.push('/position/'+position._id)}}>
-          <Table.Cell>{position.name}</Table.Cell>
+          <Table.Cell><span style={{marginLeft:'10px'}}>{position.name}</span></Table.Cell>
           <Table.Cell>{position.pendingInterviewNum}</Table.Cell>
           <Table.Cell>{position.finishedInterviewNum}</Table.Cell>
         </Table.Row>
@@ -111,7 +111,7 @@ class Position extends React.Component {
               <Table selectable basic='very'>
                 <Table.Header>
                   <Table.Row>
-                    <Table.HeaderCell width='8'>Name</Table.HeaderCell>
+                    <Table.HeaderCell width='8'><span style={{marginLeft:'10px'}}>Name</span></Table.HeaderCell>
                     <Table.HeaderCell width='1'>Pending</Table.HeaderCell>
                     <Table.HeaderCell width='1'>Finished</Table.HeaderCell>
                   </Table.Row>

@@ -2,7 +2,7 @@ import React from 'react';
 import PageWrap from '../header/page-wrap';
 import { getInterviews } from '../../api/interview-api';
 import { Bar } from 'react-chartjs-2';
-import { PageHeader, Breadcrumb } from 'antd';
+import { PageHeader, Breadcrumb, Statistic } from 'antd';
 import { Link } from 'react-router-dom';
 import { Table, Header } from 'semantic-ui-react';
 
@@ -17,14 +17,7 @@ class PositionStat extends React.Component {
       this.state.interviews = res.data.sort((i1,i2) => {return i2.totalGrade - i1.totalGrade});
       this.setState({loading: false});
     });
-  }  
-
-  dynamicColors = function() {
-      var r = Math.floor(Math.random() * 255);
-      var g = Math.floor(Math.random() * 255);
-      var b = Math.floor(Math.random() * 255);
-      return "rgb(" + r + "," + g + "," + b + ")";
-  };
+  } 
 
   render() {
     if(this.state.loading) return (<PageWrap selected='statistics' loading></PageWrap>);
@@ -48,7 +41,7 @@ class PositionStat extends React.Component {
 
     let backgroundColor = [];
     for(let i=0;i<this.state.interviews.length;i++){
-      backgroundColor.push(this.dynamicColors());
+      backgroundColor.push('rgb(134, 188, 235)');
     }
 
     const bardata = {
@@ -63,9 +56,9 @@ class PositionStat extends React.Component {
 
     let tableContent = this.state.interviews.map(interview => {
       return (
-        <Table.Row>
-          <Table.Cell>{interview.candidate.name}</Table.Cell>
-          <Table.Cell>{interview.totalGrade}</Table.Cell>
+        <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id+'/statistics')}}>
+          <Table.Cell width='3'><Header style={{marginLeft:'10px'}}>{interview.candidate.name}</Header></Table.Cell>
+          <Table.Cell width='1'><Statistic value={interview.totalGrade} suffix={'/ ' + interview.maxTotalGrade} /></Table.Cell>
         </Table.Row>
       )
     })
@@ -80,7 +73,7 @@ class PositionStat extends React.Component {
         >
         </PageHeader>
         <div style={{backgroundColor:'white', padding:'50px', margin:'25px', display:'flex', flexDirection:'row'}}>
-          <div style={{width:'70%'}}>
+          <div style={{width:'65%'}}>
             <Bar
               style={{width:'70%'}}
               type='bar'
@@ -100,9 +93,9 @@ class PositionStat extends React.Component {
             }}
             />
           </div>
-          <div style={{display:'flex', flexDirection:'column', width:'30%', padding:'20px', alignItems:'center'}}>
-            <Header>Total Grades of Candidates</Header>
-            <Table striped basic='very'>
+          <div style={{display:'flex', flexDirection:'column', width:'35%', paddingLeft:'40px', alignItems:'center'}}>
+            <Header>Interview Statistics</Header>
+            <Table selectable basic='very'>
               <Table.Body>
                 {tableContent}
               </Table.Body>
