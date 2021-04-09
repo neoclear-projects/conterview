@@ -5,9 +5,7 @@ const path  = require('path');
 const isOrgUser = require('../access/isOrgUser');
 const ObjectId = require('mongoose').Types.ObjectId;
 
-router.use(isOrgUser);
-
-router.get('/', (req, res) => {
+router.get('/', isOrgUser, (req, res) => {
   User.find({organizationId:req.organization._id}, req.fields).exec((err, users) => {
     if (err) return res.status(500).send(err);
     return res.json(users);
@@ -24,14 +22,14 @@ router.use('/:userId', (req, res, next) => {
   });
 });
 
-router.get('/:userId', (req, res) => {
+router.get('/:userId', isOrgUser, (req, res) => {
   User.findOne({_id:req.user._id}).exec((err, user) => {
     if (err) return res.status(500).send(err);
     return res.json(user);
   });
 });
 
-router.get('/:userId/avatar', (req, res) => {
+router.get('/:userId/avatar', isOrgUser, (req, res) => {
   User.findOne({_id:req.user._id}).exec((err, user) => {
     if (err) return res.status(500).send(err);
     let avatar = user.avatar;
@@ -42,14 +40,14 @@ router.get('/:userId/avatar', (req, res) => {
   });
 });
 
-router.patch('/:userId', (req, res) => {
+router.patch('/:userId', isOrgUser, (req, res) => {
   User.findOneAndUpdate({_id:req.user._id}, { $set: req.body }, { returnOriginal: false }, (err, user) => {
     if (err) return res.status(500).send(err);
     return res.json(user);
   });
 });
 
-router.patch('/:userId/avatar', multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
+router.patch('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
   console.log(req.file);
   User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err, user) => {
     if (err) return res.status(500).send(err);

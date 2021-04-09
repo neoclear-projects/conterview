@@ -1,6 +1,6 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { Space, Upload, Avatar } from 'antd';
+import { Space, Upload, Avatar, message } from 'antd';
 import { Form, Image, Button, Modal } from 'semantic-ui-react';
 import { getUser, updateUser } from '../../api/user-api';
 import ImgCrop from 'antd-img-crop';
@@ -36,7 +36,7 @@ class Profile extends React.Component {
     const { _id, username, email, department, title, personalStatement } = this.state;
     updateUser(_id, username, email, department, title, personalStatement,
       res => {
-        
+        message.info('Profile updated successfully');
       }
     );
   };
@@ -93,7 +93,7 @@ class Profile extends React.Component {
                 fluid
                 type='submit'
                 color='facebook'
-              >Change Profile</Form.Button>
+              >Update Profile</Form.Button>
             </Form>
           </Space>
         </div>

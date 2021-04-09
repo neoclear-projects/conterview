@@ -5,6 +5,7 @@ import { createInterview, updateInterview } from '../../api/interview-api';
 import { getPositions } from '../../api/position-api';
 import { getProblemSet } from '../../api/problem-set-api';
 import { toLocalTimeISOString } from '../../util/time';
+import { message } from 'antd';
 
 class CreateInterview extends React.Component {
   constructor(props){
@@ -48,7 +49,8 @@ class CreateInterview extends React.Component {
     if(this.props.interview){
       updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
         req => {
-          this.props.onSubmit();              
+          this.props.onSubmit();      
+          message.info('Interview updated successfully');        
         },
         err => {
         }
@@ -57,7 +59,8 @@ class CreateInterview extends React.Component {
       let positionId = this.props.positionId === undefined ? this.state.positionId : this.props.positionId;
       createInterview(positionId, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
         req => {
-          this.props.onSubmit();              
+          this.props.onSubmit();    
+          message.info('Interview created successfully');             
         }, 
         err => {
 

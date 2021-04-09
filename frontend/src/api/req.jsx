@@ -10,6 +10,7 @@ let req = axios.create({
 req.interceptors.response.use(function (response) {
   return response;
 }, function (error) {
+  console.log(error);
   let message = error.response.data;
   if(message.startsWith('id invalid') || message === 'need to login as organization user'){
     browserRouterRef.current.history.push('/login');

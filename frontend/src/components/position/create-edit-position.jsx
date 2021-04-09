@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Modal, Form } from 'semantic-ui-react';
 import { createPosition, updatePosition } from '../../api/position-api';
 import { withRouter } from 'react-router-dom';
+import { message } from 'antd';
 
 class CreateEditPosition extends React.Component {
   constructor(props){
@@ -29,6 +30,7 @@ class CreateEditPosition extends React.Component {
       updatePosition(this.props.match.params.positionId, name, description,
         req => {
           this.props.onSubmit();   
+          message.info('Position updated successfully');
         }, 
         err => {
         }
@@ -37,6 +39,7 @@ class CreateEditPosition extends React.Component {
       createPosition(name, description, 
         req => {
           this.props.onSubmit();   
+          message.info('Position created successfully');
         }, 
         err => {
         }
