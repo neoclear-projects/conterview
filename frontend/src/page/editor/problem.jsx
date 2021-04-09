@@ -12,6 +12,15 @@ const renderers = {
   }
 };
 
+function prefix() {
+	if (window.localStorage.getItem('organizationId') != undefined) {
+		return `organization/${window.localStorage.getItem('organizationId')}`;
+	}
+	else {
+		return `organization/0`;
+	}
+}
+
 function Problem({
   problemId
 }) {

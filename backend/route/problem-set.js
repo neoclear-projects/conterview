@@ -244,7 +244,7 @@ router.route('/pageCount').get(isOrgUser, (req, res) => {
 });
 
 
-router.route('/:pid').get(isOrgUser, (req, res) => {
+router.route('/:pid').get((req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("Problem set does not exist!");

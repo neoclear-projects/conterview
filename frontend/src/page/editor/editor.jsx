@@ -107,6 +107,8 @@ function Editor({
   const interviewId = match.params.interviewId;
   
   const refreshState = () => {
+    console.log(questions);
+
     getInterviewState(positionId, interviewId, res => {
       if (res.status === 'running') {
         setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
@@ -120,20 +122,20 @@ function Editor({
 
   useEffect(() => {
     let passcode = queryString.parse(location.search).passcode;
-    if(passcode && candidateAuthorization !== 'success'){
-      candidateLogin(interviewId, passcode, ()=>{
+    if (passcode && candidateAuthorization !== 'success') {
+      candidateLogin(interviewId, passcode, () => {
         setCandidateAuthorization('success');
-      }, err=>{
-        if(err.response.status === 401){
+      }, err => {
+        if (err.response.status === 401) {
           setCandidateAuthorization('failed');
         }
-      })
-      return;
+      });
     }
 
     refreshState();
 
     peer.on('open', id => {
+      console.log('peer connected');
       navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
@@ -202,7 +204,10 @@ function Editor({
           setStreams(new Map(streamsRef.current));
         });
   
-        socket.on('refresh', refreshState);
+        socket.on('refresh', () => {
+          refreshState();
+          console.log('refreshed');
+        });
 
         socket.on('pass', probName => testPassed(probName));
 
@@ -220,7 +225,7 @@ function Editor({
   }, []);
 
   let passcode = queryString.parse(location.search).passcode;
-  switch(candidateAuthorization){
+  switch (candidateAuthorization) {
     case '':
       if(passcode) return <Spin/>;
       break;
@@ -357,145 +362,149 @@ function Editor({
           />
         </div>
         <div id='end'>
-          <Modal
-            size='small'
-            closeIcon
-            open={rubricVisible}
-            trigger={<Button color='facebook'>Rubric</Button>}
-            onClose={() => setRubricVisible(false)}
-            onOpen={() => setRubricVisible(true)}
-          >
-            <Modal.Header>Sliding Window</Modal.Header>
-            <Modal.Content>
-            <List selection verticalAlign='middle'>
-              {
-                (function() {
-                  let res = [];
-                  if (curQuestionIdx === -1 || curQuestionIdx >= questions.length)
-                    return [];
-                  for (let i = 0; i < questions[curQuestionIdx].problemRubric.length; i++) {
-                    let rubric = questions[curQuestionIdx].problemRubric[i];
-                    res.push(
-                      <List.Item>
-                        <List.Content floated='right'>
-                          <Input labelPosition='right' label={`/${rubric.rating}`} type='number' defaultValue={rubric.curRating} onChange={(event, data) => {
-                            updateRubric(positionId, interviewId, curQuestionIdx, i, parseInt(data.value) || 0, refreshState, errorLog);
-                            socket.emit('refresh');
-                          }} />
-                        </List.Content>
-                        <List.Header as='h3'>{rubric.name}</List.Header>
-                        <List.Description>{rubric.desc}</List.Description>
-                      </List.Item>
-                    );
-                  }
-                  return res;
-                })()
-              }
-            </List>
-            <TextArea style={{
-              borderRadius: 8,
-              outline: 'none'
-            }}
-              placeholder='Comments'
-              defaultValue={questions[curQuestionIdx] ? questions[curQuestionIdx].comment : null}
-              onChange={e => {
-                updateComment(positionId, interviewId, curQuestionIdx, e.target.innerHTML, refreshState, errorLog);
-                socket.emit('refresh');
+          { passcode ? null :
+            <Modal
+              size='small'
+              closeIcon
+              open={rubricVisible}
+              trigger={<Button color='facebook'>Rubric</Button>}
+              onClose={() => setRubricVisible(false)}
+              onOpen={() => setRubricVisible(true)}
+            >
+              <Modal.Header>Sliding Window</Modal.Header>
+              <Modal.Content>
+              <List selection verticalAlign='middle'>
+                {
+                  (function() {
+                    let res = [];
+                    if (curQuestionIdx === -1 || curQuestionIdx >= questions.length)
+                      return [];
+                    for (let i = 0; i < questions[curQuestionIdx].problemRubric.length; i++) {
+                      let rubric = questions[curQuestionIdx].problemRubric[i];
+                      res.push(
+                        <List.Item>
+                          <List.Content floated='right'>
+                            <Input labelPosition='right' label={`/${rubric.rating}`} type='number' defaultValue={rubric.curRating} onChange={(event, data) => {
+                              updateRubric(positionId, interviewId, curQuestionIdx, i, parseInt(data.value) || 0, refreshState, errorLog);
+                              socket.emit('refresh');
+                            }} />
+                          </List.Content>
+                          <List.Header as='h3'>{rubric.name}</List.Header>
+                          <List.Description>{rubric.desc}</List.Description>
+                        </List.Item>
+                      );
+                    }
+                    return res;
+                  })()
+                }
+              </List>
+              <TextArea style={{
+                borderRadius: 8,
+                outline: 'none'
               }}
-            />
-            </Modal.Content>
-          </Modal>
+                placeholder='Comments'
+                defaultValue={questions[curQuestionIdx] ? questions[curQuestionIdx].comment : null}
+                onChange={e => {
+                  updateComment(positionId, interviewId, curQuestionIdx, e.target.innerHTML, refreshState, errorLog);
+                  socket.emit('refresh');
+                }}
+              />
+              </Modal.Content>
+            </Modal>
+          }
           <Padding width={12} />
-          <Modal
-            size='small'
-            closeIcon
-            open={dashboardVisible}
-            trigger={<Button color='olive' >DashBoard</Button>}
-            onClose={() => setDashboardVisible(false)}
-            onOpen={() => setDashboardVisible(true)}
-          >
-            <Modal.Header>Control Pannel</Modal.Header>
-            <Modal.Content>
-            <List selection verticalAlign='middle'>
-              <List.Item>
-                <List.Content floated='right'>
-                  {
-                    (function() {
-                      if (interviewState === 'pending')
-                        return (
-                          <Button color='green' onClick={() => {
-                            interviewStart(positionId, interviewId, () => {
-                              // Start interview
+          { passcode ? null :
+            <Modal
+              size='small'
+              closeIcon
+              open={dashboardVisible}
+              trigger={<Button color='olive' >DashBoard</Button>}
+              onClose={() => setDashboardVisible(false)}
+              onOpen={() => setDashboardVisible(true)}
+            >
+              <Modal.Header>Control Pannel</Modal.Header>
+              <Modal.Content>
+              <List selection verticalAlign='middle'>
+                <List.Item>
+                  <List.Content floated='right'>
+                    {
+                      (function() {
+                        if (interviewState === 'pending')
+                          return (
+                            <Button color='green' onClick={() => {
+                              interviewStart(positionId, interviewId, () => {
+                                // Start interview
+                                refreshState();
+                                socket.emit('refresh');
+                              }, errorLog)
+                            }}>
+                              <Icon name='play' /> Start Interview
+                            </Button>
+                          );
+                        else if (interviewState === 'running')
+                          return (
+                            <Button color='red' onClick={() => {
+                              interviewStop(positionId, interviewId, () => {
+                                // Stop interview
+                                refreshState();
+                                socket.emit('refresh');
+                              }, errorLog)
+                            }}>
+                              <Icon name='stop' /> End Interview
+                            </Button>
+                          );
+                        else if (interviewState === 'finished')
+                          return (
+                            <Button color='grey' disabled>
+                              Interview Finished
+                            </Button>
+                          );
+                        else
+                          return null;
+                      })()
+                    }
+                  </List.Content>
+                  <List.Content><Header content='Interview Control' as='h3' /></List.Content>
+                </List.Item>
+                <Divider />
+                {
+                  (function() {
+                    let ans = [];
+                    for (let i = 0; i < questions.length; i++) {
+                      ans.push(
+                        <QuestionSelect
+                          content={questions[i].problemName}
+                          onClick={() => {
+                            updateCurrentQuestion(positionId, interviewId, i, () => {
+                              setCurQuestionIdx(i);
                               refreshState();
                               socket.emit('refresh');
-                            }, errorLog)
-                          }}>
-                            <Icon name='play' /> Start Interview
-                          </Button>
-                        );
-                      else if (interviewState === 'running')
-                        return (
-                          <Button color='red' onClick={() => {
-                            interviewStop(positionId, interviewId, () => {
-                              // Stop interview
-                              refreshState();
-                              socket.emit('refresh');
-                            }, errorLog)
-                          }}>
-                            <Icon name='stop' /> End Interview
-                          </Button>
-                        );
-                      else if (interviewState === 'finished')
-                        return (
-                          <Button color='grey' disabled>
-                            Interview Finished
-                          </Button>
-                        );
-                      else
-                        return null;
-                    })()
-                  }
-                </List.Content>
-                <List.Content><Header content='Interview Control' as='h3' /></List.Content>
-              </List.Item>
-              <Divider />
-              {
-                (function() {
-                  let ans = [];
-                  for (let i = 0; i < questions.length; i++) {
-                    ans.push(
-                      <QuestionSelect
-                        content={questions[i].problemName}
-                        onClick={() => {
-                          updateCurrentQuestion(positionId, interviewId, i, () => {
-                            setCurQuestionIdx(i);
-                            refreshState();
-                            socket.emit('refresh');
-                          }, errorLog);
-                        }}
-                        checked={i === curQuestionIdx}
-                        grade={(function() {
-                          const rubric = questions[i].problemRubric;
-                          if (rubric.length === 0) return 0;
-                          
-                          const grades = rubric.reduce((acc, e) => {
-                            return { curRating: acc.curRating + e.curRating, rating: acc.rating + e.rating };
-                          });
+                            }, errorLog);
+                          }}
+                          checked={i === curQuestionIdx}
+                          grade={(function() {
+                            const rubric = questions[i].problemRubric;
+                            if (rubric.length === 0) return 0;
+                            
+                            const grades = rubric.reduce((acc, e) => {
+                              return { curRating: acc.curRating + e.curRating, rating: acc.rating + e.rating };
+                            });
 
-                          console.log(grades);
+                            console.log(grades);
 
-                          return Math.floor(grades.curRating * 100 / grades.rating);
-                        })()}
-                        passed={questions[i].allPassed}
-                      />
-                    );
-                  }
-                  return ans;
-                })()
-              }
-            </List>
-            </Modal.Content>
-          </Modal>
+                            return Math.floor(grades.curRating * 100 / grades.rating);
+                          })()}
+                          passed={questions[i].allPassed}
+                        />
+                      );
+                    }
+                    return ans;
+                  })()
+                }
+              </List>
+              </Modal.Content>
+            </Modal>
+          }
           <Padding width={16} />
           <Countdown value={endTime} />
           <Padding width={16} />
