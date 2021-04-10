@@ -19,9 +19,9 @@ class Profile extends React.Component {
         let user = res.data;
         this.state.username = user.username;
         this.state.email = user.email;
-        this.state.department = user.department;
-        this.state.title = user.title;
-        this.state.personalStatement = user.personalStatement;
+        this.state.department = user.department ? user.department : '';
+        this.state.title = user.title ? user.title : '';
+        this.state.personalStatement = user.personalStatement ? user.personalStatement : '';
         this.state._id = user._id;
         this.setState({loading: false});
       },

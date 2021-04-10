@@ -6,6 +6,8 @@ const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
 const crypto = require('crypto');
 const ObjectId = require('mongoose').Types.ObjectId;
+const { body, param, query } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
 function event(action, req, interview, position){
   return {
@@ -19,7 +21,29 @@ function event(action, req, interview, position){
   }
 }
 
-router.post('/', isOrgUser, (req, res) => {
+function allObjectIds(ids){
+  for(id of ids){
+    console.log(id);
+    if(!ObjectId.isValid(id)) return false;
+  }
+  return true;
+}
+
+function isIsoDate(str) {
+  if (!/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z/.test(str)) return false;
+  var d = new Date(str); 
+  return d.toISOString()===str;
+}
+
+router.post('/', isOrgUser, 
+  [body('candidate.name', 'candidate name should be non-empty string').isString().notEmpty().escape(), 
+  body('candidate.email', 'candidate email should be email formatted').isEmail(),
+  body('problemIds', 'problemIds should be valid objectIds').custom(allObjectIds),
+  body('interviewerIds', 'interviewIds should be valid objectIds').custom(allObjectIds),
+  body('scheduledTime', 'scheduledTime should be in ISOString format').custom(isIsoDate),
+  body('scheduledLength', 'scheduledLength should be positive integer').isInt({gt:0})],
+  handleValidationResult,
+  (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
 
   let passcode = crypto.randomBytes(16).toString('base64');
@@ -42,7 +66,7 @@ router.post('/', isOrgUser, (req, res) => {
     saltedHash,
   }).save((err, interview) => {
     if(err) return res.status(500).send(err);
-    Position.updateOne({_id:req.position._id}, { $inc: {pendingInterviewNum:1} }, (err, position) => {
+    Position.updateOne({_id:req.position._id}, { $inc: {pendingInterviewNum:1} }, err => {
       if (err) return res.status(500).send(err);
     });
     sendMail(interview.candidate.email, 
@@ -58,7 +82,10 @@ router.post('/', isOrgUser, (req, res) => {
   });
 });
 
-router.get('/', isOrgUser, (req, res) => {
+router.get('/', isOrgUser, 
+  [query('status', 'status should be in pending, running or finished').optional().isIn(['pending', 'runnning', 'finished'])],
+  handleValidationResult,
+  (req, res) => {
   let query = {'position':req.position._id};
   if(req.query.status !== undefined){
     query['status'] = req.query.status;
@@ -74,8 +101,10 @@ router.get('/', isOrgUser, (req, res) => {
   });
 });
 
-router.use('/:interviewId', (req, res, next) => {
-  if(!ObjectId.isValid(req.params.interviewId)) return res.status(400).send('id invalid: interview');
+router.use('/:interviewId', 
+  [param('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value)})],
+  handleValidationResult,
+  (req, res, next) => {
   Interview
     .findOne({_id:req.params.interviewId})
     .exec((err, interview) => {
@@ -98,7 +127,15 @@ router.get('/:interviewId', (req, res) => {
   });
 });
 
-router.patch('/:interviewId', isOrgUser, (req, res) => {
+router.patch('/:interviewId', isOrgUser, 
+  [body('candidate.name', 'candidate name should be non-empty string').optional().isString().notEmpty().escape(), 
+  body('candidate.email', 'candidate email should be email formatted').optional().isEmail(),
+  body('problemIds', 'problemIds should be valid objectIds').optional().custom(allObjectIds),
+  body('interviewerIds', 'interviewIds should be valid objectIds').optional().custom(allObjectIds),
+  body('scheduledTime', 'scheduledTime should be in ISOString format').optional().custom(isIsoDate),
+  body('scheduledLength', 'scheduledLength should be positive integer').optional().isInt({gt:0})],
+  handleValidationResult,
+  (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
 
   let interview = {
@@ -119,7 +156,7 @@ router.patch('/:interviewId', isOrgUser, (req, res) => {
 
 router.delete('/:interviewId', isOrgUser, (req, res) => {
   if(req.interview.status === 'finished') return res.status(403).send('cannot delete a finished interview');
-  Position.update({_id:req.position._id}, { $inc: {pendingInterviewNum:-1} }, (err) => {
+  Position.updateOne({_id:req.position._id}, { $inc: {pendingInterviewNum:-1} }, (err) => {
     if (err) return res.status(500).send(err);
   });
   Interview
@@ -131,9 +168,11 @@ router.delete('/:interviewId', isOrgUser, (req, res) => {
   });
 });
 
-router.patch('/:interviewId/status', isOrgUser, (req, res) => {
+router.patch('/:interviewId/status', isOrgUser, 
+  [body('status', 'status should be in running or finished').isIn('runnning', 'finished')],
+  handleValidationResult,
+  (req, res) => {
   let status = req.body.status;
-  if(status === undefined) return res.status(400).send('status not provided');
   switch(status){
     case 'running':
       Interview
@@ -141,6 +180,7 @@ router.patch('/:interviewId/status', isOrgUser, (req, res) => {
         .populate({path:'problems'})
         .exec((err, interview) => {
         if (err) return res.status(500).send(err);
+        if(interview.status !== 'pending') return res.status(403).send('can only set to running from pending');
         interview.status = 'running';
         interview.startTime = new Date();
         interview.currentProblemIndex = -1;
@@ -155,6 +195,8 @@ router.patch('/:interviewId/status', isOrgUser, (req, res) => {
       Interview
         .findOne({_id:req.interview._id})
         .exec((err, interview) => {
+        if (err) return res.status(500).send(err);
+        if(interview.status !== 'running') return res.status(403).send('can only set to finished from running');
         interview.status = 'finished';
         interview.finishTime = new Date();
         interview.totalGrade = getInterviewTotalGrade(interview);
@@ -168,20 +210,23 @@ router.patch('/:interviewId/status', isOrgUser, (req, res) => {
         });
       });
       break;
-    default:
-      return res.status(400).send('invalid status');
   }
 });
 
-router.patch('/:interviewId/current-problem-index', isOrgUser, (req, res) => {
+router.patch('/:interviewId/current-problem-index', isOrgUser, 
+  [body('index', 'index should be non-negative int').optional().isInt({min:0}),
+  body('next', 'next should be true').optional().custom(value => {return value == true}),
+  body('prev', 'prev should be true').optional().custom(value => {return value == true})],
+  handleValidationResult,
+  (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
     let target;
     if(req.body.index !== undefined){
       target = req.body.index;
-    }else if(req.body.next !== undefined){
+    }else if(req.body.next){
       target = interview.currentProblemIndex + 1;
-    }else if(req.body.prev !== undefined){
+    }else if(req.body.prev){
       target = interview.currentProblemIndex - 1;
     }else{
       return res.status(400).send('index or next or prev should be specified');
@@ -195,12 +240,19 @@ router.patch('/:interviewId/current-problem-index', isOrgUser, (req, res) => {
   });
 });
 
-router.patch('/:interviewId/problem/:index/evaluation', (req, res) => {
+router.patch('/:interviewId/problem/:index/evaluation', 
+  [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined}),
+  body('grade.idx', 'grade.idx should be non-negative integer').optional().isInt({min:0}),
+  body('grade.value', 'grade.value should be non-negative integer').optional().isInt({min:0}),
+  body('comment', 'comment should be non-empty string').optional().isString().notEmpty().escape(),
+  body('allPassed', 'allPassed should be true').optional().custom(value => {return value == true})],
+  handleValidationResult,
+  (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
     if (err) return res.status(500).send(err);
     if (req.body.grade) {
       let { idx, value } = req.body.grade;
-      if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(400).send('incorrect index of rubric');
+      if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(404).send('rubric index out of bound');
       interview.problemsSnapshot[req.params.index].problemRubric[idx].curRating = value;
     }
     if (req.body.comment) {

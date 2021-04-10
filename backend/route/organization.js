@@ -2,8 +2,14 @@ const router = require('express').Router();
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
 const ObjectId = require('mongoose').Types.ObjectId;
+const { body, param } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
-router.post('/', (req, res) => {
+router.post('/', 
+  [body('name', 'organization name should be non-empty string').isString().notEmpty().escape(), 
+  body('passcode', 'organization passcode should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   const { name, passcode } = req.body;
 
   Organization.findOne({name}, function(err, organization){
@@ -22,8 +28,10 @@ router.post('/', (req, res) => {
   });
 });
 
-router.use('/:organizationId', (req, res, next) => {
-  if(!ObjectId.isValid(req.params.organizationId)) return res.status(400).send('id invalid: organization');
+router.use('/:organizationId', 
+  [param('organizationId', 'id invalid: organization').custom((value) => {return ObjectId.isValid(value)})],
+  handleValidationResult,
+  (req, res, next) => {
   Organization.findOne({_id:req.params.organizationId}, function(err, organization){
     if (err) return res.status(500).send(err);
     if (!organization) return res.status(404).send("organization #" + req.params.organizationId + " does not exist");

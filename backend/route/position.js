@@ -4,6 +4,8 @@ const Interview = require('../model/interview.model');
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
 const ObjectId = require('mongoose').Types.ObjectId;
+const { body, query, param } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
 function event(action, req, position){
   return {
@@ -16,7 +18,11 @@ function event(action, req, position){
   }
 }
 
-router.post('/', isOrgUser, (req, res) => {
+router.post('/', isOrgUser, 
+  [body('name', 'position name should be non-empty string').isString().notEmpty().escape(), 
+  body('description', 'position description should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   const { name, description } = req.body;
   Position.findOne({name, organizationId:req.organization._id}, (err, position) => {
     if (err) return res.status(500).send(err);
@@ -36,7 +42,12 @@ router.post('/', isOrgUser, (req, res) => {
   });
 });
 
-router.get('/', isOrgUser, (req, res) => {
+router.get('/', isOrgUser, 
+  [query('page', 'page should be non-negative integer').optional().isInt({min:1}), 
+  query('nameContains', 'nameContains should be non-empty string').optional().isString().notEmpty().escape(),
+  query('allFinished', 'allFinished should be boolean').optional().isBoolean(),],
+  handleValidationResult,
+  (req, res) => {
   let { page, nameContains, allFinished } = req.query;
   let query = {organizationId:req.organization._id};
   if(nameContains) query['name'] = { "$regex": nameContains, "$options": "i" };
@@ -63,8 +74,10 @@ router.get('/', isOrgUser, (req, res) => {
   }
 });
 
-router.use('/:positionId', (req, res, next) => {
-  if(!ObjectId.isValid(req.params.positionId)) return res.status(400).send('id invalid: position');
+router.use('/:positionId', 
+  [param('positionId', 'id invalid: position').custom((value) => {return ObjectId.isValid(value)})],
+  handleValidationResult,
+  (req, res, next) => {
   Position.findOne({_id:req.params.positionId}, function(err, position){
     if (err) return res.status(500).send(err);
     if (!position || !req.organization._id.equals(position.organizationId)) return res.status(404).send("position #" + req.params.positionId + " not found for organization #" + req.organization._id);
@@ -73,8 +86,13 @@ router.use('/:positionId', (req, res, next) => {
   });
 });
 
-router.patch('/:positionId', isOrgUser, (req, res) => {
-  Position.findOneAndUpdate({_id:req.position._id}, { $set: req.body }, { returnOriginal: false }, (err, position) => {
+router.patch('/:positionId', isOrgUser,
+  [body('name', 'position name should be non-empty string').optional().isString().notEmpty().escape(), 
+  body('description', 'position description should be non-empty string').optional().isString().notEmpty().escape()],
+  handleValidationResult, 
+  (req, res) => {
+  const { name, description } = req.body;
+  Position.findOneAndUpdate({_id:req.position._id}, { $set: { name, description } }, { returnOriginal: false }, (err, position) => {
     if (err) return res.status(500).send(err);
     new Event(event('update', req, position)).save(err => {if(err) return res.status(500).send(err);});
     return res.json(position);

@@ -2,8 +2,16 @@ const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const Position = require('../model/position.model');
 const isOrgUser = require('../access/isOrgUser');
+const { query } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
-router.get('/', isOrgUser, async (req, res) => {
+router.get('/', isOrgUser, 
+  [query('page', 'page should be non-negative integer').optional().isInt({min:1}),
+  query('candidateContains', 'candidateContains should be non-empty string').optional().isString().notEmpty().escape(),
+  query('positionContains', 'positionContains should be non-empty string').optional().isString().notEmpty().escape(),
+  query('status', 'status should be in pending, running or finished').optional().isIn(['pending', 'runnning', 'finished'])],
+  handleValidationResult,
+  async (req, res) => {
   let { page, candidateContains, positionContains, status } = req.query;
   if(!page) page = 1;
   let query = {organizationId:req.organization._id};

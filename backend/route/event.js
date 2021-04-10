@@ -1,10 +1,14 @@
 const router = require('express').Router();
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
+const { query } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
-router.get('/', isOrgUser, (req, res) => {
+router.get('/', isOrgUser, 
+  [query('page', 'page should be non-negative integer').isInt({min:1})],
+  handleValidationResult,
+  (req, res) => {
   let page = req.query.page;
-  if(!page) page = 1;
   Event.find({organizationId:req.organization._id})
     .sort({time:-1})
     .skip((page-1)*5).limit(5)

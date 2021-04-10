@@ -3,8 +3,14 @@ const User = require('../model/user.model');
 const Interview = require('../model/interview.model');
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
+const { body } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
-router.route('/login').post((req, res) => {
+router.route('/login').post(
+  [body('username', 'username should be non-empty string').isString().notEmpty().escape(), 
+  body('password', 'password should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   const { username, password } = req.body;
   User.findOne({username}).lean().exec(function(err, user){
     if (err) return res.status(500).send(err);
@@ -27,7 +33,14 @@ router.route('/logout').get((req, res) => {
   return res.json("user " + req.username + " signed out");
 });
 
-router.route('/register').post((req, res) => {
+router.route('/register').post(
+  [body('organization', 'organization should be non-empty string').isString().notEmpty().escape(),
+  body('passcode', 'passcode should be non-empty string').isString().notEmpty().escape(),
+  body('username', 'username should be non-empty string').isString().notEmpty().escape(), 
+  body('password', 'password should be non-empty string').isString().notEmpty().escape(),
+  body('email', 'email should be email formatted').isEmail()],
+  handleValidationResult,
+  (req, res) => {
   const { organization, passcode, username, password, email } = req.body;
   Organization.findOne({name:organization}, function(err, org){
     if (err) return res.status(500).send(err);
@@ -57,7 +70,11 @@ router.route('/register').post((req, res) => {
   });
 });
 
-router.route('/candidate-login').post((req, res) => {
+router.route('/candidate-login').post(
+  [body('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value)}),
+  body('passcode', 'passcode should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   const { interviewId, passcode } = req.body;
   Interview.findOne({_id:interviewId}, function(err, interview){
     if (err) return res.status(500).send(err);
