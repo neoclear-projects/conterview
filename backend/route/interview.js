@@ -36,12 +36,12 @@ function isIsoDate(str) {
 }
 
 router.post('/', isOrgUser, 
-  [body('candidate.name', 'candidate name should be non-empty string').isString().notEmpty().escape(), 
-  body('candidate.email', 'candidate email should be email formatted').isEmail(),
-  body('problemIds', 'problemIds should be valid objectIds').custom(allObjectIds),
-  body('interviewerIds', 'interviewIds should be valid objectIds').custom(allObjectIds),
-  body('scheduledTime', 'scheduledTime should be in ISOString format').custom(isIsoDate),
-  body('scheduledLength', 'scheduledLength should be positive integer').isInt({gt:0})],
+  [body('candidate.name', 'candidate name is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('candidate.email', 'candidate email is needed and should be email formatted').isEmail(),
+  body('problemIds', 'problemIds is needed and should be valid objectIds').custom(allObjectIds),
+  body('interviewerIds', 'interviewerIds is needed and should be valid objectIds').custom(allObjectIds),
+  body('scheduledTime', 'scheduledTime is needed and should be in ISOString format').custom(isIsoDate),
+  body('scheduledLength', 'scheduledLength is needed and should be positive integer').isInt({gt:0})],
   handleValidationResult,
   (req, res) => {
   const { candidate, interviewerIds, problemIds, scheduledTime, scheduledLength } = req.body;
@@ -78,7 +78,8 @@ router.post('/', isOrgUser,
       `
     );
     new Event(event('create', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
-    return res.json(interview);
+    const { _id, candidate, problemIds, interviewIds, scheduledTime, scheduledLength } = interview;
+    return res.json({ _id, candidate, problemIds, interviewIds, scheduledTime, scheduledLength });
   });
 });
 
@@ -92,12 +93,12 @@ router.get('/', isOrgUser,
   }
   Interview
     .find(query)
-    .populate({path:'position'})
-    .populate({path:'interviewers'})
-    .populate({path:'problems'})
     .exec((err, interviews) => {
     if (err) return res.status(500).send(err);
-    return res.json(interviews);
+    return res.json(interviews.map(interview => {
+      const { _id, candidate, scheduledTime, status, totalGrade, maxTotalGrade } = interview;
+      return { _id, candidate, scheduledTime, status, totalGrade, maxTotalGrade };
+    }));
   });
 });
 
@@ -118,12 +119,14 @@ router.use('/:interviewId',
 router.get('/:interviewId', (req, res) => {
   Interview
     .findOne({_id:req.interview._id})
-    .populate({path:'position'})
-    .populate({path:'interviewers'})
-    .populate({path:'problems'})
+    .populate({path:'position', select:'name'})
+    .populate({path:'interviewers', select:'username email department title personalStatement'})
+    .populate({path:'problems', select:'problemName'})
     .exec((err, interview) => {
+    console.log(err);
     if (err) return res.status(500).send(err);
-    return res.json(interview);
+    const { _id, candidate, problems, interviewers, problemsSnapshot, position, scheduledTime, startTime, finishTime, status, scheduledLength, currentProblemIndex, totalGrade, maxTotalGrade } = interview;
+    return res.json({ _id, candidate, problems, interviewers, problemsSnapshot, position, scheduledTime, startTime, finishTime, status, scheduledLength, currentProblemIndex, totalGrade, maxTotalGrade });
   });
 });
 
@@ -150,12 +153,13 @@ router.patch('/:interviewId', isOrgUser,
     findOneAndUpdate({_id:req.interview._id}, { $set: interview }, { returnOriginal: false }, (err, interview) => {
     if (err) return res.status(500).send(err);
     new Event(event('update', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
-    return res.json(interview);
+    const { _id, candidate, problemIds, interviewIds, scheduledTime, scheduledLength } = interview;
+    return res.json({ _id, candidate, problemIds, interviewIds, scheduledTime, scheduledLength });
   });
 });
 
 router.delete('/:interviewId', isOrgUser, (req, res) => {
-  if(req.interview.status === 'finished') return res.status(403).send('cannot delete a finished interview');
+  if(req.interview.status !== 'pending') return res.status(403).send('cannot delete a non-pending interview');
   Position.updateOne({_id:req.position._id}, { $inc: {pendingInterviewNum:-1} }, (err) => {
     if (err) return res.status(500).send(err);
   });
@@ -164,7 +168,8 @@ router.delete('/:interviewId', isOrgUser, (req, res) => {
     .exec((err, interview) => {
     if (err) return res.status(500).send(err);
     new Event(event('delete', req, req.interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
-    return res.json(interview);
+    const { _id, candidate, scheduledTime, status } = interview;
+    return res.json({ _id, candidate, scheduledTime, status });
   });
 });
 
@@ -187,7 +192,8 @@ router.patch('/:interviewId/status', isOrgUser,
         interview.problemsSnapshot = interview.problems;
         interview.save((err, interview) => {
           if (err) return res.status(500).send(err);
-          return res.json(interview);
+          const { _id, candidate, scheduledTime, status } = interview;
+          return res.json({ _id, candidate, scheduledTime, status });
         });
       });
       break;
@@ -206,7 +212,8 @@ router.patch('/:interviewId/status', isOrgUser,
         });
         interview.save((err, interview) => {
           if (err) return res.status(500).send(err);
-          return res.json(interview);
+          const { _id, candidate, scheduledTime, status } = interview;
+          return res.json({ _id, candidate, scheduledTime, status });
         });
       });
       break;

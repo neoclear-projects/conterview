@@ -29,16 +29,17 @@ router.get('/', isOrgUser,
   Interview.
     find(query, req.fields)
     .skip((page-1)*10).limit(10)
-    .populate({path:'position'})
-    .populate({path:'interviewers'})
-    .populate({path:'problems'})
+    .populate({path:'position', select:'name'})
     .exec((err, interviews) => {
     if (err) return res.status(500).send(err);
     Interview.countDocuments(query, (err, count) => {
       if (err) return res.status(500).send(err);
       let response = {};
       response.totalPage = Math.ceil(count/10);
-      response.interviews = interviews;
+      response.interviews = interviews.map(interview => {
+        const { _id, candidate, scheduledTime, status, position } = interview;
+        return { _id, candidate, scheduledTime, status, position };
+      });
       return res.json(response);
     });
   });

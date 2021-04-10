@@ -8,7 +8,7 @@ const { body, param } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
 
 router.get('/', isOrgUser, (req, res) => {
-  User.find({organizationId:req.organization._id}, req.fields).exec((err, users) => {
+  User.find({organizationId:req.organization._id}, 'username').exec((err, users) => {
     if (err) return res.status(500).send(err);
     return res.json(users);
   });
@@ -28,7 +28,7 @@ router.use('/:userId',
 });
 
 router.get('/:userId', isOrgUser, (req, res) => {
-  User.findOne({_id:req.user._id}).exec((err, user) => {
+  User.findOne({_id:req.user._id}, 'username email department title personalStatement').exec((err, user) => {
     if (err) return res.status(500).send(err);
     return res.json(user);
   });
@@ -56,14 +56,15 @@ router.patch('/:userId', isOrgUser,
   const { username, email, department, title, personalStatement } = req.body;
   User.findOneAndUpdate({_id:req.user._id}, { $set: { username, email, department, title, personalStatement } }, { returnOriginal: false }, (err, user) => {
     if (err) return res.status(500).send(err);
-    return res.json(user);
+    const { _id, username, email, department, title, personalStatement } = user;
+    return res.json({ _id, username, email, department, title, personalStatement });
   });
 });
 
-router.patch('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
-  User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err, user) => {
+router.put('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
+  User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err) => {
     if (err) return res.status(500).send(err);
-    return res.json(user);
+    return res.send('avatar changed successfully');
   });
 });
 

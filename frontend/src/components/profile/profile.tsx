@@ -106,7 +106,7 @@ class Profile extends React.Component {
           <Modal.Content>
             <ImgCrop shape='round'>
               <Upload
-                method='PATCH'
+                method='PUT'
                 name='avatar'
                 action={process.env.REACT_APP_SERVER+'/api/organization/'+window.localStorage.getItem('organizationId')+'/user/'+this.state._id+'/avatar'}
                 listType="picture-card"

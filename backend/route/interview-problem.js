@@ -42,7 +42,8 @@ router.patch('/:index/evaluation',
   }
   interview.save((err, interview) => {
     if (err) return res.status(500).send(err);
-    return res.json(interview.problemsSnapshot[req.params.index].problemRubric);
+    const { problemRubric, allPassed } = interview.problemsSnapshot[req.params.index];
+    return res.json({ problemRubric, allPassed });
   });
 });
 
