@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const User = require('../model/user.model');
 const multer  = require('multer');
@@ -15,7 +17,7 @@ router.get('/', isOrgUser, (req, res) => {
 });
 
 router.use('/:userId', 
-  [param('userId', 'id invalid: user').custom((value) => {return ObjectId.isValid(value)})],
+  [param('userId', 'id invalid: user').custom((value) => {return ObjectId.isValid(value);})],
   handleValidationResult,
   (req, res, next) => {
   if(!ObjectId.isValid(req.params.userId)) return res.status(400).send('id invalid: user');

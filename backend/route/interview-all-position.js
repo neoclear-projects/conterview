@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const Position = require('../model/position.model');
@@ -15,16 +17,16 @@ router.get('/', isOrgUser,
   let { page, candidateContains, positionContains, status } = req.query;
   if(!page) page = 1;
   let query = {organizationId:req.organization._id};
-  if(status) query['status'] = status;
+  if(status) query.status = status;
   if(candidateContains) query['candidate.name'] = { "$regex": candidateContains, "$options": "i" };
   if(positionContains){
-    positionIds = [];
+    let positionIds = [];
     await Position.find({organizationId:req.organization._id, name: { "$regex": positionContains, "$options": "i" }}).exec().then(positions => {
       positions.forEach(position => {
         positionIds.push(position._id);
       });
     });
-    query['position'] = { "$in": positionIds };
+    query.position = { "$in": positionIds };
   }
   Interview.
     find(query, req.fields)

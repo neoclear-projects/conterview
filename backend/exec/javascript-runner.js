@@ -1,3 +1,5 @@
+"use strict";
+
 const { exec } = require('child_process');
 
 module.exports = function javascriptRunner(id, interviewId, input, code, callback) {

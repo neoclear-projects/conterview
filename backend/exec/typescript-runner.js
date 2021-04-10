@@ -1,3 +1,5 @@
+"use strict";
+
 const { exec } = require('child_process');
 
 module.exports = function typescriptRunner(id, interviewId, input, code, callback) {

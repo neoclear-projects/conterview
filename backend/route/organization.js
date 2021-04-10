@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Organization = require('../model/organization.model');
 const crypto = require('crypto');
@@ -30,7 +32,7 @@ router.post('/',
 });
 
 router.use('/:organizationId', 
-  [param('organizationId', 'id invalid: organization').custom((value) => {return ObjectId.isValid(value)})],
+  [param('organizationId', 'id invalid: organization').custom((value) => {return ObjectId.isValid(value);})],
   handleValidationResult,
   (req, res, next) => {
   Organization.findOne({_id:req.params.organizationId}, function(err, organization){

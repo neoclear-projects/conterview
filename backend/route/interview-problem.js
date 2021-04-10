@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const { body, param } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
@@ -20,11 +22,11 @@ router.use('/:index',
 });
 
 router.patch('/:index/evaluation', 
-  [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined}),
+  [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined;}),
   body('grade.idx', 'grade.idx should be non-negative integer').optional().isInt({min:0}),
   body('grade.value', 'grade.value should be non-negative integer').optional().isInt({min:0}),
   body('comment', 'comment should be valid string').optional().isString().escape(),
-  body('allPassed', 'allPassed should be true').optional().custom(value => {return value == true})],
+  body('allPassed', 'allPassed should be true').optional().custom(value => {return value == true;})],
   handleValidationResult,
   (req, res) => {
   const interview = req.interview;
@@ -109,7 +111,7 @@ router.route('/:index/test').post((req, res) => {
 
   Promise.all(promisedArray)
     .then(() => {
-      return res.json({ result: 'pass', message: 'Passed all tests' })
+      return res.json({ result: 'pass', message: 'Passed all tests' });
     })
     .catch(msg => {
       if (msg == null) return res.json({ result: 'fail', message: 'Failed to pass all tests' });

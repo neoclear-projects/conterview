@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Position = require('../model/position.model');
 const Interview = require('../model/interview.model');
@@ -15,7 +17,7 @@ function event(action, req, position){
     item1: {_id: position._id, name: position.name},
     time: new Date(),
     organizationId: req.organization._id,
-  }
+  };
 }
 
 router.post('/', isOrgUser, 
@@ -50,10 +52,10 @@ router.get('/', isOrgUser,
   (req, res) => {
   let { page, nameContains, allFinished } = req.query;
   let query = {organizationId:req.organization._id};
-  if(nameContains) query['name'] = { "$regex": nameContains, "$options": "i" };
+  if(nameContains) query.name = { "$regex": nameContains, "$options": "i" };
   if(allFinished){
-    query['pendingInterviewNum'] = 0;
-    query['finishedInterviewNum'] = { "$gt": 0 }
+    query.pendingInterviewNum = 0;
+    query.finishedInterviewNum = { "$gt": 0 };
   }
   if(!page){
     Position.find(query, req.fields).exec((err, positions) => {
@@ -78,7 +80,7 @@ router.get('/', isOrgUser,
 });
 
 router.use('/:positionId', 
-  [param('positionId', 'id invalid: position').custom((value) => {return ObjectId.isValid(value)})],
+  [param('positionId', 'id invalid: position').custom((value) => {return ObjectId.isValid(value);})],
   handleValidationResult,
   (req, res, next) => {
   Position.findOne({_id:req.params.positionId}, function(err, position){

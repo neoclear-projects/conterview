@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');

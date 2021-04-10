@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const User = require('../model/user.model');
 const Interview = require('../model/interview.model');
@@ -5,6 +7,7 @@ const Organization = require('../model/organization.model');
 const crypto = require('crypto');
 const { body } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
+const ObjectId = require('mongoose').Types.ObjectId;
 
 router.route('/login').post(
   [body('username', 'username should be non-empty string').isString().notEmpty().escape(), 
@@ -77,7 +80,7 @@ router.route('/register').post(
 });
 
 router.route('/candidate-login').post(
-  [body('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value)}),
+  [body('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value);}),
   body('passcode', 'passcode is needed and should be non-empty string').isString().notEmpty().escape()],
   handleValidationResult,
   (req, res) => {

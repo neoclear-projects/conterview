@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const pythonRunner = require('../exec/python-runner');
 const cppRunner = require('../exec/cpp-runner');

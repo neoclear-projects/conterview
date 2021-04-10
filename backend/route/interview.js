@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Interview = require('../model/interview.model');
 const sendMail = require('../util/mail');
@@ -18,11 +20,11 @@ function event(action, req, interview, position){
     item2: {_id: position._id, name: position.name},
     time: new Date(),
     organizationId: req.organization._id,
-  }
+  };
 }
 
 function allObjectIds(ids){
-  for(id of ids){
+  for(let id of ids){
     if(!ObjectId.isValid(id)) return false;
   }
   return true;
@@ -37,9 +39,9 @@ function isIsoDate(str) {
 router.post('/', isOrgUser, 
   [body('candidate.name', 'candidate name is needed and should be non-empty string').isString().notEmpty().escape(), 
   body('candidate.email', 'candidate email is needed and should be email formatted').isEmail(),
-  body('problemIds', 'problemIds is needed and cannot be empty').custom(value => {return value.length > 0}),
+  body('problemIds', 'problemIds is needed and cannot be empty').custom(value => {return value.length > 0;}),
   body('problemIds', 'problemIds should be valid objectIds').custom(allObjectIds),
-  body('interviewerIds', 'interviewerIds is needed and cannot be empty').custom(value => {return value.length > 0}),
+  body('interviewerIds', 'interviewerIds is needed and cannot be empty').custom(value => {return value.length > 0;}),
   body('interviewerIds', 'interviewerIds should be valid objectIds').custom(allObjectIds),
   body('scheduledTime', 'scheduledTime is needed and should be in ISOString format').custom(isIsoDate),
   body('scheduledLength', 'scheduledLength is needed and should be positive integer').isInt({gt:0})],
@@ -90,7 +92,7 @@ router.get('/', isOrgUser,
   (req, res) => {
   let query = {'position':req.position._id};
   if(req.query.status !== undefined){
-    query['status'] = req.query.status;
+    query.status = req.query.status;
   }
   Interview
     .find(query)
@@ -104,7 +106,7 @@ router.get('/', isOrgUser,
 });
 
 router.use('/:interviewId', 
-  [param('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value)})],
+  [param('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value);})],
   handleValidationResult,
   (req, res, next) => {
   Interview
@@ -134,9 +136,9 @@ router.get('/:interviewId', (req, res) => {
 router.patch('/:interviewId', isOrgUser, 
   [body('candidate.name', 'candidate name should be non-empty string').optional().isString().notEmpty().escape(), 
   body('candidate.email', 'candidate email should be email formatted').optional().isEmail(),
-  body('problemIds', 'problemIds cannot be empty').optional().custom(value => {return value.length > 0}),
+  body('problemIds', 'problemIds cannot be empty').optional().custom(value => {return value.length > 0;}),
   body('problemIds', 'problemIds should be valid objectIds').optional().custom(allObjectIds),
-  body('interviewerIds', 'interviewerIds cannot be empty').optional().custom(value => {return value.length > 0}),
+  body('interviewerIds', 'interviewerIds cannot be empty').optional().custom(value => {return value.length > 0;}),
   body('interviewerIds', 'interviewerIds should be valid objectIds').optional().custom(allObjectIds),
   body('scheduledTime', 'scheduledTime should be in ISOString format').optional().custom(isIsoDate),
   body('scheduledLength', 'scheduledLength should be positive integer').optional().isInt({gt:0})],
@@ -225,8 +227,8 @@ router.patch('/:interviewId/status', isOrgUser,
 
 router.patch('/:interviewId/current-problem-index', isOrgUser, 
   [body('index', 'index should be non-negative int').optional().isInt({min:0}),
-  body('next', 'next should be true').optional().custom(value => {return value == true}),
-  body('prev', 'prev should be true').optional().custom(value => {return value == true})],
+  body('next', 'next should be true').optional().custom(value => {return value == true;}),
+  body('prev', 'prev should be true').optional().custom(value => {return value == true;})],
   handleValidationResult,
   (req, res) => {
   Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
@@ -255,7 +257,7 @@ router.use('/:interviewId/problem', require('./interview-problem'));
 module.exports = router;
 
 function getProblemTotalGrade(problem){
-  return problem.problemRubric.map(rubric => {return rubric.curRating}).reduce((pv, cv) => pv + cv, 0);
+  return problem.problemRubric.map(rubric => {return rubric.curRating;}).reduce((pv, cv) => pv + cv, 0);
 }
 
 function getInterviewTotalGrade(interview){
@@ -263,7 +265,7 @@ function getInterviewTotalGrade(interview){
 }
 
 function getProblemMaxTotalGrade(problem){
-  return problem.problemRubric.map(rubric => {return rubric.rating}).reduce((pv, cv) => pv + cv, 0);
+  return problem.problemRubric.map(rubric => {return rubric.rating;}).reduce((pv, cv) => pv + cv, 0);
 }
 
 function getInterviewMaxTotalGrade(interview){
