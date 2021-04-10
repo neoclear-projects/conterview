@@ -20,20 +20,17 @@ class RegisterOrganization extends React.Component {
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
-  nameExistErr = 'Organization name already exists';
-  passcodeMatchErr = 'Please enter the same passcode';
-
   handleSubmit = () => {
     const { name, passcode, passcodeConfirm } = this.state;
     let valid = true;
     this.setState({nameExistErr: undefined, passcodeMatchErr: undefined});
     if(passcode !== passcodeConfirm){
-      this.setState({passcodeMatchErr: this.passcodeMatchErr});
+      this.setState({passcodeMatchErr: 'Please enter the same passcode'});
       valid = false;
     }
     if(valid){
       registerOrganization(name, passcode, req => this.props.history.push("/register"), err =>{
-        if(err.response.status === 409) this.setState({nameExistErr: this.nameExistErr});
+        if(err.response.data === 'organization already exists') this.setState({nameExistErr: 'Organization name already exists'});
       });
     }
   };

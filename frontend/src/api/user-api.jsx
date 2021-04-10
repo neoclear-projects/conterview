@@ -15,7 +15,7 @@ export function getUserByUsername(username, onSuccess){
 	req.get('organization/'+window.localStorage.getItem('organizationId')+'/user', { params }).then(onSuccess);
 }
 
-export function updateUser(userId, username, email, department, title, personalStatement, onSuccess){
+export function updateUser(userId, username, email, department, title, personalStatement, onSuccess, onError){
 	let data = {username, email, department, title, personalStatement};
-	req.patch('organization/'+window.localStorage.getItem('organizationId')+'/user/'+userId, data).then(onSuccess);
+	req.patch('organization/'+window.localStorage.getItem('organizationId')+'/user/'+userId, data).then(onSuccess).catch(onError);
 }

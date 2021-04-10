@@ -23,7 +23,6 @@ function event(action, req, interview, position){
 
 function allObjectIds(ids){
   for(id of ids){
-    console.log(id);
     if(!ObjectId.isValid(id)) return false;
   }
   return true;
@@ -38,8 +37,10 @@ function isIsoDate(str) {
 router.post('/', isOrgUser, 
   [body('candidate.name', 'candidate name is needed and should be non-empty string').isString().notEmpty().escape(), 
   body('candidate.email', 'candidate email is needed and should be email formatted').isEmail(),
-  body('problemIds', 'problemIds is needed and should be valid objectIds').custom(allObjectIds),
-  body('interviewerIds', 'interviewerIds is needed and should be valid objectIds').custom(allObjectIds),
+  body('problemIds', 'problemIds is needed and cannot be empty').custom(value => {return value.length > 0}),
+  body('problemIds', 'problemIds should be valid objectIds').custom(allObjectIds),
+  body('interviewerIds', 'interviewerIds is needed and cannot be empty').custom(value => {return value.length > 0}),
+  body('interviewerIds', 'interviewerIds should be valid objectIds').custom(allObjectIds),
   body('scheduledTime', 'scheduledTime is needed and should be in ISOString format').custom(isIsoDate),
   body('scheduledLength', 'scheduledLength is needed and should be positive integer').isInt({gt:0})],
   handleValidationResult,
@@ -133,8 +134,10 @@ router.get('/:interviewId', (req, res) => {
 router.patch('/:interviewId', isOrgUser, 
   [body('candidate.name', 'candidate name should be non-empty string').optional().isString().notEmpty().escape(), 
   body('candidate.email', 'candidate email should be email formatted').optional().isEmail(),
+  body('problemIds', 'problemIds cannot be empty').optional().custom(value => {return value.length > 0}),
   body('problemIds', 'problemIds should be valid objectIds').optional().custom(allObjectIds),
-  body('interviewerIds', 'interviewIds should be valid objectIds').optional().custom(allObjectIds),
+  body('interviewerIds', 'interviewerIds cannot be empty').optional().custom(value => {return value.length > 0}),
+  body('interviewerIds', 'interviewerIds should be valid objectIds').optional().custom(allObjectIds),
   body('scheduledTime', 'scheduledTime should be in ISOString format').optional().custom(isIsoDate),
   body('scheduledLength', 'scheduledLength should be positive integer').optional().isInt({gt:0})],
   handleValidationResult,

@@ -95,11 +95,15 @@ router.patch('/:positionId', isOrgUser,
   handleValidationResult, 
   (req, res) => {
   const { name, description } = req.body;
-  Position.findOneAndUpdate({_id:req.position._id}, { $set: { name, description } }, { returnOriginal: false }, (err, position) => {
+  Position.findOne({name, organizationId:req.organization._id}).exec((err, position) => {
     if (err) return res.status(500).send(err);
-    new Event(event('update', req, position)).save(err => {if(err) return res.status(500).send(err);});
-    const { _id, name, description } = position;
-    return res.json({ _id, name, description });
+    if(req.position.name !== name && position) return res.status(409).send("Position with this name already exists");
+    Position.findOneAndUpdate({_id:req.position._id}, { $set: { name, description } }, { returnOriginal: false }, (err, position) => {
+      if (err) return res.status(500).send(err);
+      new Event(event('update', req, position)).save(err => {if(err) return res.status(500).send(err);});
+      const { _id, name, description } = position;
+      return res.json({ _id, name, description });
+    });
   });
 });
 

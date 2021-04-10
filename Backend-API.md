@@ -29,13 +29,13 @@
         - email is needed and should be email formatted
 - response: 404
     - content-type: `text/plain`
-    - body: organization ${organization name} does not exist
+    - body: organization does not exist
 - response: 401
     - content-type: `text/plain`
     - body: wrong passcode
 - response: 409
     - content-type: `text/plain`
-    - body: username ${username} already exists
+    - body: username already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X POST \
@@ -136,7 +136,7 @@ $ curl -b cookie.txt -c cookie.txt \
         - organization passcode is needed and should be non-empty string
 - response: 409
     - content-type: `text/plain`
-    - body: organization ${name} already exists
+    - body: organization already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X POST \
@@ -242,6 +242,9 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
     - body: one of:
         - position name should be non-empty string
         - position description should be non-empty string
+- response: 409
+    - content-type: `text/plain`
+    - body: Position with this name already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X PATCH \
@@ -307,8 +310,10 @@ $ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organiza
     - body: one of:
         - candidate name is needed and should be non-empty string
         - candidate email is needed and should be email formatted
-        - problemIds is needed and should be valid objectIds
-        - interviewerIds is needed and should be valid objectIds
+        - problemIds is needed and cannot be empty
+        - problemIds should be valid objectIds
+        - interviewerIds is needed and cannot be empty
+        - interviewerIds should be valid objectIds
         - scheduledTime is needed and should be in ISOString format
         - scheduledLength is needed and should be positive integer
 ``` 
@@ -334,6 +339,8 @@ $ curl -b cookie.txt -c cookie.txt \
             - email: (string) email of the candidate
         - scheduledTime: (string) scheduled starting time of the interview
         - status: (string) the status of the interview
+        - totalGrade: (int) the total grade earned by candidate
+        - maxTotalGrade: (int) the maximum grade of the interview
 ``` 
 $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/'
 ```
@@ -420,7 +427,9 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
     - body: one of:
         - candidate name should be non-empty string
         - candidate email should be email formatted
+        - problemIds cannot be empty
         - problemIds should be valid objectIds
+        - interviewerIds cannot be empty
         - interviewerIds should be valid objectIds
         - scheduledTime should be in ISOString format
         - scheduledLength should be positive integer

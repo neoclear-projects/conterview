@@ -26,6 +26,7 @@ class CreateEditPosition extends React.Component {
 
   handleSubmit = () => {
     const { name, description } = this.state;
+    this.setState({nameExistErr: undefined});
     if(this.props.position){
       updatePosition(this.props.match.params.positionId, name, description,
         req => {
@@ -33,6 +34,7 @@ class CreateEditPosition extends React.Component {
           message.info('Position updated successfully');
         }, 
         err => {
+          if(err.response.data === 'Position with this name already exists') this.setState({nameExistErr: 'Position with this name already exists'});
         }
       );
     }else{
@@ -42,6 +44,7 @@ class CreateEditPosition extends React.Component {
           message.info('Position created successfully');
         }, 
         err => {
+          if(err.response.data === 'Position with this name already exists') this.setState({nameExistErr: 'Position with this name already exists'});
         }
       );
     }
@@ -71,6 +74,7 @@ class CreateEditPosition extends React.Component {
                 onChange={this.handleInputChange}
                 value={this.state.name}
                 placeholder='Enter position name'
+                error={this.state.nameExistErr}
                 required
               />
               <Form.TextArea
@@ -79,6 +83,7 @@ class CreateEditPosition extends React.Component {
                 value={this.state.description}
                 rows='10'
                 onChange={this.handleInputChange}
+                required
               />
             </Form>
           </Modal.Content>

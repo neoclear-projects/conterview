@@ -45,7 +45,7 @@ router.route('/register').post(
   const { organization, passcode, username, password, email } = req.body;
   Organization.findOne({name:organization}, function(err, org){
     if (err) return res.status(500).send(err);
-    if (!org) return res.status(404).send("organization " + organization + " does not exist");
+    if (!org) return res.status(404).send("organization does not exist");
 
     let passcodeHash = crypto.createHmac('sha512', org.salt);
     passcodeHash.update(passcode);
@@ -54,19 +54,23 @@ router.route('/register').post(
 
     User.findOne({username}, function(err, user){
       if (err) return res.status(500).send(err);
-      if (user) return res.status(409).send("username " + username + " already exists");
+      if (user) return res.status(409).send("username already exists");
+      User.findOne({email}, function(err, user){
+        if (err) return res.status(500).send(err);
+        if (user) return res.status(409).send("email has been registered");
+        let salt = crypto.randomBytes(16).toString('base64');
+        let hash = crypto.createHmac('sha512', salt);
+        hash.update(password);
+        let saltedHash = hash.digest('base64');
 
-      let salt = crypto.randomBytes(16).toString('base64');
-      let hash = crypto.createHmac('sha512', salt);
-      hash.update(password);
-      let saltedHash = hash.digest('base64');
-
-      new User({username, saltedHash, salt, email, organizationId: org._id}).save((err, user) => {
-        if(err) return res.status(500).send(err);
-        // start a session
-        req.session.user = user;
-        const { _id, username, organizationId } = user;
-        return res.json({ _id, username, organizationId });
+        new User({username, saltedHash, salt, email, organizationId: org._id}).save((err, user) => {
+          console.log(err);
+          if(err) return res.status(500).send(err);
+          // start a session
+          const { _id, username, organizationId } = user;
+          req.session.user = { _id, username, organizationId, type:'orgUser' };
+          return res.json({ _id, username, organizationId });
+        });
       });
     });
   });

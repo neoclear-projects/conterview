@@ -32,30 +32,25 @@ class Register extends React.Component {
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
 
-  organizationNotExistErr = 'Organization does not exist';
-  passcodeIncorrectErr = 'Incorrect passcode';
-  passwordMatchErr = 'Please enter the same password';
-  usernameExistErr = 'Username already exists';
-  termsNotAgreedErr ='Please agree the terms and conditions';
-
   handleSubmit = () => {
     const { organization, passcode, username, password, passwordConfirm, email, terms } = this.state;
     let valid = true;
-    this.setState({passwordMatchErr: undefined, passcodeIncorrectErr: undefined, termsNotAgreedErr: undefined, usernameExistErr: undefined, organizationNotExistErr: undefined});
+    this.setState({passwordMatchErr: undefined, passcodeIncorrectErr: undefined, termsNotAgreedErr: undefined, usernameExistErr: undefined, organizationNotExistErr: undefined, emailFormatError: undefined, emailRegisteredErr: undefined});
     if(password !== passwordConfirm){
-      this.setState({passwordMatchErr: this.passwordMatchErr});
+      this.setState({passwordMatchErr: 'Please enter the same password'});
       valid = false;
     }
     if(!terms){
-      this.setState({termsNotAgreedErr: this.termsNotAgreedErr});
+      this.setState({termsNotAgreedErr: 'Please agree the terms and conditions'});
       valid = false;
     }
     if(valid){
       register(organization, passcode, username, password, email, req => this.props.history.push("/"), err =>{
-        console.log(err.response);
-        if(err.response.status === 409) this.setState({usernameExistErr: this.usernameExistErr});
-        if(err.response.status === 404) this.setState({organizationNotExistErr: this.organizationNotExistErr});
-        if(err.response.status === 401) this.setState({passcodeIncorrectErr: this.passcodeIncorrectErr});
+        if(err.response.data === 'username already exists') this.setState({usernameExistErr: 'Username already exists'});
+        if(err.response.data === 'organization does not exist') this.setState({organizationNotExistErr: 'Organization does not exist'});
+        if(err.response.data === 'wrong passcode') this.setState({passcodeIncorrectErr: 'Incorrect passcode'});
+        if(err.response.data === 'email is needed and should be email formatted') this.setState({emailFormatError: 'Invalid email address'});
+        if(err.response.data === 'email has been registered') this.setState({emailRegisteredErr: 'Email has been registered'});
       });
     }
   };
@@ -119,9 +114,9 @@ class Register extends React.Component {
             iconPosition='left'
             label='Email Address'
             placeholder='Enter your email address'
-            type='email'
             name='email'
             onChange = {this.handleInputChange}
+            error={this.state.emailFormatError || this.state.emailRegisteredErr}
             required
           />
           <Form.Checkbox

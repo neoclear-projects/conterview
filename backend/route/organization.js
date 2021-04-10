@@ -14,7 +14,7 @@ router.post('/',
 
   Organization.findOne({name}, function(err, organization){
     if (err) return res.status(500).send(err);
-    if (organization) return res.status(409).send("organization " + name + " already exists");
+    if (organization) return res.status(409).send("organization already exists");
 
     let salt = crypto.randomBytes(16).toString('base64');
     let hash = crypto.createHmac('sha512', salt);

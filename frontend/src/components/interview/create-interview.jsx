@@ -46,26 +46,41 @@ class CreateInterview extends React.Component {
   handleSubmit = () => {
     const { candidateName, candidateEmail, scheduledTime, interviewerIds, problemIds, scheduledLength } = this.state;
     let scheduledTimeUTC = new Date(scheduledTime).toISOString();
-    if(this.props.interview){
-      updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
-        req => {
-          this.props.onSubmit();      
-          message.info('Interview updated successfully');        
-        },
-        err => {
-        }
-      );
-    }else{
-      let positionId = this.props.positionId === undefined ? this.state.positionId : this.props.positionId;
-      createInterview(positionId, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
-        req => {
-          this.props.onSubmit();    
-          message.info('Interview created successfully');             
-        }, 
-        err => {
-
-        }
-      );
+    this.setState({ emailFormatErr: undefined, lengthNotPositiveErr: undefined, interviewerIdsEmptyErr: undefined, problemIdsEmptyErr: undefined });
+    let valid = true;
+    if(interviewerIds.length === 0){
+      this.setState({ interviewerIdsEmptyErr: 'Interviewers cannot be empty' });
+      valid = false;
+    }
+    if(problemIds.length === 0){
+      this.setState({ problemIdsEmptyErr: 'Problems cannot be empty' });
+      valid = false;
+    }
+    if(valid){
+      if(this.props.interview){
+        updateInterview(this.props.interview.position._id, this.props.interview._id, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
+          req => {
+            this.props.onSubmit();      
+            message.info('Interview updated successfully');        
+          },
+          err => {
+            if(err.response.data === 'candidate email should be email formatted') this.setState({ emailFormatErr: 'Invalid email address' });
+            if(err.response.data === 'scheduledLength should be positive integer') this.setState({ lengthNotPositiveErr: 'Scheduled length should be positive integer' });
+          }
+        );
+      }else{
+        let positionId = this.props.positionId === undefined ? this.state.positionId : this.props.positionId;
+        createInterview(positionId, candidateName, candidateEmail, scheduledTimeUTC, scheduledLength, interviewerIds, problemIds, 
+          req => {
+            this.props.onSubmit();    
+            message.info('Interview created successfully');             
+          }, 
+          err => {
+            if(err.response.data === 'candidate email is needed and should be email formatted') this.setState({ emailFormatErr: 'Invalid email address' });
+            if(err.response.data === 'scheduledLength is needed and should be positive integer') this.setState({ lengthNotPositiveErr: 'Scheduled length should be positive integer' });
+          }
+        );
+      }
     }
   };
 
@@ -150,10 +165,10 @@ class CreateInterview extends React.Component {
             <Form.Input
               label='Candidate Email'
               name='candidateEmail'
-              type='email'
               onChange={this.handleInputChange}
               value={this.state.candidateEmail}
               placeholder='Enter candidate email'
+              error={this.state.emailFormatErr}
               required
             />
             <Form.Input
@@ -172,6 +187,7 @@ class CreateInterview extends React.Component {
               onChange={this.handleInputChange}
               value={this.state.scheduledLength}
               placeholder='Enter interview length'
+              error={this.state.lengthNotPositiveErr}
               required
             />
             <Form.Dropdown
@@ -185,6 +201,7 @@ class CreateInterview extends React.Component {
               onChange={this.handleInputChange}
               options={this.state.interviewerOptions}
               placeholder='Select interviewers'
+              error={this.state.interviewerIdsEmptyErr}
               required
             >
             </Form.Dropdown>
@@ -199,6 +216,7 @@ class CreateInterview extends React.Component {
               onChange={this.handleInputChange}
               options={this.state.problemOptions}
               placeholder='Select interview problems'
+              error={this.state.problemIdsEmptyErr}
               required
             >
             </Form.Dropdown>
