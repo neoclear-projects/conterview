@@ -6,8 +6,8 @@ const { body, param } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
 
 router.post('/', 
-  [body('name', 'organization name should be non-empty string').isString().notEmpty().escape(), 
-  body('passcode', 'organization passcode should be non-empty string').isString().notEmpty().escape()],
+  [body('name', 'organization name is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('passcode', 'organization passcode is needed and should be non-empty string').isString().notEmpty().escape()],
   handleValidationResult,
   (req, res) => {
   const { name, passcode } = req.body;
@@ -23,7 +23,8 @@ router.post('/',
 
     new Organization({name, salt, saltedHash}).save((err, organization) => {
       if(err) return res.status(500).send(err);
-      return res.json(organization);
+      const { _id, name } = organization;
+      return res.json({ _id, name });
     });
   });
 });

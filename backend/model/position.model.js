@@ -5,7 +5,6 @@ const ObjectId = Schema.ObjectId;
 
 const PositionSchema = new Schema({
   name: String,
-  userId: ObjectId,
   description: String,
   organizationId: ObjectId,
   pendingInterviewNum: Number,

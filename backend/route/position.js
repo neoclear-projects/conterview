@@ -19,8 +19,8 @@ function event(action, req, position){
 }
 
 router.post('/', isOrgUser, 
-  [body('name', 'position name should be non-empty string').isString().notEmpty().escape(), 
-  body('description', 'position description should be non-empty string').isString().notEmpty().escape()],
+  [body('name', 'position name is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('description', 'position description is needed and should be non-empty string').isString().notEmpty().escape()],
   handleValidationResult,
   (req, res) => {
   const { name, description } = req.body;
@@ -28,8 +28,7 @@ router.post('/', isOrgUser,
     if (err) return res.status(500).send(err);
     if (position) return res.status(409).send("Position with this name already exists");
     new Position({
-      name, 
-      userId: req.session.user._id, 
+      name,
       description, 
       organizationId: req.organization._id,
       pendingInterviewNum: 0,
@@ -37,7 +36,8 @@ router.post('/', isOrgUser,
       .save((err, position) => {
       if(err) return res.status(500).send(err);
       new Event(event('create', req, position)).save(err => {if(err) return res.status(500).send(err);});
-      return res.json(position);
+      const { _id, name, description } = position;
+      return res.json({ _id, name, description });
     });
   });
 });
@@ -67,7 +67,10 @@ router.get('/', isOrgUser,
         if (err) return res.status(500).send(err);
         let response = {};
         response.totalPage = Math.ceil(count/10);
-        response.positions = positions;
+        response.positions = positions.map(position =>{
+          const { _id, name, description, pendingInterviewNum, finishedInterviewNum } = position;
+          return { _id, name, description, pendingInterviewNum, finishedInterviewNum};
+        });
         return res.json(response);
       });
     });
@@ -95,14 +98,16 @@ router.patch('/:positionId', isOrgUser,
   Position.findOneAndUpdate({_id:req.position._id}, { $set: { name, description } }, { returnOriginal: false }, (err, position) => {
     if (err) return res.status(500).send(err);
     new Event(event('update', req, position)).save(err => {if(err) return res.status(500).send(err);});
-    return res.json(position);
+    const { _id, name, description } = position;
+    return res.json({ _id, name, description });
   });
 });
 
 router.get('/:positionId', isOrgUser, (req, res) => {
   Position.findOne({_id:req.position._id}, req.fields).exec((err, position) => {
     if (err) return res.status(500).send(err);
-    return res.json(position);
+    const { _id, name, description, pendingInterviewNum, finishedInterviewNum } = position;
+    return res.json({ _id, name, description, pendingInterviewNum, finishedInterviewNum });
   });
 });
 
@@ -113,7 +118,8 @@ router.delete('/:positionId', isOrgUser, (req, res) => {
   Position.remove({_id:req.position._id}, {justOne: true}).exec((err) => {
     if (err) return res.status(500).send(err);
     new Event(event('delete', req, req.position)).save(err => {if(err) return res.status(500).send(err);});
-    return res.json(req.position);
+    const { _id, name, description, pendingInterviewNum, finishedInterviewNum } = req.position;
+    return res.json({ _id, name, description, pendingInterviewNum, finishedInterviewNum });
   });
 });
 

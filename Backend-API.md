@@ -2,19 +2,293 @@
 
 ## AUTH
 
-## EDITOR
+#### POST /api/auth/register/
 
-## EVENT
+- description: register and then login
+- request: `POST /api/auth/register/`   
+    - content-type: `application/json`
+    - body: object
+      - organization: (string) the organization name of the user
+      - passcode: (string) the passcode of the organization
+      - username: (string) the username of the user
+      - password: (string) the password of the user
+      - email: (string) the email of the user
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - organizationId: (string) the organizationId of the user
+      - username: (string) the username of the user
+      - _id: (string) the id of the user
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        organization is needed and should be non-empty string
+        passcode is needed and should be non-empty string
+        username is needed and should be non-empty string
+        password is needed and should be non-empty string
+        email is needed and should be email formatted
+- response: 404
+    - content-type: `text/plain`
+    - body: organization ${organization name} does not exist
+- response: 401
+    - content-type: `text/plain`
+    - body: wrong passcode
+- response: 409
+    - content-type: `text/plain`
+    - body: username ${username} already exists
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"organization":"UofT","passcode":"myPasscode","username":"Tom Jackson","password":"myPassword", "email":"123@gmail.com"}' \
+       'http://localhost:3001/api/auth/register/'
+```
 
-## EXEC
+#### POST /api/auth/login/
 
-## INTERVIEW-ALL-POSITION
+- description: login
+- request: `POST /api/auth/login/`   
+    - content-type: `application/json`
+    - body: object
+      - username: (string) the username of the user
+      - password: (string) the password of the user
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - organizationId: (string) the organizationId of the user
+      - username: (string) the username of the user
+      - _id: (string) the id of the user
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        username is needed and should be non-empty string
+        password is needed and should be non-empty string
+- response: 401
+    - content-type: `text/plain`
+    - body: access denied
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"username":"Tom Jackson","password":"myPassword"}' \
+       'http://localhost:3001/api/auth/login/'
+```
 
-## INTERVIEW
+#### GET /api/auth/logout/
+
+- description: logout
+- request: `POST /api/auth/logout/`   
+- response: 200
+    - content-type: `text/plain`
+    - body: user ${username} signed out
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/auth/logout'
+```
+
+#### POST /api/auth/candidate-login/
+
+- description: login as interview candidate
+- request: `POST /api/auth/candidate-login/`   
+    - content-type: `application/json`
+    - body: object
+      - interviewId: (string) the id of the interview
+      - password: (string) the password to join the interview
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - organizationId: (string) the organizationId of the interview
+      - interviewId: (string) the id of the interview
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        id invalid: interview
+        passcode is needed and should be non-empty string
+- response: 401
+    - content-type: `text/plain`
+    - body: access denied
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"interviewId":"606ba8f396cf3840a4692798","passcode":"myPasscode"}' \
+       'http://localhost:3001/api/auth/candidate-login/'
+```
 
 ## ORGANIZATION
 
-### PROBLEM SET
+#### POST /api/organization/
+
+- description: create an organization
+- request: `POST /api/organization/`   
+    - content-type: `application/json`
+    - body: object
+      - name: (string) the name of the organization
+      - password: (string) the password to join the organization
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the organization
+      - name: (string) the name of the organization
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        organization name is needed and should be non-empty string
+        organization passcode is needed and should be non-empty string
+- response: 409
+    - content-type: `text/plain`
+    - body: organization ${name} already exists
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"name":"UofT","passcode":"myPasscode"}' \
+       'http://localhost:3001/api/organization/'
+```
+
+#### ANY REQUEST START WITH /api/organization/:organizationId/
+
+- response: 400
+    - content-type: `text/plain`
+    - body: id invalid: organization
+- response: 404
+    - content-type: `text/plain`
+    - body: organization #${id} does not exist
+
+## POSITION
+
+#### POST /api/organization/:organizationId/position/
+
+- description: create a position
+- request: `POST /api/organization/:organizationId/position/`   
+    - content-type: `application/json`
+    - body: object
+      - name: (string) the name of the position
+      - description: (string) the description of the position
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the position
+      - name: (string) the name of the position
+      - description: (string) the description of the position
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        position name is needed and should be non-empty string
+        position description is needed and should be non-empty string
+- response: 409
+    - content-type: `text/plain`
+    - body: position with this name already exists
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"name":"Software Developer","descriprion":"myDescription"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/'
+```
+
+#### GET /api/organization/:organizationId/position/
+
+- description: get positions of an organization
+- request: `GET /api/organization/:organizationId/position/`   
+    - query parameters:
+        - page: (int) page to retrieve
+        - nameContains: (string) only get position with name having nameContains (optional)
+        - allFinished: (bool) only get position with all interviews finished (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - totalPage: total number of pages for this query
+        - positions: array of object
+            - _id: (string) the id of the position
+            - name: (string) the name of the position
+            - description: (string) the description of the position
+            - pendingInterviewNum: (int) the number of interviews that are pending of the position
+            - finishedInterviewNum: (int) the number of interviews that are finished of the position
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        page should be non-negative integer
+        nameContains should be non-empty string
+        allFinished should be boolean
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/'
+```
+
+#### ANY REQUEST START WITH /api/organization/:organizationId/position/:positionId/
+
+- response: 400
+    - content-type: `text/plain`
+    - body: id invalid: position
+- response: 404
+    - content-type: `text/plain`
+    - body: position #${positionId} not found for organization #${organizationId}
+
+#### PATCH /api/organization/:organizationId/position/:positionId/
+
+- description: create a position
+- request: `PATCH /api/organization/:organizationId/position/:positionId/`   
+    - content-type: `application/json`
+    - body: object
+      - name: (string) the name of the position (optional)
+      - description: (string) the description of the position (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the position
+      - name: (string) the name of the position
+      - description: (string) the description of the position
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        position name should be non-empty string
+        position description should be non-empty string
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X PATCH \
+       -H "Content-Type: application/json" \
+       -d '{"name":"Software Developer","descriprion":"myDescription"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/'
+```
+
+#### GET /api/organization/:organizationId/position/:positionId/
+
+- description: get a position
+- request: `GET /api/organization/:organizationId/position/:positionId/`   
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - _id: (string) the id of the position
+        - name: (string) the name of the position
+        - description: (string) the description of the position
+        - pendingInterviewNum: (int) the number of interviews that are pending of the position
+        - finishedInterviewNum: (int) the number of interviews that are finished of the position
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/'
+```
+
+#### DELETE /api/organization/:organizationId/position/:positionId/
+
+- description: delete a position
+- request: `DELETE /api/organization/:organizationId/position/:positionId/`   
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - _id: (string) the id of the position
+        - name: (string) the name of the position
+        - description: (string) the description of the position
+        - pendingInterviewNum: (int) the number of interviews that are pending of the position
+        - finishedInterviewNum: (int) the number of interviews that are finished of the position
+``` 
+$ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/'
+```
+
+## INTERVIEW
+
+## INTERVIEW-PROBLEM
+
+## INTERVIEW-ALL-POSITION
+
+## PROBLEM SET
 
 #### Post a problem
 - description: post a new problem
@@ -266,6 +540,7 @@ $ curl -X GET
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/123/dataset'
 ```
-## POSITION
 
 ## USER
+
+## EVENT

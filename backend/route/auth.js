@@ -24,7 +24,8 @@ router.route('/login').post(
     // start a session
     user.type = 'orgUser';
     req.session.user = user;
-    return res.json(user);
+    const { _id, username, organizationId } = user;
+    return res.json({ _id, username, organizationId });
   });
 });
 
@@ -34,11 +35,11 @@ router.route('/logout').get((req, res) => {
 });
 
 router.route('/register').post(
-  [body('organization', 'organization should be non-empty string').isString().notEmpty().escape(),
-  body('passcode', 'passcode should be non-empty string').isString().notEmpty().escape(),
-  body('username', 'username should be non-empty string').isString().notEmpty().escape(), 
-  body('password', 'password should be non-empty string').isString().notEmpty().escape(),
-  body('email', 'email should be email formatted').isEmail()],
+  [body('organization', 'organization is needed and should be non-empty string').isString().notEmpty().escape(),
+  body('passcode', 'passcode is needed and should be non-empty string').isString().notEmpty().escape(),
+  body('username', 'username is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('password', 'password is needed and should be non-empty string').isString().notEmpty().escape(),
+  body('email', 'email is needed and should be email formatted').isEmail()],
   handleValidationResult,
   (req, res) => {
   const { organization, passcode, username, password, email } = req.body;
@@ -64,7 +65,8 @@ router.route('/register').post(
         if(err) return res.status(500).send(err);
         // start a session
         req.session.user = user;
-        return res.json(user);
+        const { _id, username, organizationId } = user;
+        return res.json({ _id, username, organizationId });
       });
     });
   });
@@ -72,7 +74,7 @@ router.route('/register').post(
 
 router.route('/candidate-login').post(
   [body('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value)}),
-  body('passcode', 'passcode should be non-empty string').isString().notEmpty().escape()],
+  body('passcode', 'passcode is needed and should be non-empty string').isString().notEmpty().escape()],
   handleValidationResult,
   (req, res) => {
   const { interviewId, passcode } = req.body;
