@@ -217,9 +217,10 @@ class ProblemOperation extends React.Component {
                         <ProblemDeletion BelongingProblem={this.props.BelongingProblem} Source={this} />
                         <Button.Or />
                         <Button
-                            content="Save"
+                            content = {(this.state.TempName == "" || this.state.TempDescription == "")?"Name and Description are required":"Save"}
                             labelPosition='right'
                             icon='save'
+                            disabled = {this.state.TempName == "" || this.state.TempDescription == ""}
                             onClick={() => {
                                 this.props.BelongingProblem.updateModifiableData(
                                     this.state.TempName,

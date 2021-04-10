@@ -309,8 +309,12 @@ $ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organiza
     - body: Error during database operation
 - response: 403
     - body: "Not Logged in!"
+- response: 406
+    - body: "You have too many problems under this user! Please remove some."
+- response: 409
+    - body: "Problem with this name already exists"
 ``` 
-$ curl -X POST 
+$ curl -X POST -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        -d '{
         problemName: 'New Problem Name',
@@ -354,7 +358,7 @@ $ curl -X POST
 - response: 404
     - body: "Given problem ID does not exist!"
 ``` 
-$ curl -X PUT 
+$ curl -X PUT -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        -d '{
         ID: '606ca64021314e8494f68867',
@@ -399,7 +403,7 @@ $ curl -X PUT
 - response: 403
     - body: "Not Logged in!"
 ``` 
-$ curl -X PATCH 
+$ curl -X PATCH -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        -d '[{"ID":"606ca64021314e8494f68867","problemName":"UPDATED","description":"# Description \\n - Markdown is supported for description!","correctRate":1,"StarterCodes":{"C++":"class Solution {\\r\\n  \\tpublic:\\r\\n \\tString solve(String s) {\\r\\n\\r\\n  
 }\\r\\n}","Java":"class Solution {\\r\\n  \\tpublic String solve(String s) {\\r\\n\\r\\n  
@@ -422,7 +426,7 @@ $ curl -X PATCH
 - response: 403
     - body: "Not Logged in!"
 ``` 
-$ curl -X DELETE 
+$ curl -X DELETE -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/123'
 ```
@@ -453,16 +457,16 @@ $ curl -X DELETE
 - response: 404
     - body: "User's problem set does not exist!"
 ``` 
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/'
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/?pageNum=0'
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
-       http://localhost:3001/api/organization/ABC/problemSet/?Q='
-$ curl -X GET 
+       http://localhost:3001/api/organization/ABC/problemSet/?Q=TEST'
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/?pageNum=1&Q=2'
 ```
@@ -483,7 +487,7 @@ $ curl -X GET
     - body: "Problem set does not exist!""
 ``` 
 
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/pageCount'
 ```
@@ -512,7 +516,7 @@ $ curl -X GET
 - response: 404
     - body: "Problem set does not exist!"
 ```
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/123/'
 ```
@@ -536,7 +540,7 @@ $ curl -X GET
     - body: "Problem set does not exist!""
 ``` 
 
-$ curl -X GET 
+$ curl -X GET -b cookie.txt -c cookie.txt 
        -H "Content-Type: `application/json`" 
        http://localhost:3001/api/organization/ABC/problemSet/123/dataset'
 ```

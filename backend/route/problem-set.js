@@ -6,6 +6,8 @@ const cookie = require('cookie');
 const session = require('express-session');
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
+const { body, query, param } = require('express-validator');
+const handleValidationResult = require('../util/validation-result');
 
 const Languages = [
   "C++",
@@ -32,7 +34,11 @@ const Limiter = 10;
 // });
 
 // Creation of a new problem
-router.route('/').post(isOrgUser, (req, res) => {
+router.route('/').post(isOrgUser,
+  [body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   // ID will be created at backend
@@ -73,7 +79,12 @@ router.route('/').post(isOrgUser, (req, res) => {
 });
 
 // Update of an existing problem
-router.route('/').put(isOrgUser, (req, res) => {
+router.route('/').put(isOrgUser,
+  [body('ID', 'problem ID is needed and should be non-empty string').isString().notEmpty().escape(), 
+    body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty().escape(), 
+  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { ID, problemName, description, StarterCodes, correctRate, preferredLanguage, problemInputSet, problemOutputSet, problemRubric } = req.body;
@@ -87,7 +98,7 @@ router.route('/').put(isOrgUser, (req, res) => {
       var SaveID = doc._id;
       problemSet.updateOne({ _id: ID, belongingOrgId: req.organization._id }, {
         belongingUserId: req.session.user._id,
-        problemName: problemName == undefined ? doc.problemName : problemName,
+        problemName: problemName == undefined ? escape(doc.problemName) : escape(problemName),
         description: description == undefined ? doc.description : description,
         starterCodes: StarterCodes == undefined ? doc.starterCodes : StarterCodes,
         correctRate: correctRate == undefined ? doc.correctRate : correctRate,
@@ -124,7 +135,7 @@ function BatchRecursive(subset, req, res) {
       if (doc) {
         problemSet.updateOne({ _id: singleProblem.ID, belongingOrgId: req.organization._id }, {
           correctRate: singleProblem.correctRate == undefined ? doc.correctRate : singleProblem.correctRate,
-          problemName: singleProblem.problemName == undefined ? doc.problemName : singleProblem.problemName,
+          problemName: singleProblem.problemName == undefined ? escape(doc.problemName) : escape(singleProblem.problemName),
           description: singleProblem.description == undefined ? doc.description : singleProblem.description,
           starterCodes: singleProblem.StarterCodes == undefined ? doc.starterCodes : singleProblem.StarterCodes,
           preferredLanguage: singleProblem.preferredLanguage == undefined ? doc.preferredLanguage : singleProblem.preferredLanguage,
@@ -144,7 +155,10 @@ function BatchRecursive(subset, req, res) {
 }
 
 // Update of multiple existing problem
-router.route('/').patch(isOrgUser, (req, res) => {
+router.route('/').patch(isOrgUser,
+  [body('toBeUpdated', 'toBeUpdated problem list is needed').notEmpty(),],
+handleValidationResult,
+  (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
 
   const { toBeUpdated } = req.body;
@@ -160,7 +174,10 @@ router.route('/').patch(isOrgUser, (req, res) => {
 });
 
 // Delete of an existing problem
-router.route('/:problemID').delete(isOrgUser, (req, res) => {
+router.route('/:problemID').delete(isOrgUser,
+  [param('problemID', 'problem ID is neededand should be non-empty string').isString().notEmpty().escape(),],
+handleValidationResult,
+  (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
   const ID = req.params.problemID;
 
@@ -244,7 +261,10 @@ router.route('/pageCount').get(isOrgUser, (req, res) => {
 });
 
 
-router.route('/:pid').get((req, res) => {
+router.route('/:pid').get(
+  [param('pid', 'problem ID is neededand should be non-empty string').isString().notEmpty().escape(),],
+handleValidationResult,
+  (req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("Problem set does not exist!");
@@ -252,7 +272,10 @@ router.route('/:pid').get((req, res) => {
   });
 });
 
-router.route('/:pid/dataset').get(isOrgUser, (req, res) => {
+router.route('/:pid/dataset').get(isOrgUser,
+  [param('pid', 'problem ID is neededand should be non-empty string').isString().notEmpty().escape(),],
+handleValidationResult,
+  (req, res) => {
   problemSet.findOne({ _id: req.params.pid }, (err, doc) => {
     if (err) return res.status(500).send(err);
     if (doc == null) return res.status(404).send("User's problem set does not exist!");
