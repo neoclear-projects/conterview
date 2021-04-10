@@ -521,7 +521,7 @@ function Editor({
           <ButtonGroup>
             <Button basic onClick={() => {
               setCompiling(true);
-              runCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, out => {
+              runCode(positionId, interviewId, curQuestionIdx, monacoRef.current.editor.getModels()[0].getValue(), language, out => {
                 setOutput(out);
                 socket.emit('output', out);
                 setCompiling(false);
@@ -537,7 +537,7 @@ function Editor({
             </Button>
             <Button onClick={() => {
               setTesting(true);
-              testCode(interviewId, monacoRef.current.editor.getModels()[0].getValue(), language, questions[curQuestionIdx]._id, (result, msg) => {
+              testCode(positionId, interviewId, curQuestionIdx, monacoRef.current.editor.getModels()[0].getValue(), language, (result, msg) => {
                 if (result === 'pass') {
                   testPassed(questions[curQuestionIdx].problemName);
                   socket.emit('pass', questions[curQuestionIdx].problemName);

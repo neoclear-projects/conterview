@@ -169,7 +169,7 @@ router.delete('/:interviewId', isOrgUser, (req, res) => {
 });
 
 router.patch('/:interviewId/status', isOrgUser, 
-  [body('status', 'status should be in running or finished').isIn('runnning', 'finished')],
+  [body('status', 'status should be in running or finished').isIn(['running', 'finished'])],
   handleValidationResult,
   (req, res) => {
   let status = req.body.status;
@@ -240,33 +240,7 @@ router.patch('/:interviewId/current-problem-index', isOrgUser,
   });
 });
 
-router.patch('/:interviewId/problem/:index/evaluation', 
-  [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined}),
-  body('grade.idx', 'grade.idx should be non-negative integer').optional().isInt({min:0}),
-  body('grade.value', 'grade.value should be non-negative integer').optional().isInt({min:0}),
-  body('comment', 'comment should be non-empty string').optional().isString().notEmpty().escape(),
-  body('allPassed', 'allPassed should be true').optional().custom(value => {return value == true})],
-  handleValidationResult,
-  (req, res) => {
-  Interview.findOne({_id:req.interview._id}).exec((err, interview) => {
-    if (err) return res.status(500).send(err);
-    if (req.body.grade) {
-      let { idx, value } = req.body.grade;
-      if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(404).send('rubric index out of bound');
-      interview.problemsSnapshot[req.params.index].problemRubric[idx].curRating = value;
-    }
-    if (req.body.comment) {
-      interview.problemsSnapshot[req.params.index].comment = req.body.comment;
-    }
-    if (req.body.allPassed) {
-      interview.problemsSnapshot[req.params.index].allPassed = req.body.allPassed;
-    }
-    interview.save((err, interview) => {
-      if (err) return res.status(500).send(err);
-      return res.json(interview.problemsSnapshot[req.params.index].problemRubric);
-    });
-  });
-});
+router.use('/:interviewId/problem', require('./interview-problem'));
 
 module.exports = router;
 

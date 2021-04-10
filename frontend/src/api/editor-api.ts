@@ -80,9 +80,9 @@ export function testsAllPassed(positionId: string, interviewId: string, question
     .catch(onError);
 }
 
-export function runCode(interviewId: string, code: string, language: languageType, onSuccess: (output: string) => void, onError: (err: any) => void) {
+export function runCode(positionId: string, interviewId: string, questionIdx: number, code: string, language: languageType, onSuccess: (output: string) => void, onError: (err: any) => void) {
   req.post(
-    `exec/run/${interviewId}`,
+    `/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/run`,
     JSON.stringify({
       language: language,
       code: code
@@ -92,9 +92,9 @@ export function runCode(interviewId: string, code: string, language: languageTyp
   .catch(onError);
 }
 
-export function testCode(interviewId: string, code: string, language: languageType, problemId: string, onSuccess: (res: testResult, msg: string) => void, onError: (err: any) => void) {
+export function testCode(positionId: string, interviewId: string, questionIdx: number, code: string, language: languageType, onSuccess: (res: testResult, msg: string) => void, onError: (err: any) => void) {
   req.post(
-    `exec/test/${interviewId}/problem/${problemId}`,
+    `/organization/${window.localStorage.getItem('organizationId')}/position/${positionId}/interview/${interviewId}/problem/${questionIdx}/test`,
     JSON.stringify({
       language: language,
       code: code
