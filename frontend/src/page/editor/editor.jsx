@@ -645,7 +645,7 @@ function Editor({
               language: language,
               fontSize: fontSize,
               tabSize: tabSize,
-              fontFamily: 'Monaco',
+              fontFamily: 'monospace',
               fontWeight: bold ? 'bold' : 'light',
               cursorWidth: cursorWidth
             }}
