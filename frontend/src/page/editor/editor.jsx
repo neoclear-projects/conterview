@@ -48,11 +48,6 @@ const socket = socketIOClient(ENDPOINT);
 let ignoreRemoteEvent = false;
 let initializing = true;
 
-socket.on('first-joined', () => {
-  initializing = false;
-  console.log('First joined!');
-});
-
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
 function Editor({
@@ -108,6 +103,7 @@ function Editor({
   
   const refreshState = () => {
     console.log(questions);
+    // console.log(questions[curQuestionIdx] ? questions[curQuestionIdx].problemName : null);
 
     getInterviewState(positionId, interviewId, res => {
       if (res.status === 'running') {
@@ -124,106 +120,117 @@ function Editor({
 
   useEffect(() => {
     let passcode = queryString.parse(location.search).passcode;
+    if (!passcode) {
+      setCandidateAuthorization('org');
+    }
     if (passcode && candidateAuthorization !== 'success') {
       candidateLogin(interviewId, passcode, () => {
         setCandidateAuthorization('success');
       }, err => {
         if (err.response.status === 401) {
           setCandidateAuthorization('failed');
+          return;
         }
       });
     }
 
-    refreshState();
+    if (candidateAuthorization === 'success' || candidateAuthorization === 'org') {
+      refreshState();
 
-    peer.on('open', id => {
-      console.log('peer connected');
-      navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      }).then(stream => {
-        socket.emit('join', id, interviewId);
-
-        console.log('stream acquired');
-  
-        peer.on('call', call => {
-          call.answer(stream);
-          call.on('stream', (newStream) => {
-            streamsRef.current.set(call.peer, {
-              stream: newStream,
-              visibility: true
-            });
-            setStreams(new Map(streamsRef.current));
-          })
-        });
-  
-        peer.on('connection', conn => {
-          conn.on('open', () => {
-            conn.on('data', dat => {
-              console.log('Data: ' + dat);
-              if (initializing) {
-                monacoRef.current.editor.getModels()[0].setValue(dat);
-                initializing = false;
-              }
-            });
-          });
-        });
-  
-        socket.on('user-conn', userId => {
-          console.log('New user: ' + userId);
-  
-          const call = peer.call(userId, stream);
-          call.on('stream', newStream => {
-            streamsRef.current.set(call.peer, {
-              stream: newStream,
-              visibility: true
-            });
-            setStreams(new Map(streamsRef.current));
-          });
-          
-  
-          const conn = peer.connect(userId);
-          conn.on('open', () => {
-            const editorContent = monacoRef.current.editor.getModels()[0].getValue();
-  
-            conn.send(editorContent);
-            console.log('Sent: ' + editorContent);
-          })
-        });
-  
-        socket.on('stream-open', userId => {
-          streamsRef.current.get(userId).visibility = true;
-          setStreams(new Map(streamsRef.current));
-        });
-  
-        socket.on('stream-close', userId => {
-          streamsRef.current.get(userId).visibility = false;
-          setStreams(new Map(streamsRef.current));
-        });
-  
-        socket.on('user-disconn', userId => {
-          streamsRef.current.delete(userId);
-          setStreams(new Map(streamsRef.current));
-        });
-  
-        socket.on('refresh', () => {
-          refreshState();
-          console.log('refreshed');
-        });
-
-        socket.on('pass', probName => testPassed(probName));
-
-        socket.on('fail', probName => testFailed(probName));
-
-        socket.on('cperror', msg => testCompilerError(msg));
-
-        socket.on('output', o => setOutput(o));
-
-        setMyStream(stream);
+      socket.on('first-joined', () => {
+        initializing = false;
+        console.log('First joined!');
       });
 
-      setId(id);
-    });
+      peer.on('open', id => {
+        console.log('peer connected');
+        navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true
+        }).then(stream => {
+          socket.emit('join', id, interviewId);
+
+          console.log('stream acquired');
+    
+          peer.on('call', call => {
+            call.answer(stream);
+            call.on('stream', (newStream) => {
+              streamsRef.current.set(call.peer, {
+                stream: newStream,
+                visibility: true
+              });
+              setStreams(new Map(streamsRef.current));
+            })
+          });
+    
+          peer.on('connection', conn => {
+            conn.on('open', () => {
+              conn.on('data', dat => {
+                console.log('Data: ' + dat);
+                if (initializing) {
+                  monacoRef.current.editor.getModels()[0].setValue(dat);
+                  initializing = false;
+                }
+              });
+            });
+          });
+    
+          socket.on('user-conn', userId => {
+            console.log('New user: ' + userId);
+    
+            const call = peer.call(userId, stream);
+            call.on('stream', newStream => {
+              streamsRef.current.set(call.peer, {
+                stream: newStream,
+                visibility: true
+              });
+              setStreams(new Map(streamsRef.current));
+            });
+            
+    
+            const conn = peer.connect(userId);
+            conn.on('open', () => {
+              const editorContent = monacoRef.current.editor.getModels()[0].getValue();
+    
+              conn.send(editorContent);
+              console.log('Sent: ' + editorContent);
+            })
+          });
+    
+          socket.on('stream-open', userId => {
+            streamsRef.current.get(userId).visibility = true;
+            setStreams(new Map(streamsRef.current));
+          });
+    
+          socket.on('stream-close', userId => {
+            streamsRef.current.get(userId).visibility = false;
+            setStreams(new Map(streamsRef.current));
+          });
+    
+          socket.on('user-disconn', userId => {
+            streamsRef.current.delete(userId);
+            setStreams(new Map(streamsRef.current));
+          });
+    
+          socket.on('refresh', () => {
+            refreshState();
+            console.log('refreshed');
+          });
+
+          socket.on('pass', probName => testPassed(probName));
+
+          socket.on('fail', probName => testFailed(probName));
+
+          socket.on('cperror', msg => testCompilerError(msg));
+
+          socket.on('output', o => setOutput(o));
+
+          setMyStream(stream);
+        });
+
+        setId(id);
+      });
+    }
   }, []);
 
   let passcode = queryString.parse(location.search).passcode;
@@ -541,7 +548,7 @@ function Editor({
                 if (result === 'pass') {
                   testPassed(questions[curQuestionIdx].problemName);
                   socket.emit('pass', questions[curQuestionIdx].problemName);
-                  testsAllPassed(positionId, interviewId, curQuestionIdx, refreshState, errorLog);
+                  // testsAllPassed(positionId, interviewId, curQuestionIdx, refreshState, errorLog);
                 } else if (result === 'fail') {
                   testFailed(questions[curQuestionIdx].problemName);
                   socket.emit('fail', questions[curQuestionIdx].problemName);
@@ -653,7 +660,11 @@ function Editor({
           panes={subPanes}
           onChange={(event) => setSubPanes(event.newState)}
         >
-          <Problem problemId={curQuestionIdx === -1 || curQuestionIdx >= questions.length ? null : questions[curQuestionIdx]._id} />
+          <Problem
+            problemName={questions[curQuestionIdx] ? questions[curQuestionIdx].problemName : null}
+            description={questions[curQuestionIdx] ? questions[curQuestionIdx].description : null}
+            preferedLang={questions[curQuestionIdx] ? questions[curQuestionIdx].preferredLanguage : null}
+          />
           <div>
             <Terminal colorMode={inverted} text={output} fontSize={fontSize + 4} bold={bold} />
           </div>

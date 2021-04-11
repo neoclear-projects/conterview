@@ -22,24 +22,10 @@ function prefix() {
 }
 
 function Problem({
-  problemId
+  problemName,
+  description,
+  preferedLang
 }) {
-
-  const [problemName, setProblemName] = useState('');
-  const [description, setDescription] = useState('');
-  const [preferedLang, setPreferedLang] = useState('');
-
-  if (problemId != null) {
-    req
-      .get(`/problemSet/${problemId}`)
-      .then(res => {
-        const dat = res.data;
-        setProblemName(dat.problemName);
-        setDescription(dat.description);
-        setPreferedLang(dat.preferedLanguage);
-      })
-      .catch(err => console.log(err));
-  }
 
   return (
     <div>
@@ -51,7 +37,7 @@ function Problem({
         <Divider />
         <ReactMarkdown renderers={renderers}>{description}</ReactMarkdown>
         <Divider />
-        <div>{preferedLang}</div>
+        <div><b>Prefered Language: </b>{preferedLang}</div>
       </div>
     </div>
   );
