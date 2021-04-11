@@ -329,6 +329,7 @@ $ curl -b cookie.txt -c cookie.txt \
 - description: get interviews of a position
 - request: `GET /api/organization/:organizationId/position/:positionId/interview/`   
     - query parameters:
+        - page: (int) page to retrieve (optional) default to 1
         - status: (string) only get interviews in this status
 - response: 200
     - content-type: `application/json`
@@ -592,7 +593,7 @@ $ curl -b cookie.txt -c cookie.txt \
 - request: `GET /api/organization/:organizationId/interview/`   
     - query parameters:
         - status: (string) only get interviews in this status (optional)
-        - page: (int) page to retrieve
+        - page: (int) page to retrieve (optional) default to 1
         - candidateContains: (string) only get interviews with candidate name having candidateContains (optional)
         - positionContains: (string) only get interviews with position name having positionContains (optional)
 - response: 200

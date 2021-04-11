@@ -87,15 +87,20 @@ router.post('/', isOrgUser,
 });
 
 router.get('/', isOrgUser, 
-  [query('status', 'status should be in pending, running or finished').optional().isIn(['pending', 'runnning', 'finished'])],
+  [query('page', 'page should be non-negative integer').optional().isInt({min:1}),
+  query('status', 'status should be in pending, running or finished').optional().isIn(['pending', 'runnning', 'finished'])],
   handleValidationResult,
   (req, res) => {
+  let { page, status } = req.query;
+  if(!page) page = 1;
   let query = {'position':req.position._id};
-  if(req.query.status !== undefined){
-    query.status = req.query.status;
+  if(status !== undefined){
+    query.status = status;
   }
   Interview
     .find(query)
+    .sort({_id:-1})
+    .skip((page-1)*10).limit(10)
     .exec((err, interviews) => {
     if (err) return res.status(500).send(err);
     return res.json(interviews.map(interview => {
