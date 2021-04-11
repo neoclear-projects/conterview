@@ -12,7 +12,7 @@ req.interceptors.response.use(function (response) {
 }, function (error) {
   console.log(error);
   let message = error.response.data;
-  if(message.startsWith('id invalid') || message === 'need to login as organization user'){
+  if(message.startsWith('id invalid') || message.startsWith('need to login as organization user')){
     browserRouterRef.current.history.push('/login');
   }
   return Promise.reject(error);
