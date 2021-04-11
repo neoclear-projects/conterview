@@ -163,7 +163,7 @@ function Editor({
             conn.on('data', dat => {
               console.log('Data: ' + dat);
               if (initializing) {
-                if (!passcode && candidateAuthorization === 'success')
+                if (monacoRef.current !== null)
                   monacoRef.current.editor.getModels()[0].setValue(dat);
                 initializing = false;
               }
@@ -213,7 +213,10 @@ function Editor({
           console.log('refreshed');
         });
 
-        socket.on('pass', probName => testPassed(probName));
+        socket.on('pass', probName => {
+          refreshState();
+          testPassed(probName);
+        });
 
         socket.on('fail', probName => testFailed(probName));
 
