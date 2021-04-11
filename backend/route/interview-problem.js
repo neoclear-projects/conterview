@@ -28,12 +28,11 @@ router.patch('/:index/evaluation', isInterviewer,
   [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined;}),
   body('grade.idx', 'grade.idx should be non-negative integer').optional().isInt({min:0}),
   body('grade.value', 'grade.value should be non-negative integer').optional().isInt({min:0}),
-  body('comment', 'comment should be valid string').optional().isString().escape(),
-  body('allPassed', 'allPassed should be true').optional().custom(value => {return value == true;})],
+  body('comment', 'comment should be valid string').optional().isString().escape()],
   handleValidationResult,
   (req, res) => {
   const interview = req.interview;
-  const { grade, comment, allPassed } = req.body;
+  const { grade, comment } = req.body;
   if (grade) {
     const { idx, value } = grade;
     if (idx >= interview.problemsSnapshot[req.params.index].problemRubric.length || idx < 0) return res.status(404).send('rubric index out of bound');
@@ -42,13 +41,10 @@ router.patch('/:index/evaluation', isInterviewer,
   if (comment) {
     interview.problemsSnapshot[req.params.index].comment = comment;
   }
-  if (allPassed) {
-    interview.problemsSnapshot[req.params.index].allPassed = allPassed;
-  }
   interview.save((err, interview) => {
     if (err) return res.status(500).send(err);
-    const { problemRubric, allPassed } = interview.problemsSnapshot[req.params.index];
-    return res.json({ problemRubric, allPassed });
+    const { problemRubric } = interview.problemsSnapshot[req.params.index];
+    return res.json(problemRubric);
   });
 });
 

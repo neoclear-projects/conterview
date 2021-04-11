@@ -569,16 +569,13 @@ $ curl -b cookie.txt -c cookie.txt \
         - idx: (int) index of grade to update
         - value: (int) value of grade to update to
       - comment: (string) comment to update to (optional)
-      - allPassed: (bool) update whether the candidate passes all test cases (optional)
 - response: 200
     - content-type: `application/json`
     - body: object
-        - problemRubric: object
-            - name: (string) name of the rubric
-            - desc: (string) desc of the rubric
-            - rating: (int) maximum mark of the rubric
-            - curRating: (int) current mark of the rubric
-        - allPassed: (bool) whether all test cases are passed
+        - name: (string) name of the rubric
+        - desc: (string) desc of the rubric
+        - rating: (int) maximum mark of the rubric
+        - curRating: (int) current mark of the rubric
 - response: 400
     - content-type: `text/plain`
     - body: one of:
@@ -586,7 +583,6 @@ $ curl -b cookie.txt -c cookie.txt \
         - grade.idx should be non-negative integer
         - grade.value should be non-negative integer
         - comment should be valid string
-        - allPassed should be true
 - response: 404
     - content-type: `text/plain`
     - body: rubric index out of bound
@@ -596,6 +592,58 @@ $ curl -b cookie.txt -c cookie.txt \
        -H "Content-Type: application/json" \
        -d '{"comment":"good"}' \
        'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/problem/:index/evaluation/'
+```
+
+#### POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/run/
+
+- description: Execute code and response with result
+- access: is interviewer or candidate
+- request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/run/`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - output: (string) the output of the program
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/problem/:index/run/'
+```
+
+#### POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/test/
+
+- description: Run test on given problem and show result
+- access: is interviewer or candidate
+- request: `/api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/test/`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - result: (string) the result of the test (pass, fail or compiler error)
+      - msg: (string) additional message about the result
+- response: 500
+    - content-type: `text/plain`
+    - body: Data Inconsistent
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/problem/:index/test/'
 ```
 
 ## INTERVIEW-ALL-POSITION
@@ -1039,56 +1087,4 @@ $ curl -b cookie.txt -c cookie.txt \
             - time: (string) time the event happened
 ``` 
 $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/events/'
-```
-
-## Code Execution And Testing
-
-#### POST /api/run/:interviewId
-
-- description: Execute code and response with result
-- request: `POST /api/run/:interviewId`
-    - content-type: `application/json`
-    - body: object
-      - language: (string) the language of the code
-      - code: (string) the code to execute
-- response: 200
-    - content-type: `application/json`
-    - body: object
-      - output: (string) the output of the program
-- response: 404
-    - content-type: `text/plain`
-    - body: Language not found
-``` 
-$ curl -b cookie.txt -c cookie.txt \
-       -X POST \
-       -H "Content-Type: application/json" \
-       -d '{"language":"python", "code": "print(2333)"}' \
-       'http://localhost:3001/api/run/606ba8f396cf3840a4692798'
-```
-
-#### POST /api/test/:interviewId/problem/:problemId
-
-- description: Run test on given problem and show result
-- request: `/api/test/:interviewId/problem/:problemId`
-    - content-type: `application/json`
-    - body: object
-      - language: (string) the language of the code
-      - code: (string) the code to execute
-- response: 200
-    - content-type: `application/json`
-    - body: object
-      - result: (string) the result of the test (pass, fail or compiler error)
-      - msg: (string) additional message about the result
-- response: 500
-    - content-type: `text/plain`
-    - body: Data Inconsistent
-- response: 404
-    - content-type: `text/plain`
-    - body: Language not found
-``` 
-$ curl -b cookie.txt -c cookie.txt \
-       -X POST \
-       -H "Content-Type: application/json" \
-       -d '{"language":"python", "code": "print(2333)"}' \
-       'http://localhost:3001/api/test/606ba8f396cf3840a4692798/problem/605df608bfa5fb2020e5e324'
 ```
