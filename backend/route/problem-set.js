@@ -34,8 +34,8 @@ const Limiter = 10;
 
 // Creation of a new problem
 router.route('/').post(isOrgUser,
-  [body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty().escape(), 
-  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty().escape()],
+  [body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty(), 
+  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty()],
   handleValidationResult,
   (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
@@ -80,8 +80,8 @@ router.route('/').post(isOrgUser,
 // Update of an existing problem
 router.route('/').put(isOrgUser,
   [body('ID', 'problem ID is needed and should be non-empty string').isString().notEmpty().escape(), 
-    body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty().escape(), 
-  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty().escape()],
+    body('problemName', 'problem name is needed and should be non-empty string').isString().notEmpty(), 
+  body('description', 'problem description is needed and should be non-empty string').isString().notEmpty()],
   handleValidationResult,
   (req, res) => {
   if ((!req.session.user) || (!req.session.user._id)) return res.status(403).send("Not Logged in!");
