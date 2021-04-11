@@ -30,6 +30,7 @@ router.get('/', isOrgUser,
   }
   Interview.
     find(query, req.fields)
+    .sort({_id:-1})
     .skip((page-1)*10).limit(10)
     .populate({path:'position', select:'name'})
     .exec((err, interviews) => {

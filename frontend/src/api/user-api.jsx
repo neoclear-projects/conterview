@@ -1,8 +1,10 @@
 import req from './req';
 
-export function getUsers(fields, onSuccess){
+export function getUsers(fields, page, usernameContains, onSuccess){
 	let params = {};
 	if(fields) params.fields = fields;
+	if(page) params.page = page;
+	if(usernameContains) params.usernameContains = usernameContains;
 	req.get('organization/'+window.localStorage.getItem('organizationId')+'/user', { params }).then(onSuccess);
 }
 

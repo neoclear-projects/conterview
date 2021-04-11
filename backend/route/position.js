@@ -57,26 +57,20 @@ router.get('/', isOrgUser,
     query.pendingInterviewNum = 0;
     query.finishedInterviewNum = { "$gt": 0 };
   }
-  if(!page){
-    Position.find(query, req.fields).exec((err, positions) => {
+  if(!page) page = 1;
+  Position.find(query, req.fields).sort({_id:-1}).skip((page-1)*10).limit(10).exec((err, positions) => {
+    if (err) return res.status(500).send(err);
+    Position.countDocuments(query, (err, count) => {
       if (err) return res.status(500).send(err);
-      return res.json({positions});
-    });
-  }else{
-    Position.find(query, req.fields).skip((page-1)*10).limit(10).exec((err, positions) => {
-      if (err) return res.status(500).send(err);
-      Position.countDocuments(query, (err, count) => {
-        if (err) return res.status(500).send(err);
-        let response = {};
-        response.totalPage = Math.ceil(count/10);
-        response.positions = positions.map(position =>{
-          const { _id, name, description, pendingInterviewNum, finishedInterviewNum } = position;
-          return { _id, name, description, pendingInterviewNum, finishedInterviewNum};
-        });
-        return res.json(response);
+      let response = {};
+      response.totalPage = Math.ceil(count/10);
+      response.positions = positions.map(position =>{
+        const { _id, name, description, pendingInterviewNum, finishedInterviewNum } = position;
+        return { _id, name, description, pendingInterviewNum, finishedInterviewNum};
       });
+      return res.json(response);
     });
-  }
+  });
 });
 
 router.use('/:positionId', 

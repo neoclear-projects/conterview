@@ -6,11 +6,22 @@ const multer  = require('multer');
 const path  = require('path');
 const isOrgUser = require('../access/isOrgUser');
 const ObjectId = require('mongoose').Types.ObjectId;
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
 
-router.get('/', isOrgUser, (req, res) => {
-  User.find({organizationId:req.organization._id}, 'username').exec((err, users) => {
+router.get('/', isOrgUser, 
+  [query('page', 'page should be non-negative integer').optional().isInt({min:1}),
+  query('usernameContains', 'usernameContains should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
+  let { page, usernameContains } = req.query;
+  let query = {organizationId:req.organization._id};
+  if(usernameContains) query.username = { "$regex": usernameContains, "$options": "i" };
+  if(!page) page = 1;
+  User
+    .find(query, 'username')
+    .skip((page-1)*10).limit(10)
+    .exec((err, users) => {
     if (err) return res.status(500).send(err);
     return res.json(users);
   });

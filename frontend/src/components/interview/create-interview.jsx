@@ -13,8 +13,11 @@ class CreateInterview extends React.Component {
     this.state = {
       interviewerOptions:[],
       problemOptions:[],
+      problemsNoResult:'Search for problems',
+      interviewsNoResult:'Search for interviews',
     };
     if(props.positionId === undefined){
+      this.state.positionNoResult = 'Search for position';
       this.state.positionId = '';
       this.state.positionOptions = [];
     }
@@ -28,8 +31,11 @@ class CreateInterview extends React.Component {
       this.state.scheduledLength = 0;
       this.state.interviewerIds = [];
       this.state.problemIds = [];
+      this.state.interviewerIdsSelected = [];
+      this.state.problemIdsSelected = [];
+      this.state.problemsDic = {};
+      this.state.interviewersDic = {};
     }
-    this.fetchData();
   }
 
   setStateInterviewByProp(){
@@ -39,9 +45,100 @@ class CreateInterview extends React.Component {
     this.state.scheduledLength = this.props.interview.scheduledLength;
     this.state.interviewerIds = this.props.interview.interviewers.map(interviewer => {return interviewer._id});
     this.state.problemIds = this.props.interview.problems.map(problem => {return problem._id});
+    let problemsSelected = this.props.interview.problems.map(problem => {
+      return {
+        key: problem.problemName,
+        text: problem.problemName,
+        value: problem._id
+      };
+    });
+    this.state.problemIdsSelected = problemsSelected;
+    problemsSelected.forEach(problem => {
+      this.state.problemsDic[problem.value] = problem;
+    })
+    let interviewersSelected = this.props.interview.interviewers.map(interviewer => {
+      return {
+        key: interviewer.username,
+        text: interviewer.username,
+        value: interviewer._id
+      };
+    });
+    this.state.interviewerIdsSelected = interviewersSelected;
+    interviewersSelected.forEach(interviewer => {
+      this.state.interviewersDic[interviewer.value] = interviewer;
+    })
   }
 
   handleInputChange = (e, {name, value}) => this.setState({ [name]: value });
+
+  handleProblemsSelectionChange = (e, {value}) => {
+    this.setState({ problemIds: value, problemOptions:[], problemsNoResult:'Search for problems', problemIdsSelected: value.map(problemId => {
+      return this.state.problemsDic[problemId];
+    })});
+  }
+
+  handleInterviewersSelectionChange = (e, {value}) => {
+    this.setState({ interviewerIds: value, interviewerOptions:[], interviewsNoResult:'Search for interviewers', interviewerIdsSelected: value.map(interviewerId => {
+      return this.state.interviewersDic[interviewerId];
+    })});
+  }
+
+  handlePositionSearch = (e, {searchQuery}) => {
+    if(searchQuery){
+      getPositions({fields:'name', nameContains:searchQuery}, res => {
+        this.setState({positionNoResult:'No position found', positionOptions:res.data.positions.map(position => {
+            return {
+              key: position.name,
+              text: position.name,
+              value: position._id
+            };
+          })
+        });
+      });
+    }else{
+      this.setState({positionOptions:[], positionNoResult:'Search for position'});
+    }
+  }
+
+  handleProblemsSearch = (e, {searchQuery}) => {
+    if(searchQuery){
+      getProblemSet(searchQuery, 1, res => {
+        let options = res.data.map(problem => {
+          return {
+            key: problem.problemName,
+            text: problem.problemName,
+            value: problem._id
+          };
+        });
+        options.forEach(option => {
+          this.state.problemsDic[option.value] = option;
+        });
+        this.setState({problemOptions:options, problemsNoResult:'No problems found'});
+      });
+    }else{
+      this.setState({problemOptions:[], problemsNoResult:'Search for problems'});
+    }
+  }
+
+  handleInterviewersSearch = (e, {searchQuery}) => {
+    if(searchQuery){
+      getUsers('username', 1, searchQuery, res => {
+        let options = res.data.map(user => {
+          return {
+            key: user.username,
+            text: user.username,
+            value: user._id
+          };
+        });
+        options.forEach(option => {
+          this.state.interviewersDic[option.value] = option;
+        });
+        this.setState({interviewerOptions:options, interviewsNoResult:'No interviewers found'});
+      });
+    }else{
+      this.setState({interviewerOptions:[], interviewsNoResult:'Search for interviewers'});
+    }
+  }
 
   handleSubmit = () => {
     const { candidateName, candidateEmail, scheduledTime, interviewerIds, problemIds, scheduledLength } = this.state;
@@ -84,47 +181,12 @@ class CreateInterview extends React.Component {
     }
   };
 
-  fetchData = () => {
-    getUsers('username', res => {
-      this.setState({interviewerOptions:res.data.map(user => {
-          return {
-            key: user.username,
-            text: user.username,
-            value: user._id
-          };
-        })
-      });
-    });
-    getProblemSet('', -1, res => {
-      this.setState({problemOptions:res.data.map(problem => {
-          return {
-            key: problem.problemName,
-            text: problem.problemName,
-            value: problem._id
-          };
-        })
-      });
-    });
-    if(this.props.positionId === undefined){
-      getPositions({fields:'name'}, res => {
-        this.setState({positionOptions:res.data.positions.map(position => {
-            return {
-              key: position.name,
-              text: position.name,
-              value: position._id
-            };
-          })
-        });
-      });
-    }
-  };
-
   render() {
     if(JSON.stringify(this.lastInterview) !== JSON.stringify(this.props.interview)){
       this.setStateInterviewByProp();
       this.lastInterview = this.props.interview;
     }
-    
+
     return (
       <Modal 
         closeIcon
@@ -148,8 +210,10 @@ class CreateInterview extends React.Component {
                 name='positionId'
                 value={this.state.positionId}
                 onChange={this.handleInputChange}
+                onSearchChange={this.handlePositionSearch}
                 options={this.state.positionOptions}
                 placeholder='Select position'
+                noResultsMessage={this.state.positionNoResult}
                 required
               >
               </Form.Dropdown>
@@ -198,10 +262,12 @@ class CreateInterview extends React.Component {
               selection
               name='interviewerIds'
               value={this.state.interviewerIds}
-              onChange={this.handleInputChange}
-              options={this.state.interviewerOptions}
+              onChange={this.handleInterviewersSelectionChange}
+              options={this.state.interviewerOptions.concat(this.state.interviewerIdsSelected)}
               placeholder='Select interviewers'
               error={this.state.interviewerIdsEmptyErr}
+              onSearchChange={this.handleInterviewersSearch}
+              noResultsMessage={this.state.interviewsNoResult}
               required
             >
             </Form.Dropdown>
@@ -213,10 +279,12 @@ class CreateInterview extends React.Component {
               selection
               name='problemIds'
               value={this.state.problemIds}
-              onChange={this.handleInputChange}
-              options={this.state.problemOptions}
+              onChange={this.handleProblemsSelectionChange}
+              options={this.state.problemOptions.concat(this.state.problemIdsSelected)}
               placeholder='Select interview problems'
               error={this.state.problemIdsEmptyErr}
+              onSearchChange={this.handleProblemsSearch}
+              noResultsMessage={this.state.problemsNoResult}
               required
             >
             </Form.Dropdown>

@@ -191,7 +191,7 @@ $ curl -b cookie.txt -c cookie.txt \
 - description: get positions of an organization
 - request: `GET /api/organization/:organizationId/position/`   
     - query parameters:
-        - page: (int) page to retrieve
+        - page: (int) page to retrieve (optional) default to 1
         - nameContains: (string) only get position with name having nameContains (optional)
         - allFinished: (bool) only get position with all interviews finished (optional)
 - response: 200
@@ -871,7 +871,9 @@ $ curl -X GET
 #### GET /api/organization/:organizationId/user/
 
 - description: get users of an organization
-- request: `GET /api/organization/:organizationId/user/`   
+- request: `GET /api/organization/:organizationId/user/` 
+    - query parameters
+        - page: (int) page to retrieve, optional, default to 10
 - response: 200
     - content-type: `application/json`
     - body: array of object
