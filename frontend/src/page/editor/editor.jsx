@@ -129,10 +129,11 @@ function Editor({
       candidateLogin(interviewId, passcode, () => {
         setCandidateAuthorization('success');
       }, err => {
-        if (err.response.status === 401) {
+        if (err.response.data === 'access denied') {
           setCandidateAuthorization('failed');
         }
       });
+      return;
     }
 
     refreshState();
