@@ -28,7 +28,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, testsAllPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -47,6 +47,11 @@ const socket = socketIOClient(ENDPOINT);
 
 let ignoreRemoteEvent = false;
 let initializing = true;
+
+socket.on('first-joined', () => {
+  initializing = false;
+  console.log('First joined!');
+});
 
 // reference: https://github.com/suren-atoyan/monaco-react#monaco-instance
 // Official doc to obtain monaco instance from react component
@@ -100,8 +105,11 @@ function Editor({
 
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
-
+  
   const refreshState = () => {
+    console.log(questions);
+    // console.log(questions[curQuestionIdx] ? questions[curQuestionIdx].problemName : null);
+
     getInterviewState(positionId, interviewId, res => {
       if (res.status === 'running') {
         setEndTime(new Date(new Date(res.startTime).getTime() + res.scheduledLength * 60000));
@@ -121,20 +129,13 @@ function Editor({
       candidateLogin(interviewId, passcode, () => {
         setCandidateAuthorization('success');
       }, err => {
-        if (err.response.data === 'access denied') {
+        if (err.response.status === 401) {
           setCandidateAuthorization('failed');
-          return;
         }
       });
-      return;
     }
 
     refreshState();
-
-    socket.on('first-joined', () => {
-      initializing = false;
-      console.log('First joined!');
-    });
 
     peer.on('open', id => {
       console.log('peer connected');
@@ -227,7 +228,6 @@ function Editor({
   }, []);
 
   let passcode = queryString.parse(location.search).passcode;
-  console.log(passcode);
   switch (candidateAuthorization) {
     case '':
       if(passcode) return <Spin/>;
