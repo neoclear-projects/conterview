@@ -5,6 +5,7 @@ const User = require('../model/user.model');
 const multer  = require('multer');
 const path  = require('path');
 const isOrgUser = require('../access/isOrgUser');
+const isTheUser = require('../access/isTheUser');
 const ObjectId = require('mongoose').Types.ObjectId;
 const { body, param, query } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
@@ -58,7 +59,7 @@ router.get('/:userId/avatar', isOrgUser, (req, res) => {
   });
 });
 
-router.patch('/:userId', isOrgUser,
+router.patch('/:userId', isTheUser,
   [body('username', 'username should be non-empty string').optional().isString().notEmpty().escape(), 
   body('email', 'email should be email formatted').optional().isEmail(),
   body('department', 'department should be valid string').optional().isString().escape(),
@@ -74,7 +75,7 @@ router.patch('/:userId', isOrgUser,
   });
 });
 
-router.put('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
+router.put('/:userId/avatar', isTheUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
   User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err) => {
     if (err) return res.status(500).send(err);
     return res.send('avatar changed successfully');

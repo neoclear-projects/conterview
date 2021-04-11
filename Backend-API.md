@@ -159,6 +159,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### POST /api/organization/:organizationId/position/
 
 - description: create a position
+- access: is organization user
 - request: `POST /api/organization/:organizationId/position/`   
     - content-type: `application/json`
     - body: object
@@ -189,6 +190,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/position/
 
 - description: get positions of an organization
+- access: is organization user
 - request: `GET /api/organization/:organizationId/position/`   
     - query parameters:
         - page: (int) page to retrieve (optional) default to 1
@@ -226,6 +228,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### PATCH /api/organization/:organizationId/position/:positionId/
 
 - description: create a position
+- access: is organization user
 - request: `PATCH /api/organization/:organizationId/position/:positionId/`   
     - content-type: `application/json`
     - body: object
@@ -256,6 +259,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/position/:positionId/
 
 - description: get a position
+- access: is organization user
 - request: `GET /api/organization/:organizationId/position/:positionId/`   
 - response: 200
     - content-type: `application/json`
@@ -272,6 +276,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### DELETE /api/organization/:organizationId/position/:positionId/
 
 - description: delete a position and its interviews
+- access: is organization user
 - request: `DELETE /api/organization/:organizationId/position/:positionId/`   
 - response: 200
     - content-type: `application/json`
@@ -290,6 +295,7 @@ $ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organiza
 #### POST /api/organization/:organizationId/position/:positionId/interview/
 
 - description: create an interview and send email notification to candidate
+- access: is organization user
 - request: `POST /api/organization/:organizationId/position/:positionId/interview/`   
     - content-type: `application/json`
     - body: object
@@ -327,6 +333,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/position/:positionId/interview/
 
 - description: get interviews of a position
+- access: is organization user
 - request: `GET /api/organization/:organizationId/position/:positionId/interview/`   
     - query parameters:
         - page: (int) page to retrieve (optional) default to 1
@@ -358,6 +365,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### GET /api/organization/:organizationId/position/:positionId/interview/:interviewId/
 
 - description: get an interview
+- access: is organization user or interview candidate
 - request: `GET /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
     - query parameters:
         - status: (string) only get interviews in this status
@@ -408,6 +416,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/
 
 - description: update an interview
+- access: is organization user
 - request: `PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
     - content-type: `application/json`
     - body: object
@@ -445,6 +454,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### DELETE /api/organization/:organizationId/position/:positionId/interview/:interviewId/
 
 - description: delete an pending interview
+- access: is organization user
 - request: `DELETE /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
 - response: 200
     - content-type: `application/json`
@@ -465,6 +475,7 @@ $ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organiza
 #### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/status/
 
 - description: update the status and related fields of an interview
+- access: is interviewer
 - request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/status/`   
     - content-type: `application/json`
     - body: object
@@ -497,6 +508,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/
 
 - description: update the currenlt presented problem of an interview
+- access: is interviewer
 - request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/`   
     - content-type: `application/json`
     - body: object
@@ -549,6 +561,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/evaluation/
 
 - description: update the marks and comment of an interview problem
+- access: is interviewer
 - request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/problem/:index/evaluation/`   
     - content-type: `application/json`
     - body: object
@@ -590,6 +603,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/interview/
 
 - description: get interviews of an organization
+- access: is organization user
 - request: `GET /api/organization/:organizationId/interview/`   
     - query parameters:
         - status: (string) only get interviews in this status (optional)
@@ -618,6 +632,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 
 #### Post a problem
 - description: post a new problem
+- access: is organization user
 - request: `POST /api/organization/:organizationId/problemSet`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -661,6 +676,7 @@ $ curl -X POST -b cookie.txt -c cookie.txt
 
 #### Update a problem
 - description: update an existing problem
+- access: is organization user
 - request: `put /api/organization/:organizationId/problemSet`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -708,6 +724,7 @@ $ curl -X PUT -b cookie.txt -c cookie.txt
 
 #### Update a lot of problems
 - description: update some existing problems
+- access: is organization user
 - request: `patch /api/organization/:organizationId/problemSet`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -739,6 +756,7 @@ $ curl -X PATCH -b cookie.txt -c cookie.txt
 
 #### Delete a problem
 - description: delete an existing problem
+- access: is organization user
 - request: `delete /api/organization/:organizationId/problemSet/:problemID`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -759,6 +777,7 @@ $ curl -X DELETE -b cookie.txt -c cookie.txt
 
 #### Get problems
 - description: get problems within same organization
+- access: is organization user
 - request: `Get /api/organization/:organizationId/problemSet`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -799,6 +818,7 @@ $ curl -X GET -b cookie.txt -c cookie.txt
 
 #### Get problem page count
 - description: get problem page count
+- access: is organization user
 - request: `Get /api/organization/:organizationId/problemSet/pageCount`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -820,6 +840,7 @@ $ curl -X GET -b cookie.txt -c cookie.txt
 
 #### Get a problem
 - description: get a desginated problem with given ID
+- access: is organization user
 - request: `Get /api/organization/:organizationId/problemSet/:problemID`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -850,6 +871,7 @@ $ curl -X GET -b cookie.txt -c cookie.txt
 
 #### Get a problem's data set
 - description: get desginated problem's data set with given ID
+- access: is organization user
 - request: `Get /api/organization/:organizationId/problemSet/:problemID/dataset`
     - Parameters:
       - organizationId: the organizationId of the user posting this problem
@@ -876,6 +898,7 @@ $ curl -X GET -b cookie.txt -c cookie.txt
 #### GET /api/organization/:organizationId/user/
 
 - description: get users of an organization
+- access: is organization user
 - request: `GET /api/organization/:organizationId/user/` 
     - query parameters
         - page: (int) page to retrieve, optional, default to 10
@@ -900,6 +923,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### GET /api/organization/:organizationId/user/:userId/
 
 - description: get a user
+- access: is organization user
 - request: `GET /api/organization/:organizationId/user/:userId/`   
 - response: 200
     - content-type: `application/json`
@@ -917,6 +941,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### PATCH /api/organization/:organizationId/user/:userId/
 
 - description: update a user
+- access: is the user himself/herself
 - request: `PATCH /api/organization/:organizationId/user/:userId/`   
     - content-type: `application/json`
     - body: object
@@ -949,6 +974,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/user/:userId/avatar/
 
 - description: get avatar of a user
+- access: is organization user
 - request: `GET /api/organization/:organizationId/user/:userId/avatar/`   
 - response: 200
     - content-type: mime type of the avatar
@@ -963,6 +989,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 #### PUT /api/organization/:organizationId/user/:userId/avatar/
 
 - description: create or update avatar of a user
+- access: is the user himself/herself
 - request: `PUT /api/organization/:organizationId/user/:userId/avatar/`
     - content-type: `multipart/form-data`
     - body: form elements
@@ -985,6 +1012,7 @@ $ curl -b cookie.txt -c cookie.txt \
 #### GET /api/organization/:organizationId/event/
 
 - description: get events of an organization
+- access: is the user himself/herself
 - request: `GET /api/organization/:organizationId/event/`  
     - query parameters:
         - page: (int) page to retrieve
@@ -1011,4 +1039,56 @@ $ curl -b cookie.txt -c cookie.txt \
             - time: (string) time the event happened
 ``` 
 $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/events/'
+```
+
+## Code Execution And Testing
+
+#### POST /api/run/:interviewId
+
+- description: Execute code and response with result
+- request: `POST /api/run/:interviewId`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - output: (string) the output of the program
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/run/606ba8f396cf3840a4692798'
+```
+
+#### POST /api/test/:interviewId/problem/:problemId
+
+- description: Run test on given problem and show result
+- request: `/api/test/:interviewId/problem/:problemId`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - result: (string) the result of the test (pass, fail or compiler error)
+      - msg: (string) additional message about the result
+- response: 500
+    - content-type: `text/plain`
+    - body: Data Inconsistent
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/test/606ba8f396cf3840a4692798/problem/605df608bfa5fb2020e5e324'
 ```

@@ -10,6 +10,9 @@ const javaRunner = require('../exec/java-runner');
 const javascriptRunner = require('../exec/javascript-runner');
 const typescriptRunner = require('../exec/typescript-runner');
 
+const isInterviewerOrCandidate = require('../access/isInterviewerOrCandidate');
+const isInterviewer = require('../access/isInterviewer');
+
 router.use('/:index', 
   [param('index', 'index should be non-negative integer').isInt({min:0})],
   handleValidationResult,
@@ -21,7 +24,7 @@ router.use('/:index',
   next();
 });
 
-router.patch('/:index/evaluation', 
+router.patch('/:index/evaluation', isInterviewer,
   [body('grade', 'grade should contain idx and value').optional().custom(value => {return value.idx !== undefined && value.value !== undefined;}),
   body('grade.idx', 'grade.idx should be non-negative integer').optional().isInt({min:0}),
   body('grade.value', 'grade.value should be non-negative integer').optional().isInt({min:0}),
@@ -57,7 +60,7 @@ const executor = {
   'typescript': typescriptRunner
 };
 
-router.route('/:index/run').post((req, res) => {
+router.route('/:index/run').post(isInterviewerOrCandidate, (req, res) => {
   const { language, code } = req.body;
   const interviewId = req.interview._id.toString();
 
@@ -75,7 +78,7 @@ function outputComparator(expected, actual) {
   return expected === actual;
 }
 
-router.route('/:index/test').post((req, res) => {
+router.route('/:index/test').post(isInterviewerOrCandidate, (req, res) => {
   const { language, code } = req.body;
   const interviewId = req.interview._id.toString();
   const dat = req.interviewProblem;

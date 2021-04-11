@@ -2,11 +2,7 @@
 /*global escape: true */
 
 const router = require('express').Router();
-const express = require('express');
 const problemSet = require('../model/problem-set.model').ProblemSet;
-const crypto = require('crypto');
-const cookie = require('cookie');
-const session = require('express-session');
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
 const { body, query, param } = require('express-validator');
@@ -263,8 +259,7 @@ router.route('/pageCount').get(isOrgUser, (req, res) => {
   });
 });
 
-
-router.route('/:pid').get(
+router.route('/:pid').get(isOrgUser,
   [param('pid', 'problem ID is neededand should be non-empty string').isString().notEmpty().escape(),],
 handleValidationResult,
   (req, res) => {
