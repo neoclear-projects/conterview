@@ -124,20 +124,6 @@ function Editor({
   };
 
   useEffect(() => {
-    let passcode = queryString.parse(location.search).passcode;
-    if (passcode && candidateAuthorization !== 'success') {
-      candidateLogin(interviewId, passcode, () => {
-        setCandidateAuthorization('success');
-      }, err => {
-        if (err.response.data === 'access denied') {
-          setCandidateAuthorization('failed');
-        }
-      });
-      return;
-    }
-
-    refreshState();
-
     peer.on('open', id => {
       console.log('peer connected');
       navigator.mediaDevices.getUserMedia({
@@ -230,6 +216,18 @@ function Editor({
 
       setId(id);
     });
+
+    let passcode = queryString.parse(location.search).passcode;
+    if (passcode && candidateAuthorization !== 'success') {
+      candidateLogin(interviewId, passcode, () => {
+        setCandidateAuthorization('success');
+      }, err => {
+        if (err.response.data === 'access denied') {
+          setCandidateAuthorization('failed');
+        }
+      });
+      return;
+    }
   }, []);
 
   let passcode = queryString.parse(location.search).passcode;
