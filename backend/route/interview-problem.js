@@ -116,7 +116,7 @@ router.route('/:index/test').post(isInterviewerOrCandidate, (req, res) => {
   Promise.all(promisedArray)
     .then(() => {
       // Mark this question as passsed
-      interview.problemsSnapshot[req.params.index].allPassed = allPassed;
+      interview.problemsSnapshot[req.params.index].allPassed = true;
       return res.json({ result: 'pass', message: 'Passed all tests' });
     })
     .catch(msg => {
