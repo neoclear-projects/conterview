@@ -1,6 +1,6 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
-import { PageHeader, Breadcrumb, Descriptions, Divider, Result, Avatar } from 'antd';
+import { PageHeader, Breadcrumb, Descriptions, Divider, Result, Avatar, message } from 'antd';
 import { Link } from 'react-router-dom';
 import { getInterview, deleteInterview } from '../../api/interview-api';
 import { Button, Header, List } from 'semantic-ui-react';
@@ -62,8 +62,21 @@ class InterviewItem extends React.Component {
     );
 
     let headerExtra = [];
-    if(this.state.interview.status !== 'finished'){
-      headerExtra.push(<Button color='green' onClick={() => this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`)}>Go for it</Button>);
+    if(this.state.interview.status !== 'finished' && this.state.interview.interviewers){
+      headerExtra.push(
+        <Button 
+          color='green' 
+          onClick={() => {
+            let isInterviewer = false;
+            this.state.interview.interviewers.forEach(interviewer => {
+              if(interviewer._id === localStorage.getItem('userId')) isInterviewer = true;
+            })
+            if(isInterviewer) this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`);
+            else message.info('You are not an interviewer of this interview');
+          }}
+        >
+          Go for it
+        </Button>);
     }
     if(this.state.interview.status === 'pending'){
       headerExtra.push(<Button color='blue' onClick={() => this.setEditIntModal(true)}>Edit Interview</Button>);
