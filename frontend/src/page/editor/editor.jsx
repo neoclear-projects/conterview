@@ -28,7 +28,7 @@ import {
 import { Terminal } from './terminal';
 import Video from '../../components/video/video';
 import Problem from './problem';
-import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, testsAllPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
+import { getInterviewState, interviewStart, interviewStop, runCode, testCode, testCompilerError, testFailed, testPassed, updateComment, updateCurrentQuestion, updateRubric } from '../../api/editor-api';
 import QuestionSelect from './question-select';
 import TextArea from 'antd/lib/input/TextArea';
 import errorLog from '../../components/error-log/error-log';
@@ -542,7 +542,6 @@ function Editor({
                 if (result === 'pass') {
                   testPassed(questions[curQuestionIdx].problemName);
                   socket.emit('pass', questions[curQuestionIdx].problemName);
-                  // testsAllPassed(positionId, interviewId, curQuestionIdx, refreshState, errorLog);
                 } else if (result === 'fail') {
                   testFailed(questions[curQuestionIdx].problemName);
                   socket.emit('fail', questions[curQuestionIdx].problemName);

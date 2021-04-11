@@ -117,7 +117,10 @@ router.route('/:index/test').post(isInterviewerOrCandidate, (req, res) => {
     .then(() => {
       // Mark this question as passsed
       interview.problemsSnapshot[req.params.index].allPassed = true;
-      return res.json({ result: 'pass', message: 'Passed all tests' });
+      interview.save((err, interview) => {
+        if (err) return res.status(500).send(err);
+        return res.json({ result: 'pass', message: 'Passed all tests' });
+      });
     })
     .catch(msg => {
       if (msg == null) return res.json({ result: 'fail', message: 'Failed to pass all tests' });
