@@ -34,9 +34,13 @@ class Profile extends React.Component {
 
   handleSubmit = () => {
     const { _id, username, email, department, title, personalStatement } = this.state;
+    this.setState({emailFormatErr: undefined});
     updateUser(_id, username, email, department, title, personalStatement,
       res => {
         message.info('Profile updated successfully');
+      },
+      err => {
+        if(err.response.data === 'email should be email formatted') this.setState({emailFormatErr: 'Invalid email address'});
       }
     );
   };
@@ -62,10 +66,10 @@ class Profile extends React.Component {
               <Form.Input
                 label='Email'
                 name='email'
-                type='email'
                 onChange={this.handleInputChange}
                 placeholder='Enter your email'
                 value={this.state.email}
+                error={this.state.emailFormatErr}
                 required
               />
               <Form.Input
@@ -106,7 +110,7 @@ class Profile extends React.Component {
           <Modal.Content>
             <ImgCrop shape='round'>
               <Upload
-                method='PATCH'
+                method='PUT'
                 name='avatar'
                 action={process.env.REACT_APP_SERVER+'/api/organization/'+window.localStorage.getItem('organizationId')+'/user/'+this.state._id+'/avatar'}
                 listType="picture-card"

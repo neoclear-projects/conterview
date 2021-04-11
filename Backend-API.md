@@ -22,20 +22,20 @@
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        organization is needed and should be non-empty string
-        passcode is needed and should be non-empty string
-        username is needed and should be non-empty string
-        password is needed and should be non-empty string
-        email is needed and should be email formatted
+        - organization is needed and should be non-empty string
+        - passcode is needed and should be non-empty string
+        - username is needed and should be non-empty string
+        - password is needed and should be non-empty string
+        - email is needed and should be email formatted
 - response: 404
     - content-type: `text/plain`
-    - body: organization ${organization name} does not exist
+    - body: organization does not exist
 - response: 401
     - content-type: `text/plain`
     - body: wrong passcode
 - response: 409
     - content-type: `text/plain`
-    - body: username ${username} already exists
+    - body: username already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X POST \
@@ -61,8 +61,8 @@ $ curl -b cookie.txt -c cookie.txt \
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        username is needed and should be non-empty string
-        password is needed and should be non-empty string
+        - username is needed and should be non-empty string
+        - password is needed and should be non-empty string
 - response: 401
     - content-type: `text/plain`
     - body: access denied
@@ -101,8 +101,8 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/auth/logout'
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        id invalid: interview
-        passcode is needed and should be non-empty string
+        - id invalid: interview
+        - passcode is needed and should be non-empty string
 - response: 401
     - content-type: `text/plain`
     - body: access denied
@@ -132,11 +132,11 @@ $ curl -b cookie.txt -c cookie.txt \
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        organization name is needed and should be non-empty string
-        organization passcode is needed and should be non-empty string
+        - organization name is needed and should be non-empty string
+        - organization passcode is needed and should be non-empty string
 - response: 409
     - content-type: `text/plain`
-    - body: organization ${name} already exists
+    - body: organization already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X POST \
@@ -173,8 +173,8 @@ $ curl -b cookie.txt -c cookie.txt \
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        position name is needed and should be non-empty string
-        position description is needed and should be non-empty string
+        - position name is needed and should be non-empty string
+        - position description is needed and should be non-empty string
 - response: 409
     - content-type: `text/plain`
     - body: position with this name already exists
@@ -191,7 +191,7 @@ $ curl -b cookie.txt -c cookie.txt \
 - description: get positions of an organization
 - request: `GET /api/organization/:organizationId/position/`   
     - query parameters:
-        - page: (int) page to retrieve
+        - page: (int) page to retrieve (optional) default to 1
         - nameContains: (string) only get position with name having nameContains (optional)
         - allFinished: (bool) only get position with all interviews finished (optional)
 - response: 200
@@ -207,9 +207,9 @@ $ curl -b cookie.txt -c cookie.txt \
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        page should be non-negative integer
-        nameContains should be non-empty string
-        allFinished should be boolean
+        - page should be non-negative integer
+        - nameContains should be non-empty string
+        - allFinished should be boolean
 ``` 
 $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/'
 ```
@@ -240,8 +240,11 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 - response: 400
     - content-type: `text/plain`
     - body: one of:
-        position name should be non-empty string
-        position description should be non-empty string
+        - position name should be non-empty string
+        - position description should be non-empty string
+- response: 409
+    - content-type: `text/plain`
+    - body: Position with this name already exists
 ``` 
 $ curl -b cookie.txt -c cookie.txt \
        -X PATCH \
@@ -268,7 +271,7 @@ $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8
 
 #### DELETE /api/organization/:organizationId/position/:positionId/
 
-- description: delete a position
+- description: delete a position and its interviews
 - request: `DELETE /api/organization/:organizationId/position/:positionId/`   
 - response: 200
     - content-type: `application/json`
@@ -284,9 +287,332 @@ $ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organiza
 
 ## INTERVIEW
 
+#### POST /api/organization/:organizationId/position/:positionId/interview/
+
+- description: create an interview and send email notification to candidate
+- request: `POST /api/organization/:organizationId/position/:positionId/interview/`   
+    - content-type: `application/json`
+    - body: object
+      - candidate: object
+        - name: (string) candidate name
+        - email: (string) candidate email
+      - problemIds: array of (string) problemIds
+      - interviewerIds: array of (string) interviewerIds
+      - scheduledTime: (string) scheduled starting time of the interview
+      - scheduledLength: (int) scheduled length of the interview in minutes
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the position
+      - the rest are the same as request body
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        - candidate name is needed and should be non-empty string
+        - candidate email is needed and should be email formatted
+        - problemIds is needed and cannot be empty
+        - problemIds should be valid objectIds
+        - interviewerIds is needed and cannot be empty
+        - interviewerIds should be valid objectIds
+        - scheduledTime is needed and should be in ISOString format
+        - scheduledLength is needed and should be positive integer
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"candidate":{"name":"Joe","email":"wow@haha.com"},"problemIds":["606ba8e296cf3840a4692796"],"interviewerIds":["606a8f1c5c10601d8ce3369f"],scheduledTime:"2011-10-05T14:48:00.000Z","scheduledLength":90}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/'
+```
+
+#### GET /api/organization/:organizationId/position/:positionId/interview/
+
+- description: get interviews of a position
+- request: `GET /api/organization/:organizationId/position/:positionId/interview/`   
+    - query parameters:
+        - page: (int) page to retrieve (optional) default to 1
+        - status: (string) only get interviews in this status
+- response: 200
+    - content-type: `application/json`
+    - body: array of object
+        - _id: (string) the id of the interview
+        - candidate: object
+            - name: (string) name of the candidate
+            - email: (string) email of the candidate
+        - scheduledTime: (string) scheduled starting time of the interview
+        - status: (string) the status of the interview
+        - totalGrade: (int) the total grade earned by candidate
+        - maxTotalGrade: (int) the maximum grade of the interview
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/'
+```
+
+#### ANY REQUEST START WITH /api/organization/:organizationId/position/:positionId/interview/:interviewId
+
+- response: 400
+    - content-type: `text/plain`
+    - body: id invalid: interview
+- response: 404
+    - content-type: `text/plain`
+    - body: interview #${interviewId} not found for position #${positionId}
+
+#### GET /api/organization/:organizationId/position/:positionId/interview/:interviewId/
+
+- description: get an interview
+- request: `GET /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
+    - query parameters:
+        - status: (string) only get interviews in this status
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - _id: (string) the id of the interview
+        - candidate: object
+            - name: (string) name of the candidate
+            - email: (string) email of the candidate
+        - problems: array of object
+            - _id: (string) id of the problem
+            - problemName: (string) name of the problem
+        - interviewers: array of object
+            - _id: (string) id of the interviewer
+            - username: (string) username of the interviewer
+            - email: (string) email of the interviewer
+            - department: (string) department of the interviewer
+            - title: (string) title of the interviewer
+            - personalStatement: (string) personal statement of the interviewer
+        - problemsSnapshot: array of object
+            - _id: (string) the problem's id
+            - problemName: (string) the problem's name
+            - description: (string) the problem's description
+            - StarterCodes: (Array) the problem's starter codes
+            - correctRate: (number) the problem's average correct rate by interviewees
+            - preferredLanguage: (string) the problem's most picked language by interviewees 
+            - problemInputSet: (Array) the problem's input data set
+            - problemOutputSet: (Array) the problem's output data set
+            - problemRubric: (Array) the problem's rubric
+            - comment: (string) interviewers comment on candidate's performance on this problem
+            - allPassed: (bool) whether all test cases are passed
+        - position: object
+            - _id: (string) id of the position
+            - name: (string) name of the position
+        - scheduledTime: (string) scheduled starting time of the interview
+        - startTime: (string) started time of the interview
+        - finishTime: (string) finished time of the interview
+        - status: (string) the status of the interview
+        - scheduledLength: (int) scheduled length of the interview in minutes
+        - currentProblemIndex: (int) current problem being presented for this interview
+        - totalGrade: (int) total grades earned by the candidate
+        - maxTotalGrade: (int) total grades set for this interview
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/'
+```
+
+#### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/
+
+- description: update an interview
+- request: `PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
+    - content-type: `application/json`
+    - body: object
+      - candidate: object
+        - name: (string) candidate name (optional)
+        - email: (string) candidate email (optional)
+      - problemIds: array of (string) problemIds (optional)
+      - interviewerIds: array of (string) interviewerIds (optional)
+      - scheduledTime: (string) scheduled starting time of the interview (optional)
+      - scheduledLength: (int) scheduled length of the interview in minutes (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the position
+      - the rest are the same as request body
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        - candidate name should be non-empty string
+        - candidate email should be email formatted
+        - problemIds cannot be empty
+        - problemIds should be valid objectIds
+        - interviewerIds cannot be empty
+        - interviewerIds should be valid objectIds
+        - scheduledTime should be in ISOString format
+        - scheduledLength should be positive integer
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"candidate":{"name":"Joe","email":"wow@haha.com"},"problemIds":["606ba8e296cf3840a4692796"],"interviewerIds":["606a8f1c5c10601d8ce3369f"],scheduledTime:"2011-10-05T14:48:00.000Z","scheduledLength":90}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/'
+```
+
+#### DELETE /api/organization/:organizationId/position/:positionId/interview/:interviewId/
+
+- description: delete an pending interview
+- request: `DELETE /api/organization/:organizationId/position/:positionId/interview/:interviewId/`   
+- response: 200
+    - content-type: `application/json`
+    - body: array of object
+        - _id: (string) the id of the interview
+        - candidate: object
+            - name: (string) name of the candidate
+            - email: (string) email of the candidate
+        - scheduledTime: (string) scheduled starting time of the interview
+        - status: (string) the status of the interview
+- response: 403
+    - content-type: `text/plain`
+    - body: cannot delete a non-pending interview
+``` 
+$ curl -b cookie.txt -c cookie.txt -X DELETE 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/'
+```
+
+#### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/status/
+
+- description: update the status and related fields of an interview
+- request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/status/`   
+    - content-type: `application/json`
+    - body: object
+      - status: (string) status to update to
+- response: 200
+    - content-type: `application/json`
+    - body: array of object
+        - _id: (string) the id of the interview
+        - candidate: object
+            - name: (string) name of the candidate
+            - email: (string) email of the candidate
+        - scheduledTime: (string) scheduled starting time of the interview
+        - status: (string) the status of the interview
+- response: 400
+    - content-type: `text/plain`
+    - body: status should be in running or finished
+- response: 403
+    - content-type: `text/plain`
+    - body: one of:
+        - can only set to running from pending
+        - can only set to finished from running
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X PATCH \
+       -H "Content-Type: application/json" \
+       -d '{"status":"running"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/status/'
+```
+
+#### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/
+
+- description: update the currenlt presented problem of an interview
+- request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/`   
+    - content-type: `application/json`
+    - body: object
+      - index: (int) index of problem to update to (optional)
+      - next: (bool) change to next problem (optional)
+      - prev: (bool) change to previous problem (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - _id: (string) the problem's id
+        - problemName: (string) the problem's name
+        - description: (string) the problem's description
+        - StarterCodes: (Array) the problem's starter codes
+        - correctRate: (number) the problem's average correct rate by interviewees
+        - preferredLanguage: (string) the problem's most picked language by interviewees 
+        - problemInputSet: (Array) the problem's input data set
+        - problemOutputSet: (Array) the problem's output data set
+        - problemRubric: (Array) the problem's rubric
+        - comment: (string) interviewers comment on candidate's performance on this problem
+        - allPassed: (bool) whether all test cases are passed
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        - index should be non-negative int
+        - next should be true
+        - prev should be true
+        - index or next or prev should be specified
+- response: 404
+    - content-type: `text/plain`
+    - body: no specified problem available
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X PATCH \
+       -H "Content-Type: application/json" \
+       -d '{"index":1}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/current-problem-index/'
+```
+
 ## INTERVIEW-PROBLEM
 
+#### ANY REQUEST START WITH /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/
+
+- response: 400
+    - content-type: `text/plain`
+    - body: index should be non-negative integer
+- response: 404
+    - content-type: `text/plain`
+    - body: problem index out of bound
+
+#### PATCH /api/organization/:organizationId/position/:positionId/interview/:interviewId/problem/:index/evaluation/
+
+- description: update the marks and comment of an interview problem
+- request: `POST /api/organization/:organizationId/position/:positionId/interview/:interviewId/current-problem-index/problem/:index/evaluation/`   
+    - content-type: `application/json`
+    - body: object
+      - grade: object (optional)
+        - idx: (int) index of grade to update
+        - value: (int) value of grade to update to
+      - comment: (string) comment to update to (optional)
+      - allPassed: (bool) update whether the candidate passes all test cases (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - problemRubric: object
+            - name: (string) name of the rubric
+            - desc: (string) desc of the rubric
+            - rating: (int) maximum mark of the rubric
+            - curRating: (int) current mark of the rubric
+        - allPassed: (bool) whether all test cases are passed
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        - grade should contain idx and value
+        - grade.idx should be non-negative integer
+        - grade.value should be non-negative integer
+        - comment should be valid string
+        - allPassed should be true
+- response: 404
+    - content-type: `text/plain`
+    - body: rubric index out of bound
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X PATCH \
+       -H "Content-Type: application/json" \
+       -d '{"comment":"good"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/position/606ba42096cf3840a469278a/interview/606ba8f396cf3840a4692798/problem/:index/evaluation/'
+```
+
 ## INTERVIEW-ALL-POSITION
+
+#### GET /api/organization/:organizationId/interview/
+
+- description: get interviews of an organization
+- request: `GET /api/organization/:organizationId/interview/`   
+    - query parameters:
+        - status: (string) only get interviews in this status (optional)
+        - page: (int) page to retrieve (optional) default to 1
+        - candidateContains: (string) only get interviews with candidate name having candidateContains (optional)
+        - positionContains: (string) only get interviews with position name having positionContains (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - totalPage: total number of pages matching query
+        - interviews: array of object
+            - _id: (string) the id of the interview
+            - position: object
+                - _id: id of the position
+                - name: name of the position
+            - candidate: object
+                - name: (string) name of the candidate
+                - email: (string) email of the candidate
+            - scheduledTime: (string) scheduled starting time of the interview
+            - status: (string) the status of the interview
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/interview/'
+```
 
 ## PROBLEM SET
 
@@ -547,4 +873,142 @@ $ curl -X GET -b cookie.txt -c cookie.txt
 
 ## USER
 
+#### GET /api/organization/:organizationId/user/
+
+- description: get users of an organization
+- request: `GET /api/organization/:organizationId/user/` 
+    - query parameters
+        - page: (int) page to retrieve, optional, default to 10
+- response: 200
+    - content-type: `application/json`
+    - body: array of object
+        - _id: (string) id of the user
+        - username: (string) username of the user
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/user/'
+```
+
+#### ANY REQUEST START WITH /api/organization/:organizationId/user/:userId/
+
+- response: 400
+    - content-type: `text/plain`
+    - body: id invalid: user
+- response: 404
+    - content-type: `text/plain`
+    - body: user #${userId} not found for organization #${organizationId}
+
+#### GET /api/organization/:organizationId/user/:userId/
+
+- description: get a user
+- request: `GET /api/organization/:organizationId/user/:userId/`   
+- response: 200
+    - content-type: `application/json`
+    - body: array of object
+        - _id: (string) id of the user
+        - username: (string) username of the user
+        - email: (string) email of the user
+        - department: (string) department of the user
+        - title: (string) title of the user
+        - personalStatement: (string) personal statement of the user
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/user/606a8f1c5c10601d8ce3369f/'
+```
+
+#### PATCH /api/organization/:organizationId/user/:userId/
+
+- description: update a user
+- request: `PATCH /api/organization/:organizationId/user/:userId/`   
+    - content-type: `application/json`
+    - body: object
+        - username: (string) the username of the user (optional)
+        - email: (string) the email of the user (optional)
+        - department: (string) department of the user (optional)
+        - title: (string) title of the user (optional)
+        - personalStatement: (string) personal statement of the user (optional)
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - _id: (string) the id of the user
+      - the rest are the same as request body
+- response: 400
+    - content-type: `text/plain`
+    - body: one of:
+        - username should be non-empty string
+        - email should be email formatted
+        - department should be valid string
+        - title should be valid string
+        - personalStatement should be valid string
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X PATCH \
+       -H "Content-Type: application/json" \
+       -d '{"username":"Joe"}' \
+       'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/user/606a8f1c5c10601d8ce3369f/'
+```
+
+#### GET /api/organization/:organizationId/user/:userId/avatar/
+
+- description: get avatar of a user
+- request: `GET /api/organization/:organizationId/user/:userId/avatar/`   
+- response: 200
+    - content-type: mime type of the avatar
+    - body: the avatar file
+- response: 404
+    - content-type: `text/plain`
+    - body: avatar of user #${userId} does not exist
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/user/606a8f1c5c10601d8ce3369f/avatar/'
+```
+
+#### PUT /api/organization/:organizationId/user/:userId/avatar/
+
+- description: create or update avatar of a user
+- request: `PUT /api/organization/:organizationId/user/:userId/avatar/`
+    - content-type: `multipart/form-data`
+    - body: form elements
+      - avatar: (file) the avatar file
+- response: 200
+    - content-type: `text/plain`
+    - body: 'avatar changed successfully'
+
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: multipart/form-data" \
+       -F 'title=myTitle' \
+       -F 'file=@myFile.png' \
+       'http://localhost:3000/api/galleries/myUsername/images/'
+```
+
 ## EVENT
+
+#### GET /api/organization/:organizationId/event/
+
+- description: get events of an organization
+- request: `GET /api/organization/:organizationId/event/`  
+    - query parameters:
+        - page: (int) page to retrieve
+- response: 200
+    - content-type: `application/json`
+    - body: object
+        - totalPage: total number of pages queried
+        - events: array of object
+            - user: object
+                - _id: (string) id of the user
+                - username: (string) username of the user
+                - email: (string) email of the user
+                - department: (string) department of the user
+                - title: (string) title of the user
+                - personalStatement: (string) personal statement of the user 
+            - action: (string) action taken, in create, update, delete
+            - itemType: (string) item type in position, interview, problem
+            - item1: object presenting the position, interview or problem
+                - _id: (string) id of the item
+                - name: (string) name of the item
+            - item2: object only used for interview to present position
+                - _id: (string) id of the item
+                - name: (string) name of the item
+            - time: (string) time the event happened
+``` 
+$ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/events/'
+```

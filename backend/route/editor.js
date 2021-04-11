@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports.listen = server => {
   /**
    * Just for simplicity

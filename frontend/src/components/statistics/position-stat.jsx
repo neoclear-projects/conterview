@@ -1,6 +1,7 @@
 import React from 'react';
 import PageWrap from '../header/page-wrap';
 import { getInterviews } from '../../api/interview-api';
+import { getPosition } from '../../api/position-api';
 import { Bar } from 'react-chartjs-2';
 import { PageHeader, Breadcrumb, Statistic } from 'antd';
 import { Link } from 'react-router-dom';
@@ -11,12 +12,18 @@ class PositionStat extends React.Component {
     super(props);
     this.state = {
       loading:true,
-      interviews:{},
+      position:{},
+      interviews:[],
     }
-    getInterviews(this.props.match.params.positionId, '', 'finished', res => {
-      this.state.interviews = res.data.sort((i1,i2) => {return i2.totalGrade - i1.totalGrade});
-      this.setState({loading: false});
+    
+    getPosition(this.props.match.params.positionId, '', res => {
+      this.state.position = res.data;
+      getInterviews(this.props.match.params.positionId, '', 'finished', res => {
+        this.state.interviews = res.data.sort((i1,i2) => {return i2.totalGrade - i1.totalGrade});
+        this.setState({loading: false});
+      });
     });
+    
   } 
 
   render() {
@@ -31,7 +38,7 @@ class PositionStat extends React.Component {
           <Link to='/position'>Position</Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
-          <Link to={`/position/${this.props.match.params.positionId}`}>{this.state.interviews[0].position.name}</Link>
+          <Link to={`/position/${this.props.match.params.positionId}`}>{this.state.position.name}</Link>
         </Breadcrumb.Item>
         <Breadcrumb.Item>
           Statistics
@@ -56,7 +63,7 @@ class PositionStat extends React.Component {
 
     let tableContent = this.state.interviews.map(interview => {
       return (
-        <Table.Row onClick={()=>{this.props.history.push('/position/'+interview.position._id+'/interview/'+interview._id+'/statistics')}}>
+        <Table.Row onClick={()=>{this.props.history.push('/position/'+this.state.position._id+'/interview/'+interview._id+'/statistics')}}>
           <Table.Cell width='3'><Header style={{marginLeft:'10px'}}>{interview.candidate.name}</Header></Table.Cell>
           <Table.Cell width='1'><Statistic value={interview.totalGrade} suffix={'/ ' + interview.maxTotalGrade} /></Table.Cell>
         </Table.Row>
@@ -66,7 +73,7 @@ class PositionStat extends React.Component {
     return (
       <PageWrap selected='statistics'>
         <PageHeader
-          title={this.state.interviews[0].position.name}
+          title={this.state.position.name}
           subTitle='Statistics'
           style={{backgroundColor:'white',marginTop:'5px'}}
           breadcrumbRender = {() => routes}

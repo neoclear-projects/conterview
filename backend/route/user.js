@@ -1,21 +1,34 @@
+"use strict";
+
 const router = require('express').Router();
 const User = require('../model/user.model');
 const multer  = require('multer');
 const path  = require('path');
 const isOrgUser = require('../access/isOrgUser');
 const ObjectId = require('mongoose').Types.ObjectId;
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
 
-router.get('/', isOrgUser, (req, res) => {
-  User.find({organizationId:req.organization._id}, req.fields).exec((err, users) => {
+router.get('/', isOrgUser, 
+  [query('page', 'page should be non-negative integer').optional().isInt({min:1}),
+  query('usernameContains', 'usernameContains should be non-empty string').isString().notEmpty().escape()],
+  handleValidationResult,
+  (req, res) => {
+  let { page, usernameContains } = req.query;
+  let query = {organizationId:req.organization._id};
+  if(usernameContains) query.username = { "$regex": usernameContains, "$options": "i" };
+  if(!page) page = 1;
+  User
+    .find(query, 'username')
+    .skip((page-1)*10).limit(10)
+    .exec((err, users) => {
     if (err) return res.status(500).send(err);
     return res.json(users);
   });
 });
 
 router.use('/:userId', 
-  [param('userId', 'id invalid: user').custom((value) => {return ObjectId.isValid(value)})],
+  [param('userId', 'id invalid: user').custom((value) => {return ObjectId.isValid(value);})],
   handleValidationResult,
   (req, res, next) => {
   if(!ObjectId.isValid(req.params.userId)) return res.status(400).send('id invalid: user');
@@ -28,7 +41,7 @@ router.use('/:userId',
 });
 
 router.get('/:userId', isOrgUser, (req, res) => {
-  User.findOne({_id:req.user._id}).exec((err, user) => {
+  User.findOne({_id:req.user._id}, 'username email department title personalStatement').exec((err, user) => {
     if (err) return res.status(500).send(err);
     return res.json(user);
   });
@@ -56,14 +69,15 @@ router.patch('/:userId', isOrgUser,
   const { username, email, department, title, personalStatement } = req.body;
   User.findOneAndUpdate({_id:req.user._id}, { $set: { username, email, department, title, personalStatement } }, { returnOriginal: false }, (err, user) => {
     if (err) return res.status(500).send(err);
-    return res.json(user);
+    const { _id, username, email, department, title, personalStatement } = user;
+    return res.json({ _id, username, email, department, title, personalStatement });
   });
 });
 
-router.patch('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
-  User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err, user) => {
+router.put('/:userId/avatar', isOrgUser, multer({ dest: 'uploads/avatar' }).single('avatar'), (req, res) => {
+  User.findOneAndUpdate({_id:req.user._id}, { $set: {avatar: req.file} }, { returnOriginal: false }, (err) => {
     if (err) return res.status(500).send(err);
-    return res.json(user);
+    return res.send('avatar changed successfully');
   });
 });
 

@@ -1,3 +1,5 @@
+"use strict";
+
 const router = require('express').Router();
 const Event = require('../model/event.model');
 const isOrgUser = require('../access/isOrgUser');
@@ -12,7 +14,7 @@ router.get('/', isOrgUser,
   Event.find({organizationId:req.organization._id})
     .sort({time:-1})
     .skip((page-1)*5).limit(5)
-    .populate({path:'user'})
+    .populate({path:'user', select:'username email department title personalStatement'})
     .exec((err, events) => {
     if (err) return res.status(500).send(err);
     Event.countDocuments({organizationId:req.organization._id}, (err, count) => {

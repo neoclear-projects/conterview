@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = (req, res, next) => {
   if (!req.session.user || req.session.user.type !== 'orgUser')
     return res.status(401).end('need to login as organization user');

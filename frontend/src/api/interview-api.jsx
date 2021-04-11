@@ -25,7 +25,7 @@ export function getInterviews(positionId, fields, status, onSuccess){
 export function getInterview(positionId, interviewId, fields, onSuccess, onError){
 	let params = {};
 	if(fields) params.fields = fields;
-	req.get('organization/'+window.localStorage.getItem('organizationId')+'/position/'+positionId+'/interview/'+interviewId, { params }).then(onSuccess).catch(onError);
+	req.get('organization/'+window.localStorage.getItem('organizationId')+'/position/'+positionId+'/interview/'+interviewId, { params }).then(res => {console.log(res.data);onSuccess(res)}).catch(onError);
 }
 
 export function updateInterview(positionId, interviewId, candidateName, candidateEmail, scheduledTime, scheduledLength, interviewerIds, problemIds, onSuccess, onError){

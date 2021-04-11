@@ -1,3 +1,5 @@
+"use strict";
+
 const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
@@ -49,7 +51,7 @@ app.use((req, res, next) => {
     req.fields = {};
     req.query.fields.split(",").forEach(field => {
       req.fields[field] = 1;
-    })
+    });
   }
   next();
 });

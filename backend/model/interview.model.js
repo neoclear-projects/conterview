@@ -1,7 +1,10 @@
+"use strict";
+
 const mongoose = require('mongoose');
 const ProblemSetSchema = require('./problem-set.model').ProblemSetSchema;
 
 const Schema = mongoose.Schema;
+
 const ObjectId = Schema.ObjectId;
 
 const InterviewSchema = new Schema({

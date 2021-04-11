@@ -1,3 +1,5 @@
+"use strict";
+
 const { validationResult } = require('express-validator');
 
 function handleValidationResult (req, res, next) {
@@ -7,6 +9,6 @@ function handleValidationResult (req, res, next) {
     return res.status(400).send(result.errors[0].msg);
   }
   next();
-};
+}
 
 module.exports = handleValidationResult;
