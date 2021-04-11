@@ -57,12 +57,10 @@ app.use((req, res, next) => {
 });
 
 const auth = require('./route/auth');
-const exec = require('./route/exec');
 const organization = require('./route/organization');
 const problemSet = require('./route/problem-set');
 
 app.use('/api/auth', auth);
-app.use('/api/exec', exec);
 app.use('/api/organization', organization);
 app.use('/api/problemSet', problemSet);
 

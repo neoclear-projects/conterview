@@ -10,6 +10,8 @@ const crypto = require('crypto');
 const ObjectId = require('mongoose').Types.ObjectId;
 const { body, param, query } = require('express-validator');
 const handleValidationResult = require('../util/validation-result');
+const isOrgUserOrCandidate = require('../access/isOrgUserOrCandidate');
+const isInterviewer = require('../access/isInterviewer');
 
 function event(action, req, interview, position){
   return {
@@ -124,7 +126,7 @@ router.use('/:interviewId',
   });
 });
 
-router.get('/:interviewId', (req, res) => {
+router.get('/:interviewId', isOrgUserOrCandidate, (req, res) => {
   Interview
     .findOne({_id:req.interview._id})
     .populate({path:'position', select:'name'})
@@ -183,7 +185,7 @@ router.delete('/:interviewId', isOrgUser, (req, res) => {
   });
 });
 
-router.patch('/:interviewId/status', isOrgUser, 
+router.patch('/:interviewId/status', isInterviewer, 
   [body('status', 'status should be in running or finished').isIn(['running', 'finished'])],
   handleValidationResult,
   (req, res) => {
@@ -230,7 +232,7 @@ router.patch('/:interviewId/status', isOrgUser,
   }
 });
 
-router.patch('/:interviewId/current-problem-index', isOrgUser, 
+router.patch('/:interviewId/current-problem-index', isInterviewer, 
   [body('index', 'index should be non-negative int').optional().isInt({min:0}),
   body('next', 'next should be true').optional().custom(value => {return value == true;}),
   body('prev', 'prev should be true').optional().custom(value => {return value == true;})],
