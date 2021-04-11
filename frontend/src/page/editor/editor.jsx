@@ -163,7 +163,8 @@ function Editor({
             conn.on('data', dat => {
               console.log('Data: ' + dat);
               if (initializing) {
-                monacoRef.current.editor.getModels()[0].setValue(dat);
+                if (!passcode && candidateAuthorization === 'success')
+                  monacoRef.current.editor.getModels()[0].setValue(dat);
                 initializing = false;
               }
             });
@@ -371,7 +372,10 @@ function Editor({
               closeIcon
               open={rubricVisible}
               trigger={<Button color='facebook'>Rubric</Button>}
-              onClose={() => setRubricVisible(false)}
+              onClose={() => {
+                setRubricVisible(false);
+                
+              }}
               onOpen={() => setRubricVisible(true)}
             >
               <Modal.Header>Sliding Window</Modal.Header>
@@ -408,7 +412,7 @@ function Editor({
                 placeholder='Comments'
                 defaultValue={questions[curQuestionIdx] ? questions[curQuestionIdx].comment : null}
                 onChange={e => {
-                  updateComment(positionId, interviewId, curQuestionIdx, e.target.innerHTML, refreshState, errorLog);
+                  updateComment(positionId, interviewId, curQuestionIdx, e.target.value, refreshState, errorLog);
                   socket.emit('refresh');
                 }}
               />
