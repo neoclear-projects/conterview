@@ -62,7 +62,7 @@ class InterviewItem extends React.Component {
     );
 
     let headerExtra = [];
-    if(this.state.interview.status !== 'finished' && this.state.interview.interviewers){
+    if(this.state.interview.status !== 'finished'){
       headerExtra.push(
         <Button 
           color='green' 
