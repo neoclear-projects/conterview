@@ -81,7 +81,7 @@ router.route('/register').post(
 
 router.route('/candidate-login').post(
   [body('interviewId', 'id invalid: interview').custom((value) => {return ObjectId.isValid(value);}),
-  body('passcode', 'passcode is needed and should be non-empty string').isString().notEmpty().escape()],
+  body('passcode', 'passcode is needed and should be non-empty string').isString().notEmpty()],
   handleValidationResult,
   (req, res) => {
   const { interviewId, passcode } = req.body;

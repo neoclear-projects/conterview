@@ -126,6 +126,7 @@ function Editor({
           return;
         }
       });
+      return;
     }
 
     refreshState();
@@ -226,6 +227,7 @@ function Editor({
   }, []);
 
   let passcode = queryString.parse(location.search).passcode;
+  console.log(passcode);
   switch (candidateAuthorization) {
     case '':
       if(passcode) return <Spin/>;

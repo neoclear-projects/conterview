@@ -79,7 +79,7 @@ router.post('/', isOrgUser,
       `
         <p>Congratulations! You received an interview for ${req.position.name} position at ${req.organization.name}</p>
         <p>The interview is scheduled at ${interview.scheduledTime.toUTCString()} on Conterview:</p>
-        <p>https://www.conterview.com/position/${req.position._id}/interview/${interview._id}/running?passcode=${passcode}</p>
+        <p>https://www.conterview.com/position/${req.position._id}/interview/${interview._id}/running?passcode=${encodeURIComponent(passcode)}</p>
       `
     );
     new Event(event('create', req, interview, req.position)).save(err => {if(err) return res.status(500).send(err);});
