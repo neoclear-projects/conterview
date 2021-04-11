@@ -1012,3 +1012,55 @@ $ curl -b cookie.txt -c cookie.txt \
 ``` 
 $ curl -b cookie.txt -c cookie.txt 'http://localhost:3001/api/organization/606a8f165c10601d8ce3369e/events/'
 ```
+
+## Code Execution And Testing
+
+#### POST /api/run/:interviewId
+
+- description: Execute code and response with result
+- request: `POST /api/run/:interviewId`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - output: (string) the output of the program
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/run/606ba8f396cf3840a4692798'
+```
+
+#### POST /api/test/:interviewId/problem/:problemId
+
+- description: Run test on given problem and show result
+- request: `/api/test/:interviewId/problem/:problemId`
+    - content-type: `application/json`
+    - body: object
+      - language: (string) the language of the code
+      - code: (string) the code to execute
+- response: 200
+    - content-type: `application/json`
+    - body: object
+      - result: (string) the result of the test (pass, fail or compiler error)
+      - msg: (string) additional message about the result
+- response: 500
+    - content-type: `text/plain`
+    - body: Data Inconsistent
+- response: 404
+    - content-type: `text/plain`
+    - body: Language not found
+``` 
+$ curl -b cookie.txt -c cookie.txt \
+       -X POST \
+       -H "Content-Type: application/json" \
+       -d '{"language":"python", "code": "print(2333)"}' \
+       'http://localhost:3001/api/test/606ba8f396cf3840a4692798/problem/605df608bfa5fb2020e5e324'
+```
