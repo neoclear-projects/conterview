@@ -1,4 +1,5 @@
 "use strict";
+/*global escape: true */
 
 const router = require('express').Router();
 const express = require('express');
@@ -17,7 +18,7 @@ const Languages = [
   "Python",
   "JavaScript",
   "TypeScript"
-]
+];
 
 const Limiter = 10;
 
@@ -93,14 +94,14 @@ router.route('/').put(isOrgUser,
   problemSet.findOne({ _id: ID, belongingOrgId: req.organization._id }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
-      return res.status(404).send("Given problem ID does not exist!")
+      return res.status(404).send("Given problem ID does not exist!");
     }
     else {
       var SaveName = doc.problemName;
       var SaveID = doc._id;
       problemSet.updateOne({ _id: ID, belongingOrgId: req.organization._id }, {
         belongingUserId: req.session.user._id,
-        problemName: problemName == undefined ? escape(doc.problemName) : escape(problemName),
+        problemName: problemName == undefined ? doc.problemName : problemName,
         description: description == undefined ? doc.description : description,
         starterCodes: StarterCodes == undefined ? doc.starterCodes : StarterCodes,
         correctRate: correctRate == undefined ? doc.correctRate : correctRate,
@@ -131,13 +132,13 @@ function BatchRecursive(subset, req, res) {
     return res.status(200).send("Successfully updated batch!");
   }
   else {
-    singleProblem = subset[0];
+    var singleProblem = subset[0];
     problemSet.findOne({ _id: singleProblem.ID, belongingOrgId: req.organization._id }, function (err, doc) {
       if (err) { console.log(`${err}`); return res.status(500).send(err); }
       if (doc) {
         problemSet.updateOne({ _id: singleProblem.ID, belongingOrgId: req.organization._id }, {
           correctRate: singleProblem.correctRate == undefined ? doc.correctRate : singleProblem.correctRate,
-          problemName: singleProblem.problemName == undefined ? escape(doc.problemName) : escape(singleProblem.problemName),
+          problemName: singleProblem.problemName == undefined ? doc.problemName : singleProblem.problemName,
           description: singleProblem.description == undefined ? doc.description : singleProblem.description,
           starterCodes: singleProblem.StarterCodes == undefined ? doc.starterCodes : singleProblem.StarterCodes,
           preferredLanguage: singleProblem.preferredLanguage == undefined ? doc.preferredLanguage : singleProblem.preferredLanguage,
@@ -186,7 +187,7 @@ handleValidationResult,
   problemSet.findOne({ _id: ID }, function (err, doc) {
     if (err) { return res.status(500).send(err); }
     if (!doc) {
-      return res.status(202).send("This problem ID does not exist.")
+      return res.status(202).send("This problem ID does not exist.");
     }
     else {
       var SaveName = doc.problemName;
@@ -217,14 +218,14 @@ router.route('/').get(isOrgUser, (req, res) => {
     problemSet.find({ belongingOrgId: req.organization._id }, function (err, doc) {
       if (err) {console.log(err); return res.status(500).send(err);}
       if (!doc) {
-        return res.status(404).send("User's problem set does not exist!")
+        return res.status(404).send("User's problem set does not exist!");
       }
       else {
         var DocNew = [];
         var re = new RegExp(ContextQuery);
         doc.forEach(element => {
           if(re.test(element._id) || re.test(element.problemName) || re.test(element.description)){
-            DocNew.push(element)
+            DocNew.push(element);
           }
         });
         return res.json(DocNew);
@@ -237,14 +238,14 @@ router.route('/').get(isOrgUser, (req, res) => {
     problemSet.find({ belongingOrgId: req.organization._id }).skip((PageNum-1) * Limiter).limit(Limiter).exec((err, doc) => {
       if (err) {console.log(err); return res.status(500).send(err);}
       if (!doc) {
-        return res.status(404).send("User's problem set does not exist!")
+        return res.status(404).send("User's problem set does not exist!");
       }
       else {
         var DocNew = [];
         var re = new RegExp(ContextQuery);
         doc.forEach(element => {
           if(re.test(element._id) || re.test(element.problemName) || re.test(element.description)){
-            DocNew.push(element)
+            DocNew.push(element);
           }
         });
         return res.json(DocNew);
