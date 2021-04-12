@@ -223,7 +223,6 @@ function Editor({
     let passcode = queryString.parse(location.search).passcode;
     if (passcode && candidateAuthorization !== 'success') {
       candidateLogin(interviewId, passcode, () => {
-        setupConnections();
         setCandidateAuthorization('success');
       }, err => {
         if (err.response.data === 'access denied') {
