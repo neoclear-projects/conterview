@@ -71,7 +71,7 @@ class InterviewItem extends React.Component {
             this.state.interview.interviewers.forEach(interviewer => {
               if(interviewer._id === localStorage.getItem('userId')) isInterviewer = true;
             })
-            if(isInterviewer) this.props.history.push(`/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`);
+            if(isInterviewer) window.location.href = `/position/${this.props.match.params.positionId}/interview/${this.props.match.params.interviewId}/running`;
             else message.info('You are not an interviewer of this interview');
           }}
         >

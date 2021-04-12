@@ -124,10 +124,106 @@ function Editor({
     }, errorLog);
   };
 
+  const setupConnections = () => {
+    peer.on('open', id => {
+      console.log('peer connected');
+      navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true
+      }).then(stream => {
+        socket.emit('join', id, interviewId);
+
+        console.log('stream acquired');
+  
+        peer.on('call', call => {
+          call.answer(stream);
+          call.on('stream', (newStream) => {
+            streamsRef.current.set(call.peer, {
+              stream: newStream,
+              visibility: true
+            });
+            setStreams(new Map(streamsRef.current));
+          })
+        });
+  
+        peer.on('connection', conn => {
+          conn.on('open', () => {
+            conn.on('data', dat => {
+              console.log('Data: ' + dat);
+              if (initializing) {
+                if (monacoRef.current !== null)
+                  monacoRef.current.editor.getModels()[0].setValue(dat);
+                initializing = false;
+              }
+            });
+          });
+        });
+  
+        socket.on('user-conn', userId => {
+          console.log('New user: ' + userId);
+  
+          const call = peer.call(userId, stream);
+          call.on('stream', newStream => {
+            streamsRef.current.set(call.peer, {
+              stream: newStream,
+              visibility: true
+            });
+            setStreams(new Map(streamsRef.current));
+          });
+          
+  
+          const conn = peer.connect(userId);
+          conn.on('open', () => {
+            const editorContent = monacoRef.current.editor.getModels()[0].getValue();
+  
+            conn.send(editorContent);
+            console.log('Sent: ' + editorContent);
+          })
+        });
+  
+        socket.on('stream-open', userId => {
+          streamsRef.current.get(userId).visibility = true;
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('stream-close', userId => {
+          streamsRef.current.get(userId).visibility = false;
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('user-disconn', userId => {
+          streamsRef.current.delete(userId);
+          setStreams(new Map(streamsRef.current));
+        });
+  
+        socket.on('refresh', () => {
+          refreshState();
+          console.log('refreshed');
+        });
+
+        socket.on('pass', probName => {
+          refreshState();
+          testPassed(probName);
+        });
+
+        socket.on('fail', probName => testFailed(probName));
+
+        socket.on('cperror', msg => testCompilerError(msg));
+
+        socket.on('output', o => setOutput(o));
+
+        setMyStream(stream);
+      });
+
+      setId(id);
+    });
+  };
+
   useEffect(() => {
     let passcode = queryString.parse(location.search).passcode;
     if (passcode && candidateAuthorization !== 'success') {
       candidateLogin(interviewId, passcode, () => {
+        setupConnections();
         setCandidateAuthorization('success');
       }, err => {
         if (err.response.data === 'access denied') {
@@ -139,99 +235,7 @@ function Editor({
 
     if(!prepared.current){
       refreshState();
-
-      peer.on('open', id => {
-        console.log('peer connected');
-        navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true
-        }).then(stream => {
-          socket.emit('join', id, interviewId);
-
-          console.log('stream acquired');
-    
-          peer.on('call', call => {
-            call.answer(stream);
-            call.on('stream', (newStream) => {
-              streamsRef.current.set(call.peer, {
-                stream: newStream,
-                visibility: true
-              });
-              setStreams(new Map(streamsRef.current));
-            })
-          });
-    
-          peer.on('connection', conn => {
-            conn.on('open', () => {
-              conn.on('data', dat => {
-                console.log('Data: ' + dat);
-                if (initializing) {
-                  if (monacoRef.current !== null)
-                    monacoRef.current.editor.getModels()[0].setValue(dat);
-                  initializing = false;
-                }
-              });
-            });
-          });
-    
-          socket.on('user-conn', userId => {
-            console.log('New user: ' + userId);
-    
-            const call = peer.call(userId, stream);
-            call.on('stream', newStream => {
-              streamsRef.current.set(call.peer, {
-                stream: newStream,
-                visibility: true
-              });
-              setStreams(new Map(streamsRef.current));
-            });
-            
-    
-            const conn = peer.connect(userId);
-            conn.on('open', () => {
-              const editorContent = monacoRef.current.editor.getModels()[0].getValue();
-    
-              conn.send(editorContent);
-              console.log('Sent: ' + editorContent);
-            })
-          });
-    
-          socket.on('stream-open', userId => {
-            streamsRef.current.get(userId).visibility = true;
-            setStreams(new Map(streamsRef.current));
-          });
-    
-          socket.on('stream-close', userId => {
-            streamsRef.current.get(userId).visibility = false;
-            setStreams(new Map(streamsRef.current));
-          });
-    
-          socket.on('user-disconn', userId => {
-            streamsRef.current.delete(userId);
-            setStreams(new Map(streamsRef.current));
-          });
-    
-          socket.on('refresh', () => {
-            refreshState();
-            console.log('refreshed');
-          });
-
-          socket.on('pass', probName => {
-            refreshState();
-            testPassed(probName);
-          });
-
-          socket.on('fail', probName => testFailed(probName));
-
-          socket.on('cperror', msg => testCompilerError(msg));
-
-          socket.on('output', o => setOutput(o));
-
-          setMyStream(stream);
-        });
-
-        setId(id);
-      });
+      setupConnections();
     }
     prepared.current = true;
   });
