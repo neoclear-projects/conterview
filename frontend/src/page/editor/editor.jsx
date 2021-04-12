@@ -102,7 +102,7 @@ function Editor({
   const [questions, setQuestions] = useState([]);
   const [curQuestionIdx, setCurQuestionIdx] = useState(-1);
   const [candidateAuthorization, setCandidateAuthorization] = useState('');
-  const [prepared, setPrepared] = useState(false);
+  const prepared = useRef(false);
 
   const positionId = match.params.positionId;
   const interviewId = match.params.interviewId;
@@ -137,7 +137,7 @@ function Editor({
       return;
     }
 
-    if(!prepared){
+    if(!prepared.current){
       refreshState();
 
       peer.on('open', id => {
@@ -233,7 +233,7 @@ function Editor({
         setId(id);
       });
     }
-    setPrepared(true);
+    prepared.current = true;
   });
 
   let passcode = queryString.parse(location.search).passcode;
