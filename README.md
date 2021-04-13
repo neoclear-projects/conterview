@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://github.com/tiafs/conterview">
-    <img src="frontend/src/static/images/logo-dashboard.png" alt="Logo">
+    <img src="frontend/src/static/images/logo.jpg" alt="Logo">
   </a>
 
   <p align="center" style="font-size: 18px">
