@@ -3,10 +3,7 @@
     <img src="frontend/src/static/images/logo-dashboard.png" alt="Logo">
   </a>
 
-
-  <h1 align="center">Conterview</h1>
-
-  <p align="center">
+  <p align="center" style="font-size: 18px">
     This is Conterview, a website for continuous coding interview conduction. Recruiters are allowed to create, conduct and manage coding interviews on conterview.
     <br/>
     <br/>
@@ -91,12 +88,6 @@
 
 <p align="center">
   <img src="images/statistics.png" alt="Logo">
-</p>
-
-- ### Home Page / Recent Events
-
-<p align="center">
-  <img src="images/home.png" alt="Logo">
 </p>
 
 - ### List Interviews
